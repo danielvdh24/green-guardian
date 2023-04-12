@@ -1,16 +1,14 @@
 <p align="center">
-  <a href="https://lh3.googleusercontent.com">
     <img src="https://lh3.googleusercontent.com/drive-viewer/AAOQEORdeNRxnDdoNhpoXHpixcNAHykfs6Rtt5fGw9i4NJG0udJj1ZsHfx9MEzVZzlMIpI4AWnDi26PKOhzK9F-dLpkFVae-Iw=s1600" height="300px">
-  </a>
 </p>
 
 A state-of-the-art plant health monitoring system that enables plant owners to keep track of their plant's vital signs and health conditions. **Green Guardian** integrates a range of high-quality sensors, including moisture, light, and temperature sensors, to provide accurate information about the plant's environment.
 
-# Getting Started
+# Getting Started :seedling:
 
 Before getting started, make sure you have all the required components listed below. You will also need multiple jumper wires to connect the components together.
 
-## Required Components
+## Required Components :electric_plug:
 
 - Arduino Wio Seed Terminal [:link:](https://wiki.seeedstudio.com/Wio-Terminal-Getting-Started/)
 - GROVE Light Sensor [:link:](https://wiki.seeedstudio.com/Grove-Light_Sensor/)
@@ -27,15 +25,15 @@ LEDs are not required to be of the same color.
 
 Refer to the [Pin Layout](Pin Layout) to configure your system!
 
-## System Installation
+## System Installation :wrench:
 
 (too early right now!)
 
-## Documentation
+## Documentation :notebook:
 
 You can find our documentation on our [Wiki](home).
 
-## Contributers
+## Contributers :bow:
 
 <table>
   <tr>
@@ -48,7 +46,7 @@ You can find our documentation on our [Wiki](home).
     </tr>
 </table>
 
-## Thanks
+## Thanks :star:
 
-A big thank you to our [instructor](@francisco.gomes) for providing this course and giving us the opportunity to work with sensors!
+A big thank you to our [instructor](@francisco.gomes) for providing this course and giving us the opportunity to work with high quality sensors! :pray: 
 
