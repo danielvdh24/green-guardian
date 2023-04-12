@@ -1,6 +1,6 @@
-<p align="center">
-    <img src="https://lh3.googleusercontent.com/drive-viewer/AAOQEORdeNRxnDdoNhpoXHpixcNAHykfs6Rtt5fGw9i4NJG0udJj1ZsHfx9MEzVZzlMIpI4AWnDi26PKOhzK9F-dLpkFVae-Iw=s1600" height="400px">
-</p>
+<div align="center">
+    <img src="https://lh3.googleusercontent.com/drive-viewer/AAOQEORdeNRxnDdoNhpoXHpixcNAHykfs6Rtt5fGw9i4NJG0udJj1ZsHfx9MEzVZzlMIpI4AWnDi26PKOhzK9F-dLpkFVae-Iw=s1600" height="370px">
+</div>
 
 A state-of-the-art plant health monitoring system that enables plant owners to keep track of their plant's vital signs and health conditions. **Green Guardian** integrates a range of high-quality sensors, including moisture, light, and temperature sensors, to provide accurate information about the plant's environment.
 
