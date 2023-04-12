@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://lh3.googleusercontent.com/drive-viewer/AAOQEORdeNRxnDdoNhpoXHpixcNAHykfs6Rtt5fGw9i4NJG0udJj1ZsHfx9MEzVZzlMIpI4AWnDi26PKOhzK9F-dLpkFVae-Iw=s1600" height="300px">
+    <img src="https://lh3.googleusercontent.com/drive-viewer/AAOQEORdeNRxnDdoNhpoXHpixcNAHykfs6Rtt5fGw9i4NJG0udJj1ZsHfx9MEzVZzlMIpI4AWnDi26PKOhzK9F-dLpkFVae-Iw=s1600" height="400px">
 </p>
 
 A state-of-the-art plant health monitoring system that enables plant owners to keep track of their plant's vital signs and health conditions. **Green Guardian** integrates a range of high-quality sensors, including moisture, light, and temperature sensors, to provide accurate information about the plant's environment.
@@ -16,7 +16,6 @@ Before getting started, make sure you have all the required components listed be
 - GROVE Temperature Sensor [:link:](https://wiki.seeedstudio.com/Grove-Temperature_Sensor/)
 - GROVE RGB LED Stick [:link:](https://wiki.seeedstudio.com/Grove-RGB_LED_Stick-10-WS2813_Mini)
 
-
 LEDs are not required to be of the same color.
 
 - Red LED [:link:](https://wiki.seeedstudio.com/Grove-Red_LED)
@@ -31,7 +30,7 @@ Refer to the [Pin Layout](Pin Layout) to configure your system!
 
 ## Documentation :notebook:
 
-You can find our documentation on our [Wiki](home).
+You can find our documentation on our [Wiki](https://git.chalmers.se/courses/dit113/2023/group-3/green-guardian/-/wikis/home).
 
 ## Contributers :bow:
 
