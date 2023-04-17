@@ -1,7 +1,13 @@
+const int moisturePin = A0;
+const int lightPin = A1;
+const int temperaturePin = A2;
+
 void setup(){
-  // put your setup code here, to run once:
+  Serial.begin(9600);
 }
 
 void loop(){
-  // put your main code here, to run repeatedly:
+  int lightLevel = analogRead(lightPin);
+  int moistureLevel = analogRead(moisturePin);
+  int temperatureLevel = analogRead(temperaturePin);
 }
