@@ -13,7 +13,6 @@ public class Reader {
         try
         {
             file = new File(path);
-            System.out.println(file.exists());
             scanner = new Scanner(file);
         }
         catch(Exception e)
