@@ -1,3 +1,7 @@
+const int moisturePin = A0;
+const int lightPin = A1;
+const int temperaturePin = A2;
+
 void setup(){
   // put your setup code here, to run once:
 }
