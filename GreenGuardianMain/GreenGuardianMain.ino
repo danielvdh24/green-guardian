@@ -8,4 +8,5 @@ void setup(){
 
 void loop(){
   int lightLevel = analogRead(lightPin);
+  int moistureLevel = analogRead(moisturePin);
 }
