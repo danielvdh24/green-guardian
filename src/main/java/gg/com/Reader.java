@@ -1,4 +1,4 @@
-package PC_GUI;
+package gg.com;
 
 import java.util.Scanner;
 import java.io.File;
