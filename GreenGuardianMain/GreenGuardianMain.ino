@@ -1,4 +1,5 @@
-// below is the setup needed for the RGB light stick library
+#include <math.h>
+// setup needed for the RGB light stick library:
 #include "Adafruit_NeoPixel.h"
 #ifdef __AVR__
 #include <avr/power.h>
@@ -9,11 +10,16 @@ Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ80
 
 const int moisturePin = A0;
 const int temperaturePin = A1;
+const int ledPin = A2;
 bool isTestLight = true;
+const int maxTemp = 30;      // the temperature for which the plant should not exceed
+const int B = 4275;          // temperature sensor thermistor beta coefficient value, given by manufacturer
+const int R0 = 100000;       // temperature sensor reference resistance
 
 void setup(){
   pinMode(moisturePin, INPUT);
   pinMode(temperaturePin, INPUT);
+  pinMode(ledPin, OUTPUT);
   pinMode(WIO_LIGHT, INPUT);
   pinMode(BUTTON_3, INPUT_PULLUP);
   pixels.setBrightness(50);           // brightness of led stick
@@ -35,6 +41,7 @@ void loop(){
     isTestLight = !isTestLight; // toggle to change mode of RGB stick
     delay(200);
   }
+  testTemperature(temperatureLevel);
 }
 
 void testLight(int lightLevel){
@@ -72,4 +79,15 @@ void testMoisture(int moistureLevel){
     }
   }
  pixels.show();
+}
+
+void testTemperature(int temperatureLevel){
+  float R = 1023.0 / temperatureLevel - 1.0;                          // calculate the resistance of the thermistor
+  R = R0 * R;                                                         // adjust resistance based on reference resistance
+  float temperature = 1.0 / (log(R / R0) / B + 1 / 298.15) - 273.15;  // convert to temperature using Steinhart-Hart equation
+  if(temperature >= maxTemp){
+    digitalWrite(ledPin, HIGH);
+  } else {
+    digitalWrite(ledPin, LOW);
+  }
 }
