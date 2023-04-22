@@ -1,8 +1,12 @@
-#include <math.h>
-// setup needed for the RGB light stick library:
+// below is the setup needed for the LCD library
+#include "TFT_eSPI.h"
+TFT_eSPI tft;
+TFT_eSprite spr = TFT_eSprite(&tft);
+// below is the setup needed for the RGB light stick library
 #include "Adafruit_NeoPixel.h"
 #ifdef __AVR__
 #include <avr/power.h>
+#include <math.h>
 #endif
 #define PIN            BCM3
 #define NUMPIXELS      10
@@ -24,6 +28,9 @@ void setup(){
   pinMode(BUTTON_3, INPUT_PULLUP);
   pixels.setBrightness(50);           // brightness of led stick
   pixels.begin();
+  tft.begin();
+  tft.setRotation(3);
+  spr.createSprite(TFT_HEIGHT, TFT_WIDTH);
   Serial.begin(9600);
 }
 
@@ -42,6 +49,23 @@ void loop(){
     delay(200);
   }
   testTemperature(temperatureLevel);
+  drawScreen();
+}
+
+void drawScreen(){
+  spr.fillSprite(TFT_GREEN);
+  spr.fillRect(10,10,300,220, TFT_DARKGREEN);
+  spr.fillRect(10,83,300,10, TFT_GREEN);
+  spr.fillRect(10,156,300,10, TFT_GREEN);
+  spr.fillRect(220,22,80,50, TFT_GREEN);
+  spr.fillRect(220,105,80,40, TFT_GREEN);
+  spr.fillRect(220,178,80,40, TFT_GREEN);
+  spr.setTextColor(TFT_WHITE);
+  spr.setTextSize(3);
+  spr.drawString("Moisture",40,37);
+  spr.drawString("Light",40,115);
+  spr.drawString("Temp",40,187);
+  spr.pushSprite(0,0); // push to LCD
 }
 
 void testLight(int lightLevel){
