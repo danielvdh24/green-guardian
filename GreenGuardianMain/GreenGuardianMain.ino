@@ -48,11 +48,11 @@ void loop(){
     isTestLight = !isTestLight; // toggle to change mode of RGB stick
     delay(200);
   }
-  testTemperature(temperatureLevel);
-  drawScreen();
+  testTemperature(calculateTemp(temperatureLevel));
+  drawScreen(moistureLevel, lightLevel, temperatureLevel);
 }
 
-void drawScreen(){
+void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
   spr.fillSprite(TFT_GREEN);
   spr.fillRect(10,10,300,220, TFT_DARKGREEN);
   spr.fillRect(10,83,300,10, TFT_GREEN);
@@ -65,6 +65,31 @@ void drawScreen(){
   spr.drawString("Moisture",40,37);
   spr.drawString("Light",40,115);
   spr.drawString("Temp",40,187);
+  // display moisture
+  spr.setTextSize(2);
+  if (moistureLevel >= 0 && moistureLevel < 300) {
+    spr.drawString("Dry",243,40);
+  } else if(moistureLevel >= 300 && moistureLevel < 600) {
+    spr.drawString("Moist",232,40);
+  } else {
+    spr.setTextColor(TFT_BLUE);
+    spr.drawString("Wet",243,40);
+  }
+  // display light
+  int range = map(lightLevel, 0, 1300, 0, 10);         // map light values to a range for percentage
+  if(range < 3){
+   spr.drawString("Low",245,118);
+  } else if (range > 8){
+   spr.drawString("High",237,118);
+  } else {
+   spr.drawString("Good",237,118);
+  }
+  // display temperature
+  spr.setTextSize(3);
+  int celcius = calculateTemp(temperatureLevel);
+  spr.drawNumber(celcius,233,188);
+  spr.setTextColor(TFT_BLACK);
+  spr.drawString("C",270,188);
   spr.pushSprite(0,0); // push to LCD
 }
 
@@ -105,11 +130,15 @@ void testMoisture(int moistureLevel){
  pixels.show();
 }
 
-void testTemperature(int temperatureLevel){
+int calculateTemp(int temperatureLevel){
   float R = 1023.0 / temperatureLevel - 1.0;                          // calculate the resistance of the thermistor
   R = R0 * R;                                                         // adjust resistance based on reference resistance
-  float temperature = 1.0 / (log(R / R0) / B + 1 / 298.15) - 273.15;  // convert to temperature using Steinhart-Hart equation
-  if(temperature >= maxTemp){
+  int celcius = 1.0 / (log(R / R0) / B + 1 / 298.15) - 273.15;      // convert to temperature using Steinhart-Hart equation
+  return celcius;
+}
+
+void testTemperature(int celcius){
+  if(celcius >= maxTemp){
     digitalWrite(ledPin, HIGH);
   } else {
     digitalWrite(ledPin, LOW);
