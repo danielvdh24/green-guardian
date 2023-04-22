@@ -67,26 +67,36 @@ void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
   spr.drawString("Temp",40,187);
   // display moisture
   spr.setTextSize(2);
-  if (moistureLevel >= 0 && moistureLevel < 300) {
+  if (moistureLevel >= 0 && moistureLevel < 300) {           // dry - dry
+    spr.setTextColor(TFT_RED);
     spr.drawString("Dry",243,40);
-  } else if(moistureLevel >= 300 && moistureLevel < 600) {
+  } else if(moistureLevel >= 300 && moistureLevel < 600) {   // moist - darkcyan
+    spr.setTextColor(TFT_DARKCYAN);
     spr.drawString("Moist",232,40);
-  } else {
+  } else {                                                   // wet - blue
     spr.setTextColor(TFT_BLUE);
     spr.drawString("Wet",243,40);
   }
   // display light
   int range = map(lightLevel, 0, 1300, 0, 10);         // map light values to a range for percentage
   if(range < 3){
+   spr.setTextColor(TFT_RED);
    spr.drawString("Low",245,118);
   } else if (range > 8){
+   spr.setTextColor(TFT_RED);
    spr.drawString("High",237,118);
   } else {
+   spr.setTextColor(TFT_DARKGREEN);
    spr.drawString("Good",237,118);
   }
   // display temperature
   spr.setTextSize(3);
   int celcius = calculateTemp(temperatureLevel);
+  if(celcius >= maxTemp){
+   spr.setTextColor(TFT_RED);
+  } else{
+   spr.setTextColor(TFT_DARKGREEN);
+  }
   spr.drawNumber(celcius,233,188);
   spr.setTextColor(TFT_BLACK);
   spr.drawString("C",270,188);
