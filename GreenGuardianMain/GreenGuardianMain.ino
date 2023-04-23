@@ -65,6 +65,7 @@ void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
   spr.drawString("Moisture",40,37);
   spr.drawString("Light",40,115);
   spr.drawString("Temp",40,187);
+
   // display moisture
   spr.setTextSize(2);
   if (moistureLevel >= 0 && moistureLevel < 300) {           // dry - dry
@@ -73,10 +74,14 @@ void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
   } else if(moistureLevel >= 300 && moistureLevel < 600) {   // moist - darkcyan
     spr.setTextColor(TFT_DARKCYAN);
     spr.drawString("Moist",232,40);
-  } else {                                                   // wet - blue
+  } else if(moistureLevel >= 600 && moistureLevel <= 950){    // wet - blue
     spr.setTextColor(TFT_BLUE);
     spr.drawString("Wet",243,40);
+  } else {
+    spr.setTextColor(TFT_BLACK);                              // error - black (used for values that are outside the range)
+    spr.drawString("ERROR",232,40)
   }
+
   // display light
   int range = map(lightLevel, 0, 1300, 0, 10);         // map light values to a range for percentage
   if(range < 3){
@@ -85,15 +90,22 @@ void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
   } else if (range > 8){
    spr.setTextColor(TFT_RED);
    spr.drawString("High",237,118);
-  } else {
+  } else (range > 2 && range < 9){
    spr.setTextColor(TFT_DARKGREEN);
    spr.drawString("Good",237,118);
+  } else {
+   spr.setTextColor(TFT_BLACK);
+   spr.drawString("ERROR",232,118);
   }
+
   // display temperature
   spr.setTextSize(3);
   int celcius = calculateTemp(temperatureLevel);
   if(celcius >= maxTemp){
    spr.setTextColor(TFT_RED);
+  } else if (celcius < -40 || celcius > 125); {
+    spr.setTextColor(TFT_BLACK);
+    spr.drawString("ERROR",232,188);
   } else{
    spr.setTextColor(TFT_DARKGREEN);
   }
@@ -102,6 +114,7 @@ void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
   spr.drawString("C",270,188);
   spr.pushSprite(0,0); // push to LCD
 }
+
 
 void testLight(int lightLevel){
  pixels.clear();
@@ -117,6 +130,7 @@ void testLight(int lightLevel){
  }
  pixels.show();
 }
+
 
 void testMoisture(int moistureLevel){
  pixels.clear();
@@ -139,6 +153,7 @@ void testMoisture(int moistureLevel){
   }
  pixels.show();
 }
+
 
 int calculateTemp(int temperatureLevel){
   float R = 1023.0 / temperatureLevel - 1.0;                          // calculate the resistance of the thermistor
