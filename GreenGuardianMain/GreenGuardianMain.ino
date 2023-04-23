@@ -4,6 +4,11 @@
 #ifdef __AVR__
 #include <avr/power.h>
 #endif
+
+#include <rpcWiFi.h>
+#include <PubSubClient.h>
+#include "wifiauth.h"
+
 #define PIN            BCM3
 #define NUMPIXELS      10
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
@@ -16,6 +21,24 @@ const int maxTemp = 30;      // the temperature for which the plant should not e
 const int B = 4275;          // temperature sensor thermistor beta coefficient value, given by manufacturer
 const int R0 = 100000;       // temperature sensor reference resistance
 
+//Insert values below:
+IPAddress ip(0, 0, 0, 0);
+int port = 0;
+
+//Insert values below:
+char clientName[] = "";
+
+WiFiClient wioClient;
+PubSubClient mqttClient(wioClient);
+
+void setupWifi();
+
+void connectWifi();
+
+void setupMqtt();
+
+void connectMqtt();
+
 void setup(){
   pinMode(moisturePin, INPUT);
   pinMode(temperaturePin, INPUT);
@@ -24,7 +47,15 @@ void setup(){
   pinMode(BUTTON_3, INPUT_PULLUP);
   pixels.setBrightness(50);           // brightness of led stick
   pixels.begin();
-  Serial.begin(9600);
+  Serial.begin(115200);
+
+  setupWifi();
+
+  connectWifi();
+
+  setupMqtt();
+
+  connectMqtt();
 }
 
 void loop(){
@@ -42,6 +73,14 @@ void loop(){
     delay(200);
   }
   testTemperature(temperatureLevel);
+
+  if (!mqttClient.connected()){
+
+    connectMqtt();
+
+  }
+
+  mqttClient.loop();
 }
 
 void testLight(int lightLevel){
@@ -89,5 +128,61 @@ void testTemperature(int temperatureLevel){
     digitalWrite(ledPin, HIGH);
   } else {
     digitalWrite(ledPin, LOW);
+  }
+}
+
+void setupWifi(){
+
+  WiFi.mode(WIFI_STA);
+
+  WiFi.disconnect();
+
+}
+
+void connectWifi(){
+
+  WiFi.begin(SSID, PASS);
+
+  while (WiFi.status() != WL_CONNECTED){
+
+    Serial.println("Connecting to WiFi...");
+
+    delay(1000);
+
+  }
+
+  Serial.println("WiFi Connected!");
+
+}
+
+void setupMqtt(){
+
+  mqttClient.setServer(ip, port);
+
+  mqttClient.setCallback(handleSubMessage);
+
+}
+
+void connectMqtt(){
+
+  while (!mqttClient.connected()){
+
+    Serial.println("Connecting to MQTT Broker...");
+
+    if (mqttClient.connect(clientName)){ //process will be moved to setupmqtt
+
+      Serial.println("Connected to MQTT Broker!");
+
+      publishMqtt();
+
+      subscribeMqtt();
+
+    } else {
+
+      Serial.print("Failed, retrying...");
+
+      delay(2000);
+
+    }
   }
 }
