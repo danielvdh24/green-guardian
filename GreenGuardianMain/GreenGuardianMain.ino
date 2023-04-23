@@ -7,7 +7,7 @@
 
 #include <rpcWiFi.h>
 #include <PubSubClient.h>
-#include "wifiauth.h"
+#include "wificreds.h"
 
 #define PIN            BCM3
 #define NUMPIXELS      10
@@ -27,6 +27,9 @@ int port = 0;
 
 //Insert values below:
 char clientName[] = "";
+char pubTopic[] = "";
+char subTopic[] = "";
+char pubMessage[] = "";
 
 WiFiClient wioClient;
 PubSubClient mqttClient(wioClient);
@@ -38,6 +41,13 @@ void connectWifi();
 void setupMqtt();
 
 void connectMqtt();
+
+void publishMqtt();
+
+void subscribeMqtt();
+
+void handleSubMessage(char* topic, byte* payload, unsigned int length);
+
 
 void setup(){
   pinMode(moisturePin, INPUT);
@@ -185,4 +195,32 @@ void connectMqtt(){
 
     }
   }
+}
+
+void publishMqtt(){
+
+  mqttClient.publish(pubTopic, pubMessage);
+
+}
+
+void subscribeMqtt(){
+
+  mqttClient.subscribe(subTopic);
+
+}
+
+void handleSubMessage(char* topic, byte* payload, unsigned int length){
+
+  char message[length + 1]; 
+
+  for (int i = 0; i < length; i++){
+
+    message[i] = (char) payload[i];
+
+  }
+
+  message[length] = '\0';
+
+  Serial.print(message);
+
 }
