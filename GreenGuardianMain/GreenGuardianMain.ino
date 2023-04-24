@@ -79,7 +79,7 @@ void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
     spr.drawString("Wet",243,40);
   } else {
     spr.setTextColor(TFT_BLACK);                              // error - black (used for values that are outside the range)
-    spr.drawString("ERROR",232,40)
+    spr.drawString("ERROR",232,40);
   }
 
   // display light
@@ -90,7 +90,7 @@ void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
   } else if (range > 8){
    spr.setTextColor(TFT_RED);
    spr.drawString("High",237,118);
-  } else (range > 2 && range < 9){
+  } else if (range > 2 && range < 9){
    spr.setTextColor(TFT_DARKGREEN);
    spr.drawString("Good",237,118);
   } else {
@@ -103,12 +103,13 @@ void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
   int celcius = calculateTemp(temperatureLevel);
   if(celcius >= maxTemp){
    spr.setTextColor(TFT_RED);
-  } else if (celcius < -40 || celcius > 125); {
+  } else if (celcius > 125 || celcius < -40) {
     spr.setTextColor(TFT_BLACK);
     spr.drawString("ERROR",232,188);
-  } else{
+  } else {
    spr.setTextColor(TFT_DARKGREEN);
   }
+
   spr.drawNumber(celcius,233,188);
   spr.setTextColor(TFT_BLACK);
   spr.drawString("C",270,188);
