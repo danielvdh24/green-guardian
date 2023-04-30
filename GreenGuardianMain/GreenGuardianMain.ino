@@ -89,9 +89,11 @@ void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
   if(range < 3){
    spr.setTextColor(TFT_RED);
    spr.drawString("Low",245,118);
+   errorSound();
   } else if (range > 8){
    spr.setTextColor(TFT_RED);
    spr.drawString("High",237,118);
+   errorSound();
   } else if (range > 2 && range < 9){
    spr.setTextColor(TFT_DARKGREEN);
    spr.drawString("Good",237,118);
