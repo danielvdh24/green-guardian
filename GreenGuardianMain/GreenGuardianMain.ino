@@ -93,7 +93,7 @@ void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
   } else if (range > 8){
    spr.setTextColor(TFT_RED);
    spr.drawString("High",237,118);
-   errorSound();
+    errorSound();
   } else if (range > 2 && range < 9){
    spr.setTextColor(TFT_DARKGREEN);
    spr.drawString("Good",237,118);
@@ -176,8 +176,16 @@ void testTemperature(int celcius){
 }
 
 void errorSound(){
+    //beep the buzzer for 0.4 second
     analogWrite(WIO_BUZZER, 150);
-    delay(1000);
+    delay(400);
+    //has a small delay for doubble beep
+    analogWrite(WIO_BUZZER, 0);
+    delay(200);
+    //beep the buzzer for 0.4 second
+    analogWrite(WIO_BUZZER, 150);
+    delay(400);
+    //Silence the buzzer for 1 second to reset the cycle
     analogWrite(WIO_BUZZER, 0);
     delay(1000);
 }
