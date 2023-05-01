@@ -4,8 +4,10 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 
 /**
@@ -19,11 +21,14 @@ public class App extends Application {
     public void start(Stage stage) throws IOException 
     {
         scene = new Scene(loadFXML("SpreadsheetScene"), 600, 385);
+        stage.getIcons().add(new Image((new FileInputStream("src/main/resources/images/Logo.png"))));
+        stage.setTitle("Green Guardian");
+        stage.setResizable(false);
         stage.setScene(scene);
         stage.show();
     }
 
-    static void setRoot(String fxml) throws IOException 
+    static void setRoot(String fxml) throws IOException
     {
         scene.setRoot(loadFXML(fxml));
     }
@@ -36,17 +41,6 @@ public class App extends Application {
 
     public static void main(String[] args) 
     {
-        //testing
-        Reader reader = new Reader("Test_Data/test1.txt");
-        int N_Plants = reader.nextInt();
-        for(int i=0;i<N_Plants;i++)
-        {
-            for(int j=0;j<7*48;j++)
-            {
-                System.out.println(reader.nextInt()+" "+reader.nextInt());
-            }
-            System.out.println();
-        }
         launch();
     }
 

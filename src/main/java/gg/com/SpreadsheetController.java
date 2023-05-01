@@ -10,28 +10,41 @@ import javafx.beans.value.*;
 import javafx.util.*;
 import javafx.scene.control.Button;
 
+import java.io.IOException;
+
 public class SpreadsheetController 
 {
 
     @FXML
     ObservableList<TableEntry> data = FXCollections.observableArrayList();
-    public Button Commands;
+    @FXML
+    private Button graphButton, commandsButton, settingsButton;
+    @FXML
     public TableView<TableEntry> Table;
+    @FXML
     public TableColumn<TableEntry,String> PlantID;
+    @FXML
     public TableColumn<TableEntry,String> Name;
+    @FXML
     public TableColumn<TableEntry,String> Current_Temperature;
+    @FXML
     public TableColumn<TableEntry,String> Current_Humidity;
+    @FXML
     public TableColumn<TableEntry,String> Current_Light;
+    @FXML
     public TableColumn<TableEntry,String> Optimal_Temperature;
+    @FXML
     public TableColumn<TableEntry,String> Optimal_Humidity;
+    @FXML
     public TableColumn<TableEntry,String> Optimal_Light;
+    @FXML
     public TableColumn<TableEntry,String> Status;
+
     public void initialize() 
     {
         data.add(new TableEntry(0, "1", 0, 0, 0, 0, 0, 0, "1"));
         Table.setItems(data);
 
-        
         PlantID.setCellValueFactory
             (
             new Callback<CellDataFeatures<TableEntry, String>, ObservableValue<String>>() 
@@ -105,13 +118,17 @@ public class SpreadsheetController
             );
         
     }
-    void test()
-    {
-        int i=0;
-        while(true)
-        {data.get(0).ID.setText((Integer.toString(i)));
-        i++;
-        }
+
+    public void onGraphButtonClick() throws IOException {
+        App.setRoot("GraphScene");
+    }
+
+    public void onCommandsButtonClick() throws IOException {
+        App.setRoot("CommandsScene");
+    }
+
+    public void onSettingsButtonClick() throws IOException {
+        App.setRoot("SettingsScene");
     }
 
 }

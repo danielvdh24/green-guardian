@@ -21,22 +21,22 @@ public class TableValue implements ObservableValue<String>{
         {
             listeners.add(arg0);
         }
+
         public void removeListener(InvalidationListener arg0) 
         {
             listeners.remove(arg0);
         }
+
         public void addListener(ChangeListener<? super String> arg0) 
         {
             throw new UnsupportedOperationException("Unimplemented method 'addListener'");
         }
-        public String getValue() 
-        {
-            return text;
-        }
+
         public void removeListener(ChangeListener<? super String> arg0) 
         {
             throw new UnsupportedOperationException("Unimplemented method 'removeListener'");
         }
+
         public void setText(String text)
         {
             this.text = text;
@@ -44,5 +44,10 @@ public class TableValue implements ObservableValue<String>{
                 invalidationListener.notify();
             }
         }
-    
+
+        public String getValue()
+        {
+            return text;
+        }
+
 }
