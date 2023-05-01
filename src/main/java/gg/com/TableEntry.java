@@ -33,30 +33,37 @@ public class TableEntry {
     public ObservableValue<String> IDProperty() {
         return ID;
     }
+
     public ObservableValue<String> nameProperty() {
         return name;
     }
+
     public ObservableValue<String> CHProperty() {
         return CH;
     }
+
     public ObservableValue<String> CTProperty() {
         return CT;
     }
+
     public ObservableValue<String> CLProperty() {
         return CL;
     }
+
     public ObservableValue<String> OHProperty() {
         return OH;
     }
+
     public ObservableValue<String> OTProperty() {
         return OT;
     }
+
     public ObservableValue<String> OLProperty() {
         return OL;
     }
+
     public ObservableValue<String> statusProperty() {
         return status;
     }
-
 
 }

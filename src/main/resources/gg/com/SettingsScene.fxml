@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="388.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gg.com.SettingsController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+    <Label alignment="CENTER" layoutX="126.0" layoutY="117.0" prefHeight="90.0" prefWidth="349.0" text="Settings Page" textAlignment="CENTER">
+      <font>
+         <Font size="31.0" />
+      </font></Label>
+    <HBox layoutY="307.0" prefHeight="81.0" prefWidth="600.0">
+        <children>
+            <Button fx:id="spreadSheetButton" focusTraversable="false" mnemonicParsing="false" onAction="#onSpreadSheetButtonClick" prefHeight="81.0" prefWidth="150.0" text="Spreadsheet" />
+            <Button fx:id="graphButton" focusTraversable="false" mnemonicParsing="false" onAction="#onGraphButtonClick" prefHeight="81.0" prefWidth="150.0" text="Graph" />
+            <Button fx:id="commandsButton" focusTraversable="false" mnemonicParsing="false" onAction="#onCommandsButtonClick" prefHeight="81.0" prefWidth="150.0" text="Commands" />
+            <Button focusTraversable="false" mnemonicParsing="false" prefHeight="81.0" prefWidth="150.0" text="Settings" />
+        </children>
+    </HBox>
+</Pane>
