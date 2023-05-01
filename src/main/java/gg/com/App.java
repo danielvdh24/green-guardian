@@ -37,7 +37,7 @@ public class App extends Application {
     public static void main(String[] args) 
     {
         //testing
-        Reader reader = new Reader("Test_Data\\test1.txt");
+        Reader reader = new Reader("Test_Data/test1.txt");
         int N_Plants = reader.nextInt();
         for(int i=0;i<N_Plants;i++)
         {
