@@ -20,7 +20,9 @@ public class App extends Application {
     @Override
     public void start(Stage stage) throws IOException 
     {
-        scene = new Scene(loadFXML("SpreadsheetScene"), 600, 385);
+        Preferences preferences = Preferences.getPreferences();
+        SettingsController.loadDelay();
+        scene = new Scene(loadFXML(preferences.getScene()), 600, 385);
         stage.getIcons().add(new Image((new FileInputStream("src/main/resources/images/Logo.png"))));
         stage.setTitle("Green Guardian");
         stage.setResizable(false);

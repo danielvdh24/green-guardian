@@ -5,20 +5,87 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="388.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gg.com.SettingsController">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="388.0" prefWidth="600.0" stylesheets="@../../styles/default-theme.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gg.com.SettingsController">
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
-    <Label alignment="CENTER" layoutX="126.0" layoutY="117.0" prefHeight="90.0" prefWidth="349.0" text="Settings Page" textAlignment="CENTER">
+   <HBox layoutX="-1.0" layoutY="-3.0" prefHeight="50.0" prefWidth="600.0" styleClass="tile-color" />
+    <Label alignment="CENTER" layoutX="225.0" layoutY="6.0" prefHeight="34.0" prefWidth="150.0" text="Settings" textAlignment="CENTER">
       <font>
-         <Font size="31.0" />
+         <Font name="Tw Cen MT Condensed Extra Bold" size="31.0" />
       </font></Label>
+   <Label alignment="CENTER" layoutX="78.0" layoutY="64.0" prefHeight="39.0" prefWidth="181.0" text="Default Page" textAlignment="CENTER">
+      <font>
+         <Font name="Bodoni MT" size="31.0" />
+      </font>
+   </Label>
+   <RadioButton fx:id="spreadSheetSelect" focusTraversable="false" layoutX="54.0" layoutY="104.0" mnemonicParsing="false" onAction="#onSetDefaultPage" prefHeight="39.0" prefWidth="114.0" text="Spreadsheet">
+      <font>
+         <Font size="14.0" />
+      </font>
+      <toggleGroup>
+         <ToggleGroup fx:id="pageSelect" />
+      </toggleGroup>
+   </RadioButton>
+   <RadioButton fx:id="graphSelect" focusTraversable="false" layoutX="198.0" layoutY="104.0" mnemonicParsing="false" onAction="#onSetDefaultPage" prefHeight="39.0" prefWidth="73.0" text="Graph" toggleGroup="$pageSelect">
+      <font>
+         <Font size="14.0" />
+      </font>
+   </RadioButton>
+    <RadioButton fx:id="settingsSelect" focusTraversable="false" layoutX="54.0" layoutY="140.0" mnemonicParsing="false" onAction="#onSetDefaultPage" prefHeight="39.0" prefWidth="106.0" text="Settings" toggleGroup="$pageSelect">
+        <font>
+            <Font size="14.0" />
+        </font>
+    </RadioButton>
+   <RadioButton fx:id="commandsSelect" focusTraversable="false" layoutX="198.0" layoutY="140.0" mnemonicParsing="false" onAction="#onSetDefaultPage" prefHeight="39.0" prefWidth="106.0" text="Commands" toggleGroup="$pageSelect">
+      <font>
+         <Font size="14.0" />
+      </font>
+   </RadioButton>
+   <Label alignment="CENTER" layoutX="54.0" layoutY="179.0" prefHeight="39.0" prefWidth="239.0" text="Graph Frequency" textAlignment="CENTER">
+      <font>
+         <Font name="Bodoni MT" size="31.0" />
+      </font>
+   </Label>
+   <RadioButton fx:id="fiveSecondSelect" focusTraversable="false" layoutX="54.0" layoutY="218.0" mnemonicParsing="false" onAction="#onSetGraphFrequency" prefHeight="39.0" prefWidth="106.0" text="5 seconds">
+      <font>
+         <Font size="14.0" />
+      </font>
+      <toggleGroup>
+         <ToggleGroup fx:id="frequencySelect" />
+      </toggleGroup>
+   </RadioButton>
+   <RadioButton fx:id="oneMinuteSelect" focusTraversable="false" layoutX="198.0" layoutY="218.0" mnemonicParsing="false" onAction="#onSetGraphFrequency" prefHeight="39.0" prefWidth="106.0" text="1 minute" toggleGroup="$frequencySelect">
+      <font>
+         <Font size="14.0" />
+      </font>
+   </RadioButton>
+   <RadioButton fx:id="fiveMinuteSelect" focusTraversable="false" layoutX="54.0" layoutY="252.0" mnemonicParsing="false" onAction="#onSetGraphFrequency" prefHeight="39.0" prefWidth="106.0" text="5 minutes" toggleGroup="$frequencySelect">
+      <font>
+         <Font size="14.0" />
+      </font>
+   </RadioButton>
+   <RadioButton fx:id="thirtyMinuteSelect" focusTraversable="false" layoutX="198.0" layoutY="252.0" mnemonicParsing="false" onAction="#onSetGraphFrequency" prefHeight="39.0" prefWidth="106.0" text="30 minutes" toggleGroup="$frequencySelect">
+      <font>
+         <Font size="14.0" />
+      </font>
+   </RadioButton>
+   <Label alignment="CENTER" layoutX="372.0" layoutY="121.0" prefHeight="39.0" prefWidth="181.0" text="Notifications" textAlignment="CENTER">
+      <font>
+         <Font name="Bodoni MT" size="31.0" />
+      </font>
+   </Label>
+   <ChoiceBox fx:id="notificationSelect" focusTraversable="false" layoutX="413.0" layoutY="165.0" prefHeight="34.0" prefWidth="100.0" />
     <HBox layoutY="307.0" prefHeight="81.0" prefWidth="600.0">
-        <children>
-            <Button fx:id="spreadSheetButton" focusTraversable="false" mnemonicParsing="false" onAction="#onSpreadSheetButtonClick" prefHeight="81.0" prefWidth="150.0" text="Spreadsheet" />
-            <Button fx:id="graphButton" focusTraversable="false" mnemonicParsing="false" onAction="#onGraphButtonClick" prefHeight="81.0" prefWidth="150.0" text="Graph" />
-            <Button fx:id="commandsButton" focusTraversable="false" mnemonicParsing="false" onAction="#onCommandsButtonClick" prefHeight="81.0" prefWidth="150.0" text="Commands" />
-            <Button focusTraversable="false" mnemonicParsing="false" prefHeight="81.0" prefWidth="150.0" text="Settings" />
-        </children>
+        <Button focusTraversable="false" mnemonicParsing="false"
+                onAction="#onSpreadSheetButtonClick" prefHeight="81.0" prefWidth="150.0" styleClass="menu-button"
+                text="Spreadsheet"/>
+        <Button focusTraversable="false" mnemonicParsing="false" onAction="#onGraphButtonClick"
+                prefHeight="81.0" prefWidth="150.0" styleClass="menu-button" text="Graph"/>
+        <Button focusTraversable="false" mnemonicParsing="false"
+                onAction="#onCommandsButtonClick" prefHeight="81.0" prefWidth="150.0" styleClass="menu-button"
+                text="Commands"/>
+        <Button mnemonicParsing="false" prefHeight="81.0" prefWidth="150.0"
+                styleClass="menu-button" text="Settings"/>
     </HBox>
 </Pane>
