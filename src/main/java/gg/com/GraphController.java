@@ -1,12 +1,10 @@
 package gg.com;
 
 import javafx.animation.PauseTransition;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Button;
 import javafx.util.Duration;
 
 import java.io.IOException;
@@ -16,8 +14,6 @@ public class GraphController {
     private LineChart<String, Number> chart;
     @FXML
     private NumberAxis yAxis;
-    @FXML
-    private Button spreadSheetButton, commandsButton, settingsButton;
 
     @FXML
     public void initialize(){
@@ -36,11 +32,11 @@ public class GraphController {
     }
 
     private void addDataWithDelay(XYChart.Series<String, Number> series, Reader reader, int count) {
-        if (count > 100) {
+        if (count > 100) { // temporary limit
             return;
         }
         String count1 = Util.intToString(count);
-        PauseTransition pause = new PauseTransition(Duration.seconds(0.25));
+        PauseTransition pause = new PauseTransition(Duration.seconds(SettingsController.getDelay()));
         pause.setOnFinished(event -> {
             series.getData().add(new XYChart.Data<>(count1, reader.nextInt()));
             addDataWithDelay(series, reader, count + 1);
