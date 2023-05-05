@@ -155,6 +155,18 @@ void connectMqtt(){
 
     displayLCDmessage("(Re) Connecting to MQTT Broker...", tft.color565(70, 50, 100), FF25, true, true, 60);
 
+    displayLCDmessage("(Connection Keeps Failing? Fix:", TFT_BLACK, FF33, true, false);
+
+    displayLCDmessage("1. Broker Is Not Running)", TFT_BLACK, FF33, true, false);
+
+    displayLCDmessage("(Screen Static For T>15s? Fix:", TFT_BLACK, FF33, true, false);
+
+    displayLCDmessage("2. Faulty BrokerIP &&/|| WiFi Loss)", TFT_BLACK, FF33, true, false);
+
+    displayLCDmessage("Alt 2. Needs Manual Wio Restart", TFT_BLACK, FF33, true, false);
+
+    displayLCDmessage("After Reconfiguration", TFT_BLACK, FF33, true, false);
+
     delay(3000);
 
     if (mqttClient->connect(clientName)){
