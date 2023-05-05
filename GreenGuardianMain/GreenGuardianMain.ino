@@ -85,6 +85,18 @@ void connectWifi(){
 
   displayLCDmessage("(Re) Connecting To WiFi...", tft.color565(20, 70, 150), FM9, true, true, 60);
 
+  displayLCDmessage("(Connection Keeps Failing? Fix:", tft.color565(70, 50, 50), FF25, true, false);
+
+  displayLCDmessage("1. WiFi Turned Off)", tft.color565(70, 50, 50), FF25, true, false);
+
+  displayLCDmessage("(Screen Static For T>15s? Fix:", TFT_BLACK, FF33, true, false);
+
+  displayLCDmessage("2. Faulty AP Point Configuration)", tft.color565(70, 50, 50), FF25, true, false);
+
+  displayLCDmessage("Alt 2. Needs Manual Wio Restart", TFT_BLACK, FF33, true, false);
+
+  displayLCDmessage("After Reconfiguration", TFT_BLACK, FF33, true, false);
+
   delay(2000);
 
   WiFi.begin(SSID, PASS);
