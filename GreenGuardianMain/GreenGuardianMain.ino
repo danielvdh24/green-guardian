@@ -195,6 +195,12 @@ void handleSubMessage(char* topic, byte* payload, unsigned int length){
 
 void loop(){
 
+  if (WiFi.status() != WL_CONNECTED){
+  
+    return setupWifi(); 
+
+  }
+
   publishMqtt();
 
   mqttClient->loop();
