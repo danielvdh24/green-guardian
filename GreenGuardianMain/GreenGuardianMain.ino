@@ -1,13 +1,19 @@
-#include <math.h>
-// setup needed for the RGB light stick library:
+// below is the setup needed for the LCD library
+#include "TFT_eSPI.h"
+TFT_eSPI tft;
+// below is the setup needed for the RGB light stick library
 #include "Adafruit_NeoPixel.h"
 #ifdef __AVR__
 #include <avr/power.h>
+#include <math.h>
 #endif
-
+// below is the setup needed for wifi connectivity
 #include <rpcWiFi.h>
+#include "wifiauth.h"
+// below is the setup needed for mqtt connectivity
 #include <PubSubClient.h>
-#include "wificreds.h"
+// below is the setup needed for used fonts 
+#include "Free_Fonts.h"
 
 #define PIN            BCM3
 #define NUMPIXELS      10
@@ -22,168 +28,106 @@ const int B = 4275;          // temperature sensor thermistor beta coefficient v
 const int R0 = 100000;       // temperature sensor reference resistance
 
 //Insert values below:
-IPAddress ip(0, 0, 0, 0);
+IPAddress brokerIp(0, 0, 0, 0);
 int port = 0;
 
 //Insert values below:
-char clientName[] = "";
 char pubTopic[] = "";
 char subTopic[] = "";
 char pubMessage[] = "";
+char clientName[] = "";
 
-WiFiClient wioClient;
-PubSubClient mqttClient(wioClient);
+WiFiClient* wioClient = nullptr;
+PubSubClient* mqttClient = nullptr;
 
-void setupWifi();
+int Y_Cord_Start_Pos = 0;
+int text_Y_Margin_Offset = 0;
 
-void connectWifi();
-
-void setupMqtt();
-
-void connectMqtt();
-
-void publishMqtt();
-
-void subscribeMqtt();
-
-void handleSubMessage(char* topic, byte* payload, unsigned int length);
-
+void displayLCDmessage(char* message, uint16_t textColor, const GFXfont* textSize, boolean centerAlign, boolean clearPrevLCD, int Y_Cord_Start_Pos = Y_Cord_Start_Pos);
 
 void setup(){
+  while (!Serial){
+    Serial.begin(9600);
+  }
   pinMode(moisturePin, INPUT);
   pinMode(temperaturePin, INPUT);
   pinMode(ledPin, OUTPUT);
   pinMode(WIO_LIGHT, INPUT);
+  pinMode(BUTTON_1, INPUT_PULLUP);
   pinMode(BUTTON_3, INPUT_PULLUP);
   pixels.setBrightness(50);           // brightness of led stick
   pixels.begin();
-  Serial.begin(115200);
-
+  setupLCD();
   setupWifi();
-
-  connectWifi();
-
-  setupMqtt();
-
-  connectMqtt();
 }
 
-void loop(){
-  int moistureLevel = analogRead(moisturePin);
-  int temperatureLevel = analogRead(temperaturePin);
-  int lightLevel = analogRead(WIO_LIGHT);
-  if (isTestLight) {
-    testLight(lightLevel);
-  } else {
-    testMoisture(moistureLevel);
-  }
-  if (digitalRead(BUTTON_3) == LOW) {
-    delay(200);
-    isTestLight = !isTestLight; // toggle to change mode of RGB stick
-    delay(200);
-  }
-  testTemperature(temperatureLevel);
+void setupLCD(){
 
-  if (!mqttClient.connected()){
+  tft.begin();
 
-    connectMqtt();
+  tft.setRotation(3);
 
-  }
+  tft.fillScreen(TFT_WHITE);
 
-  mqttClient.loop();
-}
-
-void testLight(int lightLevel){
- pixels.clear();
- int range = map(lightLevel, 0, 1300, 0, 10);         // map light values to a range to activate leds
- if(range < 3 || range > 8){
-   for(int i = 0; i < range || (i == 0 && range == 0); i++){
-    pixels.setPixelColor(i, pixels.Color(255,0,0));   // red for too low/high
-   }
-  } else {
-   for(int i = 0; i < range; i++){
-   pixels.setPixelColor(i, pixels.Color(255,255,0));  // yellow for sufficient
-   }
- }
- pixels.show();
-}
-
-void testMoisture(int moistureLevel){
- pixels.clear();
- int range;
-  if (moistureLevel >= 0 && moistureLevel < 300) {           // dry - brown
-    range = map(moistureLevel, 0, 299, 0, 3);
-    for(int i = 0; i < range || (i == 0 && range == 0); i++){
-     pixels.setPixelColor(i, pixels.Color(255,0,0));
-    }
-  } else if (moistureLevel >= 300 && moistureLevel < 600) {  // moist - light blue
-    range = map(moistureLevel, 300, 599, 3, 7);
-    for(int i = 0; i < range; i++){
-     pixels.setPixelColor(i, pixels.Color(69,165,217));
-    }
-  } else {                                                   // wet - dark blue
-    range = map(moistureLevel, 600, 1023, 7, 10);
-    for(int i = 0; i < range; i++){
-     pixels.setPixelColor(i, pixels.Color(0,0,255));
-    }
-  }
- pixels.show();
-}
-
-void testTemperature(int temperatureLevel){
-  float R = 1023.0 / temperatureLevel - 1.0;                          // calculate the resistance of the thermistor
-  R = R0 * R;                                                         // adjust resistance based on reference resistance
-  float temperature = 1.0 / (log(R / R0) / B + 1 / 298.15) - 273.15;  // convert to temperature using Steinhart-Hart equation
-  if(temperature >= maxTemp){
-    digitalWrite(ledPin, HIGH);
-  } else {
-    digitalWrite(ledPin, LOW);
-  }
 }
 
 void setupWifi(){
 
-  WiFi.mode(WIFI_STA);
+  wioClient = new WiFiClient;
 
   WiFi.disconnect();
+
+  connectWifi();
 
 }
 
 void connectWifi(){
 
+  displayLCDmessage("(Re) Connecting To WiFi...", tft.color565(20, 70, 150), FM9, true, true, 60);
+
+  delay(2000);
+
   WiFi.begin(SSID, PASS);
 
-  while (WiFi.status() != WL_CONNECTED){
+  if (WiFi.status() != WL_CONNECTED){
 
-    Serial.println("Connecting to WiFi...");
+    Serial.println("Faild to connect...");
 
-    delay(1000);
+    delay(2000);
+
+    delete wioClient;
+
+    return setupWifi();
 
   }
 
   Serial.println("WiFi Connected!");
 
+  setupMqtt();
+
 }
 
 void setupMqtt(){
 
-  mqttClient.setServer(ip, port);
+  mqttClient = new PubSubClient(*wioClient);
 
-  mqttClient.setCallback(handleSubMessage);
+  mqttClient->setServer(brokerIp, port);
+
+  mqttClient->setCallback(handleSubMessage);
+
+  connectMqtt();
 
 }
 
 void connectMqtt(){
 
-  while (!mqttClient.connected()){
+  while (!mqttClient->connected()){
 
     Serial.println("Connecting to MQTT Broker...");
 
-    if (mqttClient.connect(clientName)){ //process will be moved to setupmqtt
+    if (mqttClient->connect(clientName)){ 
 
       Serial.println("Connected to MQTT Broker!");
-
-      publishMqtt();
 
       subscribeMqtt();
 
@@ -199,13 +143,37 @@ void connectMqtt(){
 
 void publishMqtt(){
 
-  mqttClient.publish(pubTopic, pubMessage);
+  delay(1000);
+
+  mqttClient->publish(pubTopic, pubMessage);
 
 }
 
 void subscribeMqtt(){
 
-  mqttClient.subscribe(subTopic);
+  mqttClient->subscribe(subTopic);
+
+}
+
+void displayLCDmessage(char* message, uint16_t textColor, const GFXfont* textSize, boolean centerAlign, boolean clearPrevLCD, int Y_Cord_Start_Pos){
+
+  ::Y_Cord_Start_Pos = Y_Cord_Start_Pos;
+
+  if (clearPrevLCD){
+
+    tft.fillScreen(TFT_WHITE);
+
+    text_Y_Margin_Offset = 0;
+
+  }
+
+  tft.setTextColor(textColor);
+  
+  tft.setFreeFont(textSize);  
+
+  tft.drawString(message, centerAlign ? 160 - (tft.textWidth(message) / 2) : 0, Y_Cord_Start_Pos + text_Y_Margin_Offset);
+
+  text_Y_Margin_Offset += tft.fontHeight();
 
 }
 
@@ -221,6 +189,14 @@ void handleSubMessage(char* topic, byte* payload, unsigned int length){
 
   message[length] = '\0';
 
-  Serial.print(message);
+  Serial.println(message);
+
+}
+
+void loop(){
+
+  publishMqtt();
+
+  mqttClient->loop();
 
 }
