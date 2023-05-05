@@ -153,7 +153,9 @@ void connectMqtt(){
 
   while (!mqttClient->connected()){
 
-    Serial.println("Connecting to MQTT Broker...");
+    displayLCDmessage("(Re) Connecting to MQTT Broker...", tft.color565(70, 50, 100), FF25, true, true, 60);
+
+    delay(3000);
 
     if (mqttClient->connect(clientName)){ 
 
