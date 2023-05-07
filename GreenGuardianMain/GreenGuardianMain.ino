@@ -51,12 +51,6 @@ void loop(){
     isTestLight = !isTestLight; // toggle to change mode of RGB stick
     delay(200);
   }
-
-if (digitalRead(BUTTON_2) == LOW) { // If BUTTON_2 is being pressed
-    buzzerOn = !buzzerOn; // Toggle the boolean variable
-    delay(100); // Debounce the button (detects only a single signal)
-  }
-
   testTemperature(calculateTemp(temperatureLevel));
   drawScreen(moistureLevel, lightLevel, temperatureLevel);
 }
@@ -80,7 +74,6 @@ void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
   if (moistureLevel >= 0 && moistureLevel < 300) {           // dry - dry
     spr.setTextColor(TFT_RED);
     spr.drawString("Dry",243,40);
-    errorSound();
   } else if(moistureLevel >= 300 && moistureLevel < 600) {   // moist - darkcyan
     spr.setTextColor(TFT_DARKCYAN);
     spr.drawString("Moist",232,40);
@@ -93,15 +86,13 @@ void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
   }
 
   // display light
-  int range = map(lightLevel, 0, 1300, 0, 10);                // map light values to a range for percentage
+  int range = map(lightLevel, 0, 1300, 0, 10);         // map light values to a range for percentage
   if(range < 3){
    spr.setTextColor(TFT_RED);
    spr.drawString("Low",245,118);
-   errorSound();
   } else if (range > 8){
    spr.setTextColor(TFT_RED);
    spr.drawString("High",237,118);
-    errorSound();
   } else if (range > 2 && range < 9){
    spr.setTextColor(TFT_DARKGREEN);
    spr.drawString("Good",237,118);
@@ -180,41 +171,5 @@ void testTemperature(int celcius){
     digitalWrite(ledPin, HIGH);
   } else {
     digitalWrite(ledPin, LOW);
-  }
-}
-
-void errorSound() {
-  const unsigned long buzzerBeep = 400;
-  const unsigned long shortPause = 200;
-  const unsigned long longPause = 1000;
-  const int buzzerFrequency = 150;
-
-  //millis function is used to keep track of current time and the start time.
-  unsigned long startTime = millis();
-
-  // Play the buzzer if the boolean is true and the buzzerBeep time hasnt elapsed
-  while (millis() - startTime < buzzerBeep && buzzerOn) { // Only play the buzzer if the boolean is true
-    analogWrite(WIO_BUZZER, buzzerFrequency);
-  }
-
-  startTime = millis();
-
-  //400ms pause
-  while (millis() - startTime < shortPause) {
-    analogWrite(WIO_BUZZER, 0);
-  }
-
-  startTime = millis();
-
-  // Play the buzzer if the boolean is true and the buzzerBeep time hasnt elapsed
-  while (millis() - startTime < buzzerBeep && buzzerOn) { // Only play the buzzer if the boolean is true
-    analogWrite(WIO_BUZZER, buzzerFrequency);
-  }
-
-  startTime = millis();
-
-  // Pause the buzzer for the 1000ms
-  while (millis() - startTime < longPause) {
-    analogWrite(WIO_BUZZER, 0);
   }
 }
