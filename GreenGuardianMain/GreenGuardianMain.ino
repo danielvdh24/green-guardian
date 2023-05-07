@@ -1,7 +1,6 @@
 // below is the setup needed for the LCD library
 #include "TFT_eSPI.h"
 TFT_eSPI tft;
-TFT_eSprite spr = TFT_eSprite(&tft);
 // below is the setup needed for the RGB light stick library
 #include "Adafruit_NeoPixel.h"
 #ifdef __AVR__
