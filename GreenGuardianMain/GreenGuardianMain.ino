@@ -184,6 +184,7 @@ void testTemperature(int celcius){
 }
 
 void errorSound() {
+  //Lengths for pauses
   const unsigned long buzzerBeep = 400;
   const unsigned long shortPause = 200;
   const unsigned long longPause = 1000;
@@ -206,14 +207,14 @@ void errorSound() {
 
   startTime = millis();
 
-  // Play the buzzer if the boolean is true and the buzzerBeep time hasnt elapsed
+  //Play the buzzer if the boolean is true and the buzzerBeep time hasnt elapsed
   while (millis() - startTime < buzzerBeep && buzzerOn) { // Only play the buzzer if the boolean is true
     analogWrite(WIO_BUZZER, buzzerFrequency);
   }
 
   startTime = millis();
 
-  // Pause the buzzer for the 1000ms
+  //Pause the buzzer for the 1000ms
   while (millis() - startTime < longPause) {
     analogWrite(WIO_BUZZER, 0);
   }
