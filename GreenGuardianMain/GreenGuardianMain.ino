@@ -16,6 +16,7 @@ const int moisturePin = A0;
 const int temperaturePin = A1;
 const int ledPin = A2;
 bool isTestLight = true;
+bool buzzerOn = true;        // Initialize the boolean variable as true, to track if the buzzer is on
 const int maxTemp = 30;      // the temperature for which the plant should not exceed
 const int B = 4275;          // temperature sensor thermistor beta coefficient value, given by manufacturer
 const int R0 = 100000;       // temperature sensor reference resistance
@@ -25,7 +26,9 @@ void setup(){
   pinMode(temperaturePin, INPUT);
   pinMode(ledPin, OUTPUT);
   pinMode(WIO_LIGHT, INPUT);
-  pinMode(BUTTON_3, INPUT_PULLUP);
+  pinMode(BUTTON_3, INPUT_PULLUP);    //assign button 3 to swap rgb stick modes
+  pinMode(BUTTON_2, INPUT_PULLUP);    //assign button 2 to turn off the buzzer sound
+  pinMode(WIO_BUZZER, OUTPUT);
   pixels.setBrightness(50);           // brightness of led stick
   pixels.begin();
   tft.begin();
@@ -48,6 +51,12 @@ void loop(){
     isTestLight = !isTestLight; // toggle to change mode of RGB stick
     delay(200);
   }
+
+if (digitalRead(BUTTON_2) == LOW) { // If BUTTON_2 is being pressed
+    buzzerOn = !buzzerOn; // Toggle the boolean variable
+    delay(100); // Debounce the button (detects only a single signal)
+  }
+
   testTemperature(calculateTemp(temperatureLevel));
   drawScreen(moistureLevel, lightLevel, temperatureLevel);
 }
@@ -71,6 +80,7 @@ void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
   if (moistureLevel >= 0 && moistureLevel < 300) {           // dry - dry
     spr.setTextColor(TFT_RED);
     spr.drawString("Dry",243,40);
+    errorSound();
   } else if(moistureLevel >= 300 && moistureLevel < 600) {   // moist - darkcyan
     spr.setTextColor(TFT_DARKCYAN);
     spr.drawString("Moist",232,40);
@@ -83,13 +93,15 @@ void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
   }
 
   // display light
-  int range = map(lightLevel, 0, 1300, 0, 10);         // map light values to a range for percentage
+  int range = map(lightLevel, 0, 1300, 0, 10);                // map light values to a range for percentage
   if(range < 3){
    spr.setTextColor(TFT_RED);
    spr.drawString("Low",245,118);
+   errorSound();
   } else if (range > 8){
    spr.setTextColor(TFT_RED);
    spr.drawString("High",237,118);
+    errorSound();
   } else if (range > 2 && range < 9){
    spr.setTextColor(TFT_DARKGREEN);
    spr.drawString("Good",237,118);
@@ -172,7 +184,6 @@ void testTemperature(int celcius){
 }
 
 void errorSound() {
-  //Lengths for pauses
   const unsigned long buzzerBeep = 400;
   const unsigned long shortPause = 200;
   const unsigned long longPause = 1000;
@@ -195,14 +206,14 @@ void errorSound() {
 
   startTime = millis();
 
-  //Play the buzzer if the boolean is true and the buzzerBeep time hasnt elapsed
+  // Play the buzzer if the boolean is true and the buzzerBeep time hasnt elapsed
   while (millis() - startTime < buzzerBeep && buzzerOn) { // Only play the buzzer if the boolean is true
     analogWrite(WIO_BUZZER, buzzerFrequency);
   }
 
   startTime = millis();
 
-  //Pause the buzzer for the 1000ms
+  // Pause the buzzer for the 1000ms
   while (millis() - startTime < longPause) {
     analogWrite(WIO_BUZZER, 0);
   }
