@@ -16,7 +16,7 @@ const int moisturePin = A0;
 const int temperaturePin = A1;
 const int ledPin = A2;
 bool isTestLight = true;
-bool buzzerOn = true; // Initialize the boolean variable to false
+bool buzzerOn = true;        // Initialize the boolean variable as true, to track if the buzzer is on
 const int maxTemp = 30;      // the temperature for which the plant should not exceed
 const int B = 4275;          // temperature sensor thermistor beta coefficient value, given by manufacturer
 const int R0 = 100000;       // temperature sensor reference resistance
@@ -26,8 +26,8 @@ void setup(){
   pinMode(temperaturePin, INPUT);
   pinMode(ledPin, OUTPUT);
   pinMode(WIO_LIGHT, INPUT);
-  pinMode(BUTTON_3, INPUT_PULLUP);
-  pinMode(BUTTON_2, INPUT_PULLUP);
+  pinMode(BUTTON_3, INPUT_PULLUP);    //assign button 3 to swap rgb stick modes
+  pinMode(BUTTON_2, INPUT_PULLUP);    //assign button 2 to turn off the buzzer sound
   pinMode(WIO_BUZZER, OUTPUT);
   pixels.setBrightness(50);           // brightness of led stick
   pixels.begin();
@@ -52,9 +52,9 @@ void loop(){
     delay(200);
   }
 
-if (digitalRead(BUTTON_2) == LOW) {
-    buzzerOn = !buzzerOn;
-    delay(100); //
+if (digitalRead(BUTTON_2) == LOW) { // If BUTTON_2 is being pressed
+    buzzerOn = !buzzerOn; // Toggle the boolean variable
+    delay(100); // Debounce the button (detects only a single signal)
   }
 
   testTemperature(calculateTemp(temperatureLevel));
@@ -189,26 +189,31 @@ void errorSound() {
   const unsigned long longPause = 1000;
   const int buzzerFrequency = 150;
 
+  //millis function is used to keep track of current time and the start time.
   unsigned long startTime = millis();
 
-  while (millis() - startTime < buzzerBeep && buzzerOn) {
+  // Play the buzzer if the boolean is true and the buzzerBeep time hasnt elapsed
+  while (millis() - startTime < buzzerBeep && buzzerOn) { // Only play the buzzer if the boolean is true
     analogWrite(WIO_BUZZER, buzzerFrequency);
   }
 
   startTime = millis();
 
+  //400ms pause
   while (millis() - startTime < shortPause) {
     analogWrite(WIO_BUZZER, 0);
   }
 
   startTime = millis();
 
-  while (millis() - startTime < buzzerBeep && buzzerOn) {
+  // Play the buzzer if the boolean is true and the buzzerBeep time hasnt elapsed
+  while (millis() - startTime < buzzerBeep && buzzerOn) { // Only play the buzzer if the boolean is true
     analogWrite(WIO_BUZZER, buzzerFrequency);
   }
 
   startTime = millis();
 
+  // Pause the buzzer for the 1000ms
   while (millis() - startTime < longPause) {
     analogWrite(WIO_BUZZER, 0);
   }
