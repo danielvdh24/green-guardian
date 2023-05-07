@@ -16,6 +16,7 @@ const int moisturePin = A0;
 const int temperaturePin = A1;
 const int ledPin = A2;
 bool isTestLight = true;
+bool buzzerOn = true; // Initialize the boolean variable to false
 const int maxTemp = 30;      // the temperature for which the plant should not exceed
 const int B = 4275;          // temperature sensor thermistor beta coefficient value, given by manufacturer
 const int R0 = 100000;       // temperature sensor reference resistance
@@ -26,6 +27,7 @@ void setup(){
   pinMode(ledPin, OUTPUT);
   pinMode(WIO_LIGHT, INPUT);
   pinMode(BUTTON_3, INPUT_PULLUP);
+  pinMode(BUTTON_2, INPUT_PULLUP);
   pinMode(WIO_BUZZER, OUTPUT);
   pixels.setBrightness(50);           // brightness of led stick
   pixels.begin();
@@ -49,6 +51,12 @@ void loop(){
     isTestLight = !isTestLight; // toggle to change mode of RGB stick
     delay(200);
   }
+
+if (digitalRead(BUTTON_2) == LOW) {
+    buzzerOn = !buzzerOn;
+    delay(100); //
+  }
+
   testTemperature(calculateTemp(temperatureLevel));
   drawScreen(moistureLevel, lightLevel, temperatureLevel);
 }
@@ -175,17 +183,33 @@ void testTemperature(int celcius){
   }
 }
 
-void errorSound(){
-    //beep the buzzer for 0.4 second
-    analogWrite(WIO_BUZZER, 150);
-    delay(400);
-    //has a small delay for doubble beep
+void errorSound() {
+  const unsigned long buzzerBeep = 400;
+  const unsigned long shortPause = 200;
+  const unsigned long longPause = 1000;
+  const int buzzerFrequency = 150;
+
+  unsigned long startTime = millis();
+
+  while (millis() - startTime < buzzerBeep && buzzerOn) {
+    analogWrite(WIO_BUZZER, buzzerFrequency);
+  }
+
+  startTime = millis();
+
+  while (millis() - startTime < shortPause) {
     analogWrite(WIO_BUZZER, 0);
-    delay(200);
-    //beep the buzzer for 0.4 second
-    analogWrite(WIO_BUZZER, 150);
-    delay(400);
-    //Silence the buzzer for 1 second to reset the cycle
+  }
+
+  startTime = millis();
+
+  while (millis() - startTime < buzzerBeep && buzzerOn) {
+    analogWrite(WIO_BUZZER, buzzerFrequency);
+  }
+
+  startTime = millis();
+
+  while (millis() - startTime < longPause) {
     analogWrite(WIO_BUZZER, 0);
-    delay(1000);
+  }
 }
