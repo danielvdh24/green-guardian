@@ -16,6 +16,7 @@ const int moisturePin = A0;
 const int temperaturePin = A1;
 const int ledPin = A2;
 bool isTestLight = true;
+bool buzzerOn = true;        // Initialize the boolean variable as true, to track if the buzzer is on
 const int maxTemp = 30;      // the temperature for which the plant should not exceed
 const int B = 4275;          // temperature sensor thermistor beta coefficient value, given by manufacturer
 const int R0 = 100000;       // temperature sensor reference resistance
@@ -25,7 +26,9 @@ void setup(){
   pinMode(temperaturePin, INPUT);
   pinMode(ledPin, OUTPUT);
   pinMode(WIO_LIGHT, INPUT);
-  pinMode(BUTTON_3, INPUT_PULLUP);
+  pinMode(BUTTON_3, INPUT_PULLUP);    //assign button 3 to swap rgb stick modes
+  pinMode(BUTTON_2, INPUT_PULLUP);    //assign button 2 to turn off the buzzer sound
+  pinMode(WIO_BUZZER, OUTPUT);
   pixels.setBrightness(50);           // brightness of led stick
   pixels.begin();
   tft.begin();
