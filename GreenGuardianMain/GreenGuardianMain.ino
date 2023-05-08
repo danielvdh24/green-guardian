@@ -172,20 +172,44 @@ void connectMqtt(){
 
   while (!mqttClient->connected()){
 
-    Serial.println("Connecting to MQTT Broker...");
+    displayLCDmessage("(Re) Connecting to MQTT Broker...", tft.color565(70, 50, 100), FF25, true, true, 60);
 
-    if (mqttClient->connect(clientName)){ 
+    delay(3000);
 
-      Serial.println("Connected to MQTT Broker!");
+    if (mqttClient->connect(clientName)){
+
+      displayLCDmessage("Connected To MQTT Broker!", tft.color565(0, 110, 0), FS12, true, true, 110);
 
       subscribeMqtt();
 
+      delay (3000);
+
     } else {
 
-      Serial.print("Failed, retrying...");
+      displayLCDmessage("Failed To Connect To MQTT Broker", tft.color565(100, 0, 0), FSS9, true, true, 70);
 
+      displayLCDmessage("Retry:", tft.color565(0, 70, 70), FM9, true, false);
+
+      displayLCDmessage("Press (Top Left Button)", tft.color565(0, 70, 70), FM9, true, false);
+
+      displayLCDmessage("Return Home:", tft.color565(0, 70, 70), FM9, true, false);
+
+      displayLCDmessage("Press (Top Right Button)", tft.color565(0, 70, 70), FM9, true, false);
+      
       delay(2000);
 
+      while (true){
+
+        if (digitalRead(BUTTON_3) == LOW){
+
+          return connectMqtt();
+
+        } else if (digitalRead(BUTTON_1) == LOW){
+
+          Serial.print("To Welcome Screen");
+
+        }
+      }
     }
   }
 
@@ -250,6 +274,12 @@ void loop(){
   if (WiFi.status() != WL_CONNECTED){
   
     return setupWifi(); 
+
+  }
+
+    if (!mqttClient->connected()){
+
+    return connectMqtt();
 
   }
 
