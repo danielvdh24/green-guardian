@@ -7,6 +7,14 @@ TFT_eSPI tft;
 #include <avr/power.h>
 #include <math.h>
 #endif
+// below is the setup needed for wifi connectivity
+#include <rpcWiFi.h>
+#include "wifiauth.h"
+// below is the setup needed for mqtt connectivity
+#include <PubSubClient.h>
+// below is the setup needed for used fonts 
+#include "Free_Fonts.h"
+
 #define PIN            BCM3
 #define NUMPIXELS      10
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
@@ -20,20 +28,64 @@ const int maxTemp = 30;      // the temperature for which the plant should not e
 const int B = 4275;          // temperature sensor thermistor beta coefficient value, given by manufacturer
 const int R0 = 100000;       // temperature sensor reference resistance
 
+//Insert values below:
+IPAddress brokerIp(0, 0, 0, 0);
+int port = 0;
+
+//Insert values below:
+char pubTopic[] = "";
+char subTopic[] = "";
+char pubMessage[] = "";
+char clientName[] = "";
+
+WiFiClient* wioClient = nullptr;
+PubSubClient* mqttClient = nullptr;
+
+int Y_Cord_Start_Pos = 0;
+int text_Y_Margin_Offset = 0;
+
+void displayLCDmessage(char* message, uint16_t textColor, const GFXfont* textSize, boolean centerAlign, boolean clearPrevLCD, int Y_Cord_Start_Pos = Y_Cord_Start_Pos);
+
 void setup(){
+  while (!Serial){
+    Serial.begin(9600);
+  }
   pinMode(moisturePin, INPUT);
   pinMode(temperaturePin, INPUT);
   pinMode(ledPin, OUTPUT);
   pinMode(WIO_LIGHT, INPUT);
-  pinMode(BUTTON_3, INPUT_PULLUP);    //assign button 3 to swap rgb stick modes
+  pinMode(BUTTON_1, INPUT_PULLUP);
   pinMode(BUTTON_2, INPUT_PULLUP);    //assign button 2 to turn off the buzzer sound
+  pinMode(BUTTON_3, INPUT_PULLUP);
   pinMode(WIO_BUZZER, OUTPUT);
   pixels.setBrightness(50);           // brightness of led stick
   pixels.begin();
-  tft.begin();
-  tft.setRotation(3);
-  Serial.begin(9600);
+  setupLCD();
+  setupWifi();
+  setupDataDisplay();
+}
 
+void setupLCD(){
+
+  tft.begin();
+
+  tft.setRotation(3);
+
+  tft.fillScreen(TFT_WHITE);
+
+}
+
+void setupWifi(){
+
+  wioClient = new WiFiClient;
+
+  WiFi.disconnect();
+
+  connectWifi();
+
+}
+
+void setupDataDisplay(){
   tft.fillScreen(TFT_GREEN);
   tft.fillRect(10,10,300,220, TFT_DARKGREEN);
   tft.fillRect(10,83,300,10, TFT_GREEN);
@@ -42,13 +94,153 @@ void setup(){
   tft.fillRect(220,105,80,40, TFT_GREEN);
   tft.fillRect(220,178,80,40, TFT_GREEN);
   tft.setTextColor(TFT_WHITE);
-  tft.setTextSize(3);
+  tft.setTextSize(1);
   tft.drawString("Moisture",40,37);
   tft.drawString("Light",40,115);
   tft.drawString("Temp",40,187);
 }
 
+void connectWifi(){
+
+  displayLCDmessage("(Re) Connecting To WiFi...", tft.color565(20, 70, 150), FM9, true, true, 60);
+
+  delay(2000);
+
+  WiFi.begin(SSID, PASS);
+
+  if (WiFi.status() != WL_CONNECTED){
+
+    displayLCDmessage("Failed To Connect To WiFi", tft.color565(70, 0, 0), FF25, true, true, 60);
+
+    displayLCDmessage("Retry:", tft.color565(0, 70, 70), FM9, true, false);
+
+    displayLCDmessage("Press (Top Left Button)", tft.color565(0, 70, 70), FM9, true, false);
+
+    displayLCDmessage("Return Home:", tft.color565(0, 70, 70), FM9, true, false);
+
+    displayLCDmessage("Press (Top Right Button)", tft.color565(0, 70, 70), FM9, true, false);
+
+    delete wioClient;
+
+    while (true){
+
+      if (digitalRead(BUTTON_3) == LOW){
+
+        return setupWifi();
+
+      } else if (digitalRead(BUTTON_1) == LOW){
+
+        Serial.print("To Welcome Screen");
+
+      }
+    }
+  }
+
+  displayLCDmessage("WiFi Connected!", tft.color565(0, 110, 0), FF6, true, true, 110);
+
+  delay(3000);
+
+  setupMqtt();
+
+}
+
+void setupMqtt(){
+
+  mqttClient = new PubSubClient(*wioClient);
+
+  mqttClient->setServer(brokerIp, port);
+
+  mqttClient->setCallback(handleSubMessage);
+
+  connectMqtt();
+
+}
+
+void connectMqtt(){
+
+  while (!mqttClient->connected()){
+
+    Serial.println("Connecting to MQTT Broker...");
+
+    if (mqttClient->connect(clientName)){ 
+
+      Serial.println("Connected to MQTT Broker!");
+
+      subscribeMqtt();
+
+    } else {
+
+      Serial.print("Failed, retrying...");
+
+      delay(2000);
+
+    }
+  }
+
+  setupDataDisplay();
+
+}
+
+void publishMqtt(){
+
+  delay(1000);
+
+  mqttClient->publish(pubTopic, pubMessage);
+
+}
+
+void subscribeMqtt(){
+
+  mqttClient->subscribe(subTopic);
+
+}
+
+void displayLCDmessage(char* message, uint16_t textColor, const GFXfont* textSize, boolean centerAlign, boolean clearPrevLCD, int Y_Cord_Start_Pos){
+
+  ::Y_Cord_Start_Pos = Y_Cord_Start_Pos;
+
+  if (clearPrevLCD){
+
+    tft.fillScreen(TFT_WHITE);
+
+    text_Y_Margin_Offset = 0;
+
+  }
+
+  tft.setTextColor(textColor);
+  
+  tft.setFreeFont(textSize);  
+
+  tft.drawString(message, centerAlign ? 160 - (tft.textWidth(message) / 2) : 0, Y_Cord_Start_Pos + text_Y_Margin_Offset);
+
+  text_Y_Margin_Offset += tft.fontHeight();
+
+}
+
+void handleSubMessage(char* topic, byte* payload, unsigned int length){
+
+  char message[length + 1]; 
+
+  for (int i = 0; i < length; i++){
+
+    message[i] = (char) payload[i];
+
+  }
+
+  message[length] = '\0';
+
+  Serial.println(message);
+
+}
+
 void loop(){
+
+  if (WiFi.status() != WL_CONNECTED){
+  
+    return setupWifi(); 
+
+  }
+
   int moistureLevel = analogRead(moisturePin);
   int temperatureLevel = analogRead(temperaturePin);
   int lightLevel = analogRead(WIO_LIGHT);
@@ -70,6 +262,11 @@ if (digitalRead(BUTTON_2) == LOW) { // If BUTTON_2 is being pressed
 
   testTemperature(calculateTemp(temperatureLevel));
   drawScreen(moistureLevel, lightLevel, temperatureLevel);
+
+  publishMqtt();
+
+  mqttClient->loop();
+
 }
 
 void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
@@ -79,7 +276,7 @@ void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
   tft.fillRect(220,178,80,40, TFT_GREEN);
 
   // display moisture
-  tft.setTextSize(2);
+  tft.setTextSize(1);
   if (moistureLevel >= 0 && moistureLevel < 300) {           // dry - dry
     tft.setTextColor(TFT_RED);
     tft.drawString("Dry",243,40);
@@ -111,7 +308,6 @@ void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
   }
 
   // display temperature
-  tft.setTextSize(3);
   int celcius = calculateTemp(temperatureLevel);
   if(celcius >= maxTemp){
    tft.setTextColor(TFT_RED);
@@ -128,7 +324,6 @@ void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
   tft.drawString("C",270,188);
 }
 
-
 void testLight(int lightLevel){
  pixels.clear();
  int range = map(lightLevel, 0, 1300, 0, 10);         // map light values to a range to activate leds
@@ -144,7 +339,6 @@ void testLight(int lightLevel){
  pixels.show();
 }
 
-
 void testMoisture(int moistureLevel){
  pixels.clear();
  int range;
@@ -158,15 +352,8 @@ void testMoisture(int moistureLevel){
     for(int i = 0; i < range; i++){
      pixels.setPixelColor(i, pixels.Color(69,165,217));
     }
-  } else {                                                   // wet - dark blue
-    range = map(moistureLevel, 600, 1023, 7, 10);
-    for(int i = 0; i < range; i++){
-     pixels.setPixelColor(i, pixels.Color(0,0,255));
-    }
   }
- pixels.show();
 }
-
 
 int calculateTemp(int temperatureLevel){
   float R = 1023.0 / temperatureLevel - 1.0;                          // calculate the resistance of the thermistor
