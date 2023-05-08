@@ -60,6 +60,7 @@ void setup(){
   pinMode(WIO_BUZZER, OUTPUT);
   pixels.setBrightness(50);           // brightness of led stick
   pixels.begin();
+  drawStartingScreen();
   setupLCD();
   setupWifi();
   setupDataDisplay();
@@ -98,6 +99,24 @@ void setupDataDisplay(){
   tft.drawString("Moisture",40,37);
   tft.drawString("Light",40,115);
   tft.drawString("Temp",40,187);
+}
+
+void drawStartingScreen() {
+  tft.fillScreen(TFT_DARKGREEN);
+  tft.fillEllipse(145, 100, 5, 40, TFT_GREEN);
+  tft.fillEllipse(160, 100, 5, 40, TFT_GREEN);
+  tft.fillEllipse(175, 100, 5, 40, TFT_GREEN);
+  tft.fillRect(130, 120, 60, 50, tft.color565(150, 75, 0));
+  tft.fillRoundRect(125, 115, 70, 15, 10, tft.color565(150, 75, 0));
+  tft.setTextColor(TFT_WHITE);
+  tft.setTextSize(3);
+  tft.setCursor(40, 20);
+  tft.print("Green Guardian");
+  tft.setTextSize(2);
+  tft.setCursor(40, 200);
+  tft.print("Online");
+  tft.setCursor(200, 200);
+  tft.print("Offline");
 }
 
 void connectWifi(){
