@@ -29,9 +29,12 @@ const int maxTemp = 30;      // the temperature for which the plant should not e
 const int B = 4275;          // temperature sensor thermistor beta coefficient value, given by manufacturer
 const int R0 = 100000;       // temperature sensor reference resistance
 
-// Variable to keep track of mode
-bool toggleStatus = true;
+// Variables to keep track of mode setup and connectivity status
 bool onlineMode = false;
+bool showStartingScreen = true;
+bool modeIsSetup = false;
+bool wifiIsConnected = false;
+bool brokerIsConnected = false;
 
 //Insert values below:
 IPAddress brokerIp(0, 0, 0, 0);
@@ -49,15 +52,18 @@ PubSubClient* mqttClient = nullptr;
 int Y_Cord_Start_Pos = 0;
 int text_Y_Margin_Offset = 0;
 
-void displayLCDmessage(char* message, uint16_t textColor, const GFXfont* textSize, boolean centerAlign, boolean clearPrevLCD, int Y_Cord_Start_Pos = Y_Cord_Start_Pos);
+void displayLCDmessage(char* message, uint16_t textColor, const GFXfont* font, boolean centerAlign, boolean clearPrevLCD, int Y_Cord_Start_Pos = Y_Cord_Start_Pos);
 
 void setup(){
+  //Serial here for testing purposes - will not be present in final product
+  while(!Serial){
+    Serial.begin(9600);
+  }
   pinMode(WIO_5S_LEFT, INPUT);
   pinMode(WIO_5S_RIGHT, INPUT);
   pinMode(WIO_5S_PRESS, INPUT);
   tft.begin();
   tft.setRotation(3);
-  drawStartingScreen();
   pinMode(moisturePin, INPUT);
   pinMode(temperaturePin, INPUT);
   pinMode(ledPin, OUTPUT);
@@ -68,17 +74,11 @@ void setup(){
   pinMode(WIO_BUZZER, OUTPUT);
   pixels.setBrightness(50);           // brightness of led stick
   pixels.begin();
-  if(onlineMode){
-    setupWifi();
-    setupDataDisplay();
-  }
 }
 
 void setupWifi(){
-  tft.setTextSize(1);
   wioClient = new WiFiClient;
   WiFi.disconnect();
-  connectWifi();
 }
 
 void setupDataDisplay(){
@@ -90,7 +90,6 @@ void setupDataDisplay(){
   tft.fillRect(220,105,80,40, TFT_GREEN);
   tft.fillRect(220,178,80,40, TFT_GREEN);
   tft.setTextColor(TFT_WHITE);
-  tft.setTextSize(3);
   tft.drawString("Moisture",40,37);
   tft.drawString("Light",40,115);
   tft.drawString("Temp",40,187);
@@ -118,28 +117,25 @@ void drawStartingScreen() {
 }
 
 void handleSwitchInput() {
-  onlineMode = false;
-  toggleStatus = true;
+  int selectedMode = 0;
   while (true) {
     if (digitalRead(WIO_5S_LEFT) == LOW){
       toggleOnline();
-      toggleStatus = true;
+      selectedMode = 1;
     }
     if (digitalRead(WIO_5S_RIGHT) == LOW){
       toggleOffline();
-      toggleStatus = false;
+      selectedMode = 2;
     }
-    if (digitalRead(WIO_5S_PRESS) == LOW && toggleStatus == true){
+    if (digitalRead(WIO_5S_PRESS) == LOW && selectedMode == 1){
       //Replace below with online screen
-      tft.fillScreen(TFT_WHITE);
       onlineMode = true;
-      break;
+      return;
     }
-    if (digitalRead(WIO_5S_PRESS) == LOW && toggleStatus == false){
+    if (digitalRead(WIO_5S_PRESS) == LOW && selectedMode == 2){
       //Replace below with offline screen
-      setupDataDisplay();
       onlineMode = false;
-      break;
+      return;
     }
   }
 }
@@ -158,7 +154,7 @@ void connectWifi(){
   displayLCDmessage("(Re) Connecting To WiFi...", tft.color565(20, 70, 150), FM9, true, true, 60);
   displayLCDmessage("(Connection Keeps Failing? Fix:", tft.color565(70, 50, 50), FF25, true, false);
   displayLCDmessage("1. WiFi Turned Off)", tft.color565(70, 50, 50), FF25, true, false);
-  displayLCDmessage("(Screen Static For T>15s? Fix:", TFT_BLACK, FF33, true, false);
+  displayLCDmessage("(Screen Static For T>10s? Fix:", TFT_BLACK, FF33, true, false);
   displayLCDmessage("2. Faulty AP Point Configuration)", tft.color565(70, 50, 50), FF25, true, false);
   displayLCDmessage("Alt 2. Needs Manual Wio Restart", TFT_BLACK, FF33, true, false);
   displayLCDmessage("After Reconfiguration", TFT_BLACK, FF33, true, false);
@@ -174,56 +170,55 @@ void connectWifi(){
     delete wioClient;
     while (true){
       if (digitalRead(BUTTON_3) == LOW){
-        return setupWifi();
+        return;
       } else if (digitalRead(BUTTON_1) == LOW){
-        return drawStartingScreen();
+        showStartingScreen = true;
+        return;
       }
     }
   }
   displayLCDmessage("WiFi Connected!", tft.color565(0, 110, 0), FF6, true, true, 110);
   delay(3000);
-  setupMqtt();
+  wifiIsConnected = true;
 }
 
 void setupMqtt(){
   mqttClient = new PubSubClient(*wioClient);
   mqttClient->setServer(brokerIp, port);
   mqttClient->setCallback(handleSubMessage);
-  connectMqtt();
 }
 
 void connectMqtt(){
-  while (!mqttClient->connected()){
-    displayLCDmessage("(Re) Connecting to MQTT Broker...", tft.color565(70, 50, 100), FF25, true, true, 60);
-    displayLCDmessage("(Connection Keeps Failing? Fix:", TFT_BLACK, FF33, true, false);
-    displayLCDmessage("1. Broker Is Not Running)", TFT_BLACK, FF33, true, false);
-    displayLCDmessage("(Screen Static For T>15s? Fix:", TFT_BLACK, FF33, true, false);
-    displayLCDmessage("2. Faulty BrokerIP &&/|| WiFi Loss)", TFT_BLACK, FF33, true, false);
-    displayLCDmessage("Alt 2. Needs Manual Wio Restart", TFT_BLACK, FF33, true, false);
-    displayLCDmessage("After Reconfiguration", TFT_BLACK, FF33, true, false);
-    delay(3000);
+  displayLCDmessage("(Re) Connecting to MQTT Broker...", tft.color565(70, 50, 100), FF25, true, true, 60);
+  displayLCDmessage("(Connection Keeps Failing? Fix:", TFT_BLACK, FF33, true, false);
+  displayLCDmessage("1. Broker Is Not Running)", TFT_BLACK, FF33, true, false);
+  displayLCDmessage("(Screen Static For T>10s? Fix:", TFT_BLACK, FF33, true, false);
+  displayLCDmessage("2. Faulty BrokerIP &&/|| WiFi Loss)", TFT_BLACK, FF33, true, false);
+  displayLCDmessage("Alt 2. Needs Manual Wio Restart", TFT_BLACK, FF33, true, false);
+  displayLCDmessage("After Reconfiguration", TFT_BLACK, FF33, true, false);
+  delay(4000);
 
-    if (mqttClient->connect(clientName)){
-      displayLCDmessage("Connected To MQTT Broker!", tft.color565(0, 110, 0), FS12, true, true, 110);
-      subscribeMqtt();
-      delay (3000);
-    } else {
-      displayLCDmessage("Failed To Connect To MQTT Broker", tft.color565(100, 0, 0), FSS9, true, true, 70);
-      displayLCDmessage("Retry:", tft.color565(0, 70, 70), FM9, true, false);
-      displayLCDmessage("Press (Top Left Button)", tft.color565(0, 70, 70), FM9, true, false);
-      displayLCDmessage("Return Home:", tft.color565(0, 70, 70), FM9, true, false);
-      displayLCDmessage("Press (Top Right Button)", tft.color565(0, 70, 70), FM9, true, false);
-      delay(2000);
-      while (true){
-        if (digitalRead(BUTTON_3) == LOW){
-          return connectMqtt();
-        } else if (digitalRead(BUTTON_1) == LOW){
-          return drawStartingScreen();
-        }
+  if (mqttClient->connect(clientName)){
+    displayLCDmessage("Connected To MQTT Broker!", tft.color565(0, 110, 0), FS12, true, true, 110);
+    brokerIsConnected = true;
+    subscribeMqtt();
+    delay (3000);
+  } else {
+    displayLCDmessage("Failed To Connect To MQTT Broker", tft.color565(100, 0, 0), FSS9, true, true, 70);
+    displayLCDmessage("Retry:", tft.color565(0, 70, 70), FM9, true, false);
+    displayLCDmessage("Press (Top Left Button)", tft.color565(0, 70, 70), FM9, true, false);
+    displayLCDmessage("Return Home:", tft.color565(0, 70, 70), FM9, true, false);
+    displayLCDmessage("Press (Top Right Button)", tft.color565(0, 70, 70), FM9, true, false);
+    delay(2000);
+    while (true){
+      if (digitalRead(BUTTON_3) == LOW){
+        return;
+      } else if (digitalRead(BUTTON_1) == LOW){
+        showStartingScreen = true;
+        return;
       }
     }
   }
-  setupDataDisplay();
 }
 
 void publishMqtt(){
@@ -235,14 +230,14 @@ void subscribeMqtt(){
   mqttClient->subscribe(subTopic);
 }
 
-void displayLCDmessage(char* message, uint16_t textColor, const GFXfont* textSize, boolean centerAlign, boolean clearPrevLCD, int Y_Cord_Start_Pos){
+void displayLCDmessage(char* message, uint16_t textColor, const GFXfont* font, boolean centerAlign, boolean clearPrevLCD, int Y_Cord_Start_Pos){
   ::Y_Cord_Start_Pos = Y_Cord_Start_Pos;
   if (clearPrevLCD){
     tft.fillScreen(TFT_WHITE);
     text_Y_Margin_Offset = 0;
   }
   tft.setTextColor(textColor);
-  tft.setFreeFont(textSize);
+  tft.setFreeFont(font);
   tft.drawString(message, centerAlign ? 160 - (tft.textWidth(message) / 2) : 0, Y_Cord_Start_Pos + text_Y_Margin_Offset);
   text_Y_Margin_Offset += tft.fontHeight();
 }
@@ -257,13 +252,43 @@ void handleSubMessage(char* topic, byte* payload, unsigned int length){
 }
 
 void loop(){
+
+  if (showStartingScreen){
+    drawStartingScreen();
+    modeIsSetup = false;
+    showStartingScreen = false;
+  }
+
   if(onlineMode){
     if (WiFi.status() != WL_CONNECTED){
-        return setupWifi();
+      wifiIsConnected = false;
+      tft.setTextSize(NULL);
+      while (!wifiIsConnected){
+        setupWifi();
+        connectWifi();
+        if (showStartingScreen){
+          return;
+        }
+      }
+      setupMqtt();
     }
+
     if (!mqttClient->connected()){
-        return connectMqtt();
+      brokerIsConnected = false;
+      modeIsSetup = false;
+      tft.setTextSize(NULL);
+      while (!brokerIsConnected){
+        connectMqtt();
+        if (showStartingScreen){
+          return;
+        }
+      }
     }
+  }
+
+  if (!modeIsSetup){
+    setupDataDisplay();
+    modeIsSetup = true;
   }
 
   int moistureLevel = analogRead(moisturePin);
@@ -299,7 +324,7 @@ void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
   tft.fillRect(220,22,80,50, TFT_GREEN);
   tft.fillRect(220,105,80,40, TFT_GREEN);
   tft.fillRect(220,178,80,40, TFT_GREEN);
-
+  tft.setFreeFont(NULL);
   // display moisture
   tft.setTextSize(2);
   if (moistureLevel >= 0 && moistureLevel < 300) {           // dry - dry
