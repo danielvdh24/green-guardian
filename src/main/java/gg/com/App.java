@@ -7,8 +7,8 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * JavaFX App
@@ -18,12 +18,12 @@ public class App extends Application {
     private static Scene scene;
 
     @Override
-    public void start(Stage stage) throws IOException 
+    public void start(Stage stage) throws IOException
     {
         Preferences preferences = Preferences.getPreferences();
         SettingsController.loadDelay();
-        scene = new Scene(loadFXML(preferences.getScene()), 600, 385);
-        stage.getIcons().add(new Image((new FileInputStream("src/main/resources/images/Logo.png"))));
+        scene = new Scene(loadFXML(preferences.getScene()), 600, 388);
+        stage.getIcons().add(new Image(Objects.requireNonNull(App.class.getResource("/images/Logo.png")).toString()));
         stage.setTitle("Green Guardian");
         stage.setResizable(false);
         stage.setScene(scene);
@@ -35,13 +35,13 @@ public class App extends Application {
         scene.setRoot(loadFXML(fxml));
     }
 
-    private static Parent loadFXML(String fxml) throws IOException 
+    private static Parent loadFXML(String fxml) throws IOException
     {
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource(fxml + ".fxml"));
         return fxmlLoader.load();
     }
 
-    public static void main(String[] args) 
+    public static void main(String[] args)
     {
         launch();
     }

@@ -1,17 +1,22 @@
 package gg.com;
+
 import com.google.gson.Gson;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class Preferences {
-    public static final String CONFIG_FILE = "src/main/resources/config.txt";
+    public static final String CONFIG_FILE = "config.txt";
+    public static final String CONFIG_DIRECTORY = "config";
 
     String scene;
     int interval;
     boolean notifications;
 
     public Preferences(){ // default values if no config file found
-        scene = "SpreadSheetScene";
+        scene = "SpreadsheetScene";
         interval = 5;
         notifications = false;
     }
@@ -45,14 +50,23 @@ public class Preferences {
         try {
             Preferences preference = new Preferences();
             Gson gson = new Gson();
-            writer = new FileWriter(CONFIG_FILE);
-            gson.toJson(preference, writer);
+            Path configDirectoryPath = Paths.get(CONFIG_DIRECTORY);
+            if (!Files.exists(configDirectoryPath)) {
+                Files.createDirectories(configDirectoryPath);
+            }
+            Path configFilePath = Paths.get(CONFIG_DIRECTORY, CONFIG_FILE);
+            if (!Files.exists(configFilePath)) {
+                Files.createFile(configFilePath);
+                writer = Files.newBufferedWriter(configFilePath);
+                gson.toJson(preference, writer);
+            }
         } catch (IOException e){
             e.printStackTrace();
         } finally {
             try {
-                assert writer != null;
-                writer.close();
+                if (writer != null) {
+                    writer.close();
+                }
             } catch (IOException e){
                 e.printStackTrace();
             }
@@ -63,29 +77,32 @@ public class Preferences {
         Gson gson = new Gson();
         Preferences preferences = new Preferences();
         try {
-            preferences = gson.fromJson(new FileReader(CONFIG_FILE), Preferences.class);
-        } catch (FileNotFoundException e){
-            initConfig();
+            Path configFilePath = Paths.get(CONFIG_DIRECTORY, CONFIG_FILE);
+            if (Files.exists(configFilePath)) {
+                BufferedReader reader = Files.newBufferedReader(configFilePath);
+                preferences = gson.fromJson(reader, Preferences.class);
+            } else {
+                initConfig();
+            }
+        } catch (Exception e){
+            e.printStackTrace();
         }
         return preferences;
     }
 
     public static void writePreferenceToFile(Preferences preference){
-        Writer writer = null;
         try {
             Gson gson = new Gson();
-            writer = new FileWriter(CONFIG_FILE);
+            Path configDirectoryPath = Paths.get(CONFIG_DIRECTORY);
+            if (!Files.exists(configDirectoryPath)) {
+                Files.createDirectories(configDirectoryPath);
+            }
+            Path configFilePath = Paths.get(CONFIG_DIRECTORY, CONFIG_FILE);
+            Writer writer = Files.newBufferedWriter(configFilePath);
             gson.toJson(preference, writer);
+            writer.close();
         } catch (IOException e){
             e.printStackTrace();
-        } finally {
-            try {
-                assert writer != null;
-                writer.close();
-            } catch (IOException e){
-                e.printStackTrace();
-            }
         }
     }
-
 }
