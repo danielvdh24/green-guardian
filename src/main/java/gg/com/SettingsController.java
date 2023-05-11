@@ -39,7 +39,7 @@ public class SettingsController {
     private void onSetDefaultPage(){
         String scene = null;
         if(spreadSheetSelect.isSelected()){
-            scene = "SpreadSheetScene";
+            scene = "SpreadsheetScene";
         }
         if(graphSelect.isSelected()){
             scene = "GraphScene";
@@ -85,21 +85,25 @@ public class SettingsController {
         }
         int interval = preferences.getInterval();
         switch(interval){
-            case 5 :
+                case 5 :
+                    fiveSecondSelect.setSelected(true);
+                    break;
+                case 60 :
+                    oneMinuteSelect.setSelected(true);
+                    break;
+                case 300 :
+                    fiveMinuteSelect.setSelected(true);
+                    break;
+                case 1800 :
+                    thirtyMinuteSelect.setSelected(true);
+                    break;
+                default :
                 fiveSecondSelect.setSelected(true);
-                break;
-            case 60 :
-                oneMinuteSelect.setSelected(true);
-                break;
-            case 300 :
-                fiveMinuteSelect.setSelected(true);
-                break;
-            case 1800 :
-                thirtyMinuteSelect.setSelected(true);
+                preferences.setInterval(5);
                 break;
         }
         String scene = preferences.getScene();
-        switch(scene){
+        switch (scene) {
             case "SpreadSheetScene" :
                 spreadSheetSelect.setSelected(true);
                 break;
@@ -112,12 +116,19 @@ public class SettingsController {
             case "SettingsScene" :
                 settingsSelect.setSelected(true);
                 break;
+            default :
+                spreadSheetSelect.setSelected(true);
+                preferences.setScene("SpreadsheetScene");
+                break;
         }
     }
 
     public static void loadDelay(){
         Preferences preferences = Preferences.getPreferences();
         graphDelay = preferences.getInterval();
+        if(!(graphDelay == 5 || graphDelay == 60 || graphDelay == 300 || graphDelay == 1800)){
+            graphDelay = 5;
+        }
     }
 
     public static double getDelay(){
