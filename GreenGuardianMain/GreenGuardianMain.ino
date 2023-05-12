@@ -1,21 +1,24 @@
-// below is the setup needed for the LCD library
+//Setup for LCD library
 #include "TFT_eSPI.h"
 TFT_eSPI tft;
-// below is the setup needed for the RGB light stick library
+//Setup for RGB light stick library
 #include "Adafruit_NeoPixel.h"
 #ifdef __AVR__
-// below is the setup needed for math calculations
-#include <avr/power.h>
-#include <math.h>
 #endif
-// below is the setup needed for wifi connectivity
+//Setup for wifi connectivity
 #include <rpcWiFi.h>
 #include "wifiauth.h"
-// below is the setup needed for mqtt connectivity
+//Setup for mqtt connectivity
 #include <PubSubClient.h>
-// below is the setup needed for used fonts
+//Setup for custom fonts
 #include "Free_Fonts.h"
+//Setup for temperature sensor
+#include "DHT.h"
 
+//Pin definitions for rgb stick and temperature sensor
+#define DHTPIN A1
+#define DHTTYPE DHT11
+DHT dht(DHTPIN, DHTTYPE);
 #define PIN            BCM3
 #define NUMPIXELS      10
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
@@ -24,12 +27,10 @@ const int moisturePin = A0;
 const int temperaturePin = A1;
 const int ledPin = A2;
 bool isTestLight = true;
-bool buzzerOn = true;        // Initialize the boolean variable as true, to track if the buzzer is on
-const int maxTemp = 30;      // the temperature for which the plant should not exceed
-const int B = 4275;          // temperature sensor thermistor beta coefficient value, given by manufacturer
-const int R0 = 100000;       // temperature sensor reference resistance
+bool buzzerOn = true;        //Initialize the boolean variable as true, to track if the buzzer is on
+const int maxTemp = 30;      //Temperature limit for plant
 
-// Variables to keep track of mode setup and connectivity status
+//Variables to keep track of mode setup and connectivity status
 bool onlineMode = false;
 bool showStartingScreen = true;
 bool modeIsSetup = false;
@@ -55,10 +56,6 @@ int text_Y_Margin_Offset = 0;
 void displayLCDmessage(char* message, uint16_t textColor, const GFXfont* font, boolean centerAlign, boolean clearPrevLCD, int Y_Cord_Start_Pos = Y_Cord_Start_Pos);
 
 void setup(){
-  //Serial here for testing purposes - will not be present in final product
-  while(!Serial){
-    Serial.begin(9600);
-  }
   pinMode(WIO_5S_LEFT, INPUT);
   pinMode(WIO_5S_RIGHT, INPUT);
   pinMode(WIO_5S_PRESS, INPUT);
@@ -72,7 +69,7 @@ void setup(){
   pinMode(BUTTON_2, INPUT_PULLUP);
   pinMode(BUTTON_3, INPUT_PULLUP);
   pinMode(WIO_BUZZER, OUTPUT);
-  pixels.setBrightness(50);           // brightness of led stick
+  pixels.setBrightness(50);
   pixels.begin();
 }
 
@@ -82,6 +79,7 @@ void setupWifi(){
 }
 
 void setupDataDisplay(){
+  tft.setFreeFont(NULL);
   tft.fillScreen(TFT_GREEN);
   tft.fillRect(10,10,300,220, TFT_DARKGREEN);
   tft.fillRect(10,83,300,10, TFT_GREEN);
@@ -90,6 +88,7 @@ void setupDataDisplay(){
   tft.fillRect(220,105,80,40, TFT_GREEN);
   tft.fillRect(220,178,80,40, TFT_GREEN);
   tft.setTextColor(TFT_WHITE);
+  tft.setTextSize(3);
   tft.drawString("Moisture",40,37);
   tft.drawString("Light",40,115);
   tft.drawString("Temp",40,187);
@@ -128,12 +127,12 @@ void handleSwitchInput() {
       selectedMode = 2;
     }
     if (digitalRead(WIO_5S_PRESS) == LOW && selectedMode == 1){
-      //Replace below with online screen
+      //Replace with online screen
       onlineMode = true;
       return;
     }
     if (digitalRead(WIO_5S_PRESS) == LOW && selectedMode == 2){
-      //Replace below with offline screen
+      //Replace with offline screen
       onlineMode = false;
       return;
     }
@@ -291,27 +290,26 @@ void loop(){
     modeIsSetup = true;
   }
 
-  int moistureLevel = analogRead(moisturePin);
-  int temperatureLevel = analogRead(temperaturePin);
-  int lightLevel = analogRead(WIO_LIGHT);
-  if (isTestLight) {
-    testLight(lightLevel);
-  } else {
-    testMoisture(moistureLevel);
-  }
-  if (digitalRead(BUTTON_3) == LOW) {
-    delay(200);
-    isTestLight = !isTestLight; // toggle to change mode of RGB stick
-    delay(200);
-  }
+    int moistureLevel = analogRead(moisturePin);
+    int temperatureLevel = dht.readTemperature();
+    int lightLevel = analogRead(WIO_LIGHT);
+    if (isTestLight) {
+      testLight(lightLevel);
+    } else {
+      testMoisture(moistureLevel);
+    }
+    if (digitalRead(BUTTON_3) == LOW) {
+      delay(200);
+      isTestLight = !isTestLight; //Toggle to change mode of RGB stick
+      delay(200);
+    }
 
-if (digitalRead(BUTTON_2) == LOW) { // If BUTTON_2 is being pressed
-    buzzerOn = !buzzerOn; // Toggle the boolean variable
-    delay(100); // Debounce the button (detects only a single signal)
-  }
+  if (digitalRead(BUTTON_2) == LOW) {
+      buzzerOn = !buzzerOn;
+      delay(100);
+    }
 
-  testTemperature(calculateTemp(temperatureLevel));
-  drawScreen(moistureLevel, lightLevel, temperatureLevel);
+    drawScreen(moistureLevel, lightLevel, temperatureLevel);
 
   if(onlineMode){
     publishMqtt();
@@ -320,29 +318,32 @@ if (digitalRead(BUTTON_2) == LOW) { // If BUTTON_2 is being pressed
 }
 
 void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
-  delay(500);
+  unsigned long startTime = millis();
+  while(millis() < startTime + 500){
+      //Wait 500ms
+  }
   tft.fillRect(220,22,80,50, TFT_GREEN);
   tft.fillRect(220,105,80,40, TFT_GREEN);
   tft.fillRect(220,178,80,40, TFT_GREEN);
   tft.setFreeFont(NULL);
-  // display moisture
+  //Display moisture
   tft.setTextSize(2);
-  if (moistureLevel >= 0 && moistureLevel < 300) {           // dry - dry
+  if (moistureLevel >= 0 && moistureLevel < 300) {           //Dry - dry
     tft.setTextColor(TFT_RED);
     tft.drawString("Dry",243,40);
-  } else if(moistureLevel >= 300 && moistureLevel < 600) {   // moist - darkcyan
+  } else if(moistureLevel >= 300 && moistureLevel < 600) {   //Moist - darkcyan
     tft.setTextColor(TFT_DARKCYAN);
     tft.drawString("Moist",232,40);
-  } else if(moistureLevel >= 600 && moistureLevel <= 950){    // wet - blue
+  } else if(moistureLevel >= 600 && moistureLevel <= 950){    //Wet - blue
     tft.setTextColor(TFT_BLUE);
     tft.drawString("Wet",243,40);
   } else {
-    tft.setTextColor(TFT_BLACK);                              // error - black (used for values that are outside the range)
+    tft.setTextColor(TFT_BLACK);                              //Error - black (values outside range)
     tft.drawString("ERROR",232,40);
   }
 
-  // display light
-  int range = map(lightLevel, 0, 1300, 0, 10);         // map light values to a range for percentage
+  //Display light
+  int range = map(lightLevel, 0, 1300, 0, 10);         //Map light values to a range for percentage
   if(range < 3){
    tft.setTextColor(TFT_RED);
    tft.drawString("Low",245,118);
@@ -357,33 +358,31 @@ void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
    tft.drawString("ERROR",232,118);
   }
 
-  // display temperature
-  int celcius = calculateTemp(temperatureLevel);
-  if(celcius >= maxTemp){
-   tft.setTextColor(TFT_RED);
-  } else if (celcius > 125 || celcius < -40) {
-    tft.setTextColor(TFT_BLACK);
-    tft.drawString("ERROR",232,188);
-  } else {
-   tft.setTextColor(TFT_DARKGREEN);
-  }
+  //Display temperature
+    if(temperatureLevel >= maxTemp){
+     tft.setTextColor(TFT_RED);
+    } else if (temperatureLevel > 125 || temperatureLevel < -40) {
+      tft.setTextColor(TFT_BLACK);
+      tft.drawString("ERROR",232,188);
+    } else {
+     tft.setTextColor(TFT_DARKGREEN);
+    }
 
-  celcius = 11; // temporary placeholder
-  tft.drawNumber(celcius,233,188);
-  tft.setTextColor(TFT_BLACK);
-  tft.drawString("C",270,188);
+    tft.drawNumber(temperatureLevel,240,191);
+    tft.setTextColor(TFT_BLACK);
+    tft.drawString("C",270,191);
 }
 
 void testLight(int lightLevel){
  pixels.clear();
- int range = map(lightLevel, 0, 1300, 0, 10);         // map light values to a range to activate leds
+ int range = map(lightLevel, 0, 1300, 0, 10);         //Map light values to a range to activate LEDs
  if(range < 3 || range > 8){
    for(int i = 0; i < range || (i == 0 && range == 0); i++){
-    pixels.setPixelColor(i, pixels.Color(255,0,0));   // red for too low/high
+    pixels.setPixelColor(i, pixels.Color(255,0,0));   //Red - too low/high
    }
   } else {
    for(int i = 0; i < range; i++){
-   pixels.setPixelColor(i, pixels.Color(255,255,0));  // yellow for sufficient
+   pixels.setPixelColor(i, pixels.Color(255,255,0));  //Yellow - sufficient
    }
  }
  pixels.show();
@@ -392,28 +391,27 @@ void testLight(int lightLevel){
 void testMoisture(int moistureLevel){
  pixels.clear();
  int range;
-  if (moistureLevel >= 0 && moistureLevel < 300) {           // dry - brown
+  if (moistureLevel >= 0 && moistureLevel < 300) {           //Dry - brown
     range = map(moistureLevel, 0, 299, 0, 3);
     for(int i = 0; i < range || (i == 0 && range == 0); i++){
      pixels.setPixelColor(i, pixels.Color(255,0,0));
     }
-  } else if (moistureLevel >= 300 && moistureLevel < 600) {  // moist - light blue
+  } else if (moistureLevel >= 300 && moistureLevel < 600) {  //Moist - light blue
     range = map(moistureLevel, 300, 599, 3, 7);
     for(int i = 0; i < range; i++){
      pixels.setPixelColor(i, pixels.Color(69,165,217));
     }
+  } else {                                                   //Wet - dark blue
+    range = map(moistureLevel, 600, 1023, 7, 10);
+    for(int i = 0; i < range; i++){
+     pixels.setPixelColor(i, pixels.Color(0,0,255));
+    }
   }
+ pixels.show();
 }
 
-int calculateTemp(int temperatureLevel){
-  float R = 1023.0 / temperatureLevel - 1.0;                          // calculate the resistance of the thermistor
-  R = R0 * R;                                                         // adjust resistance based on reference resistance
-  int celcius = 1.0 / (log(R / R0) / B + 1 / 298.15) - 273.15;      // convert to temperature using Steinhart-Hart equation
-  return celcius;
-}
-
-void testTemperature(int celcius){
-  if(celcius >= maxTemp){
+void testTemperature(int temp){
+  if(temp >= maxTemp){
     digitalWrite(ledPin, HIGH);
   } else {
     digitalWrite(ledPin, LOW);
@@ -426,11 +424,11 @@ void errorSound() {
   const unsigned long longPause = 1000;
   const int buzzerFrequency = 150;
 
-  //millis function is used to keep track of current time and the start time.
+  //Millis function is used to keep track of current time and the start time.
   unsigned long startTime = millis();
 
-  // Play the buzzer if the boolean is true and the buzzerBeep time hasnt elapsed
-  while (millis() - startTime < buzzerBeep && buzzerOn) { // Only play the buzzer if the boolean is true
+  //Play the buzzer if the boolean is true and the buzzerBeep time hasn't elapsed
+  while (millis() - startTime < buzzerBeep && buzzerOn) { //Only play the buzzer if the boolean is true
     analogWrite(WIO_BUZZER, buzzerFrequency);
   }
 
@@ -443,14 +441,14 @@ void errorSound() {
 
   startTime = millis();
 
-  // Play the buzzer if the boolean is true and the buzzerBeep time hasnt elapsed
-  while (millis() - startTime < buzzerBeep && buzzerOn) { // Only play the buzzer if the boolean is true
+  //Play the buzzer if the boolean is true and the buzzerBeep time hasn't elapsed
+  while (millis() - startTime < buzzerBeep && buzzerOn) { //Only play the buzzer if the boolean is true
     analogWrite(WIO_BUZZER, buzzerFrequency);
   }
 
   startTime = millis();
 
-  // Pause the buzzer for the 1000ms
+  //Pause the buzzer for the 1000ms
   while (millis() - startTime < longPause) {
     analogWrite(WIO_BUZZER, 0);
   }
