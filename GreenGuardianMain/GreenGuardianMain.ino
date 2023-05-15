@@ -30,17 +30,17 @@ bool isTestLight = true;
 bool buzzerOn = true;        //Initialize the boolean variable as true, to track if the buzzer is on
 const int maxTemp = 30;      //Temperature limit for plant
 
-
-const int queueSize = 5;
-int lightQueue[queueSize];
-int moistureQueue[queueSize];
-int temperatureQueue[queueSize];
-int lightIndex = 0;
-int moistureIndex = 0;
-int temperatureIndex = 0;
+//variable for data history
+const int queueSize = 5; // maximum size of the queue
+int lightQueue[queueSize]; // array to hold the queue
+int moistureQueue[queueSize]; // array to hold the moisture queue
+int temperatureQueue[queueSize]; // array to hold the queue
+int lightIndex = 0; // current index of the queue
+int moistureIndex = 0; // current index of the moisture queue
+int temperatureIndex = 0; // current index of the moisture queue
 // unsigned long currentMillis = millis();
-unsigned long previousMillis = 0;
-const unsigned long interval = 1000;
+unsigned long previousMillis = 0; // previous time when a value was added to the queue
+const unsigned long interval = 1000; // interval between adding values to the queue
 
 //Variables to keep track of mode setup and connectivity status
 bool onlineMode = false;
@@ -339,15 +339,18 @@ void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
   tft.fillRect(220,178,80,40, TFT_GREEN);
   tft.setFreeFont(NULL);
 
-
+//moisture
 unsigned long currentMillisMoisture = millis();
 if (currentMillisMoisture - previousMillis >= interval) {
     previousMillis = currentMillisMoisture;
 
+    //add the value to the queue
     moistureQueue[moistureIndex] = moistureLevel;
 
+    //increment the queue index, wrapping around if necessary
     moistureIndex = (moistureIndex + 1) % queueSize;
 
+    //calculate the average total value of the queue
     long moistureAverage = calculateAverage(moistureQueue, queueSize);
 
     //print the current queue contents for testing
@@ -361,6 +364,7 @@ if (currentMillisMoisture - previousMillis >= interval) {
     // Serial.print("Moisture Average: ");
     // Serial.println(moistureAverage);
 
+    // // check if the average moisture value is less than 300
     // if (moistureAverage < 300) {
     //   Serial.println("Moisture too low");
     // }
@@ -385,18 +389,23 @@ if (currentMillisMoisture - previousMillis >= interval) {
 
 
 
-
+//Light
+//check if it's time to read the sensor
 int range = map(lightLevel, 0, 1300, 0, 10);                // map light values to a range for percentage
 unsigned long currentMillisLight = millis();
   if (currentMillisLight - previousMillis >= interval) {
     previousMillis = currentMillisLight;
 
+    //add the value to the queue
     lightQueue[lightIndex] = range;
 
+    //increment the queue index, wrapping around if necessary
     lightIndex = (lightIndex + 1) % queueSize;
 
+    //calculate the average total value of the queue
     long lightAverage = calculateAverage(lightQueue, queueSize);
 
+    //print the current queue contents for testing
     // Serial.print("Light Queue: ");
     // for (int i = 0; i < queueSize; i++) {
     //   Serial.print(lightQueue[i]);
@@ -407,6 +416,7 @@ unsigned long currentMillisLight = millis();
     // Serial.print("Light Average: ");
     // Serial.println(lightAverage);
 
+    // // check if the average total value is less than 230
     // if (lightAverage < 3) {
     //   Serial.println("Light too low");
     // }
@@ -431,17 +441,22 @@ unsigned long currentMillisLight = millis();
 
 
 
+//temperature
 unsigned long currentMillisTemperature = millis();
 int celcius = calculateTemp(temperatureLevel);
 if (currentMillisMoisture - previousMillis >= interval) {
     previousMillis = currentMillisMoisture;
 
+    //add the value to the queue
     temperatureQueue[temperatureIndex] = celcius;
 
+    //increment the queue index, wrapping around if necessary
     temperatureIndex = (temperatureIndex + 1) % queueSize;
 
+    //calculate the average total value of the queue
     long temperatureAverage = calculateAverage(temperatureQueue, queueSize);
 
+    // //print the current queue contents for testing
     Serial.print("Temperature Queue: ");
     for (int i = 0; i < queueSize; i++) {
       Serial.print(temperatureQueue[i]);
@@ -452,6 +467,7 @@ if (currentMillisMoisture - previousMillis >= interval) {
     Serial.print("Temperature Average: ");
     Serial.println(temperatureAverage);
 
+    // check if the average temperature value is less than 300
     if (temperatureAverage > 30) {
       Serial.println("Temperature too high");
     }
