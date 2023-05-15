@@ -30,9 +30,15 @@ bool isTestLight = true;
 bool buzzerOn = true;        //Initialize the boolean variable as true, to track if the buzzer is on
 const int maxTemp = 30;      //Temperature limit for plant
 
+//variable for data history
 const int queueSize = 5;
 int lightQueue[queueSize];
-int queueIndex = 0;
+int moistureQueue[queueSize];
+int temperatureQueue[queueSize];
+int lightIndex = 0;
+int moistureIndex = 0;
+int temperatureIndex = 0;
+// unsigned long currentMillis = millis();
 unsigned long previousMillis = 0;
 const unsigned long interval = 1000;
 
@@ -332,68 +338,99 @@ void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
   tft.fillRect(220,105,80,40, TFT_GREEN);
   tft.fillRect(220,178,80,40, TFT_GREEN);
   tft.setFreeFont(NULL);
-  //Display moisture
-  tft.setTextSize(2);
-  if (moistureLevel >= 0 && moistureLevel < 300) {           //Dry - dry
-    tft.setTextColor(TFT_RED);
-    tft.drawString("Dry",243,40);
-  } else if(moistureLevel >= 300 && moistureLevel < 600) {   //Moist - darkcyan
-    tft.setTextColor(TFT_DARKCYAN);
-    tft.drawString("Moist",232,40);
-  } else if(moistureLevel >= 600 && moistureLevel <= 950){    //Wet - blue
-    tft.setTextColor(TFT_BLUE);
-    tft.drawString("Wet",243,40);
+
+unsigned long currentMillisMoisture = millis();
+if (currentMillisMoisture - previousMillis >= interval) {
+    previousMillis = currentMillisMoisture;
+
+    moistureQueue[moistureIndex] = moistureLevel;
+
+    moistureIndex = (moistureIndex + 1) % queueSize;
+    long totalValue = 0;
+    for (int i = 0; i < queueSize; i++) {
+      totalValue += moistureQueue[i];
+    }
+    long averageValue = totalValue / queueSize;
+
+    // Serial.print("Moisture Queue: ");
+    // for (int i = 0; i < queueSize; i++) {
+    //   Serial.print(moistureQueue[i]);
+    //   Serial.print(" ");
+    // }
+    // Serial.println();
+
+    // Serial.print("Moisture Average: ");
+    // Serial.println(averageValue);
+
+    // if (averageValue < 300) {
+    //   Serial.println("Moisture too low");
+    // }
+
+  }
+  // display moisture
+  spr.setTextSize(2);
+  if (moistureLevel >= 0 && moistureLevel < 300) {           // dry - dry
+    spr.setTextColor(TFT_RED);
+    spr.drawString("Dry",243,40);
+    errorSound();
+  } else if(moistureLevel >= 300 && moistureLevel < 600) {   // moist - darkcyan
+    spr.setTextColor(TFT_DARKCYAN);
+    spr.drawString("Moist",232,40);
+  } else if(moistureLevel >= 600 && moistureLevel <= 950){    // wet - blue
+    spr.setTextColor(TFT_BLUE);
+    spr.drawString("Wet",243,40);
   } else {
-    tft.setTextColor(TFT_BLACK);                              //Error - black (values outside range)
-    tft.drawString("ERROR",232,40);
+    spr.setTextColor(TFT_BLACK);                              // error - black (used for values that are outside the range)
+    spr.drawString("ERROR",232,40);
   }
 
+  //Light
+//check if it's time to read the sensor
+int range = map(lightLevel, 0, 1300, 0, 10);                // map light values to a range for percentage
+unsigned long currentMillisLight = millis();
+  if (currentMillisLight - previousMillis >= interval) {
+    previousMillis = currentMillisLight;
 
-  unsigned long currentMillis = millis();
-  int range = map(lightLevel, 0, 1300, 0, 10);                // map light values to a range for percentage
+    lightQueue[lightIndex] = range;
 
-  if (currentMillis - previousMillis >= interval) {
-    previousMillis = currentMillis;
+    lightIndex = (lightIndex + 1) % queueSize;
 
-    lightQueue[queueIndex] = range;
-
-    queueIndex = (queueIndex + 1) % queueSize;
-
-    //calculate the average total value of the queue
     long totalValue = 0;
     for (int i = 0; i < queueSize; i++) {
       totalValue += lightQueue[i];
     }
     long averageValue = totalValue / queueSize;
 
-    Serial.print("Queue: ");
-    for (int i = 0; i < queueSize; i++) {
-      Serial.print(lightQueue[i]);
-      Serial.print(" ");
-    }
-    Serial.println();
+    // Serial.print("Light Queue: ");
+    // for (int i = 0; i < queueSize; i++) {
+    //   Serial.print(lightQueue[i]);
+    //   Serial.print(" ");
+    // }
+    // Serial.println();
 
-    Serial.print("Average: ");
-    Serial.println(averageValue);
+    // Serial.print("Light Average: ");
+    // Serial.println(averageValue);
 
-    if (averageValue < 3) {
-      Serial.println("too low");
-    }
+    // if (averageValue < 3) {
+    //   Serial.println("Light too low");
+    // }
+
   }
-  //Display light
-  int range = map(lightLevel, 0, 1300, 0, 10);         //Map light values to a range for percentage
+ // display light
   if(range < 3){
-   tft.setTextColor(TFT_RED);
-   tft.drawString("Low",245,118);
+   spr.setTextColor(TFT_RED);
+   spr.drawString("Low",245,118);
+   errorSound();
   } else if (range > 8){
-   tft.setTextColor(TFT_RED);
-   tft.drawString("High",237,118);
+   spr.setTextColor(TFT_RED);
+   spr.drawString("High",237,118);
+    errorSound();
   } else if (range > 2 && range < 9){
-   tft.setTextColor(TFT_DARKGREEN);
-   tft.drawString("Good",237,118);
+   spr.setTextColor(TFT_DARKGREEN);
+   spr.drawString("Good",237,118);
   } else {
-   tft.setTextColor(TFT_BLACK);
-   tft.drawString("ERROR",232,118);
+   spr.setTextColor(TFT_BLACK);
+   spr.drawString("ERROR",232,118);
   }
 
   //Display temperature
