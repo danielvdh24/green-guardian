@@ -329,6 +329,16 @@ void loop(){
   }
 }
 
+// Calculate the average value of a queue
+long calculateAverage(int* queue, int size) {
+  long totalValue = 0;
+  for (int i = 0; i < size; i++) {
+    totalValue += queue[i];
+  }
+  long averageValue = totalValue / size;
+  return averageValue;
+}
+
 void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
   unsigned long startTime = millis();
   while(millis() < startTime + 500){
