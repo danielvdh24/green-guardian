@@ -414,10 +414,10 @@ unsigned long currentMillisLight = millis();
    tft.drawString("ERROR",232,118);
   }
 
-//Remperature
+//Temperature
 unsigned long currentMillisTemperature = millis();
-if (currentMillisMoisture - previousMillis >= interval) {
-    previousMillis = currentMillisMoisture;
+if (currentMillisTemperature - previousMillis >= interval) {
+    previousMillis = currentMillisTemperature;
 
     //Add the value to the queue and calculate the average total value of the queue
     long temperatureAverage = addValueToQueueAndCalculateAverage(temperatureLevel, temperatureQueue, temperatureIndex);
