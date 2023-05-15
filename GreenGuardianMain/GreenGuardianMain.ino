@@ -30,7 +30,7 @@ bool isTestLight = true;
 bool buzzerOn = true;        //Initialize the boolean variable as true, to track if the buzzer is on
 const int maxTemp = 30;      //Temperature limit for plant
 
-//variable for data history
+
 const int queueSize = 5;
 int lightQueue[queueSize];
 int moistureQueue[queueSize];
@@ -339,6 +339,7 @@ void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
   tft.fillRect(220,178,80,40, TFT_GREEN);
   tft.setFreeFont(NULL);
 
+
 unsigned long currentMillisMoisture = millis();
 if (currentMillisMoisture - previousMillis >= interval) {
     previousMillis = currentMillisMoisture;
@@ -346,12 +347,10 @@ if (currentMillisMoisture - previousMillis >= interval) {
     moistureQueue[moistureIndex] = moistureLevel;
 
     moistureIndex = (moistureIndex + 1) % queueSize;
-    long totalValue = 0;
-    for (int i = 0; i < queueSize; i++) {
-      totalValue += moistureQueue[i];
-    }
-    long averageValue = totalValue / queueSize;
 
+    long moistureAverage = calculateAverage(moistureQueue, queueSize);
+
+    //print the current queue contents for testing
     // Serial.print("Moisture Queue: ");
     // for (int i = 0; i < queueSize; i++) {
     //   Serial.print(moistureQueue[i]);
@@ -360,9 +359,9 @@ if (currentMillisMoisture - previousMillis >= interval) {
     // Serial.println();
 
     // Serial.print("Moisture Average: ");
-    // Serial.println(averageValue);
+    // Serial.println(moistureAverage);
 
-    // if (averageValue < 300) {
+    // if (moistureAverage < 300) {
     //   Serial.println("Moisture too low");
     // }
 
@@ -384,8 +383,9 @@ if (currentMillisMoisture - previousMillis >= interval) {
     spr.drawString("ERROR",232,40);
   }
 
-  //Light
-//check if it's time to read the sensor
+
+
+
 int range = map(lightLevel, 0, 1300, 0, 10);                // map light values to a range for percentage
 unsigned long currentMillisLight = millis();
   if (currentMillisLight - previousMillis >= interval) {
@@ -395,11 +395,7 @@ unsigned long currentMillisLight = millis();
 
     lightIndex = (lightIndex + 1) % queueSize;
 
-    long totalValue = 0;
-    for (int i = 0; i < queueSize; i++) {
-      totalValue += lightQueue[i];
-    }
-    long averageValue = totalValue / queueSize;
+    long lightAverage = calculateAverage(lightQueue, queueSize);
 
     // Serial.print("Light Queue: ");
     // for (int i = 0; i < queueSize; i++) {
@@ -409,9 +405,9 @@ unsigned long currentMillisLight = millis();
     // Serial.println();
 
     // Serial.print("Light Average: ");
-    // Serial.println(averageValue);
+    // Serial.println(lightAverage);
 
-    // if (averageValue < 3) {
+    // if (lightAverage < 3) {
     //   Serial.println("Light too low");
     // }
 
@@ -433,19 +429,49 @@ unsigned long currentMillisLight = millis();
    spr.drawString("ERROR",232,118);
   }
 
-  //Display temperature
-    if(temperatureLevel >= maxTemp){
-     tft.setTextColor(TFT_RED);
-    } else if (temperatureLevel > 125 || temperatureLevel < -40) {
-      tft.setTextColor(TFT_BLACK);
-      tft.drawString("ERROR",232,188);
-    } else {
-     tft.setTextColor(TFT_DARKGREEN);
+
+
+unsigned long currentMillisTemperature = millis();
+int celcius = calculateTemp(temperatureLevel);
+if (currentMillisMoisture - previousMillis >= interval) {
+    previousMillis = currentMillisMoisture;
+
+    temperatureQueue[temperatureIndex] = celcius;
+
+    temperatureIndex = (temperatureIndex + 1) % queueSize;
+
+    long temperatureAverage = calculateAverage(temperatureQueue, queueSize);
+
+    Serial.print("Temperature Queue: ");
+    for (int i = 0; i < queueSize; i++) {
+      Serial.print(temperatureQueue[i]);
+      Serial.print(" ");
+    }
+    Serial.println();
+
+    Serial.print("Temperature Average: ");
+    Serial.println(temperatureAverage);
+
+    if (temperatureAverage > 30) {
+      Serial.println("Temperature too high");
     }
 
-    tft.drawNumber(temperatureLevel,240,191);
-    tft.setTextColor(TFT_BLACK);
-    tft.drawString("C",270,191);
+  }
+// display temperature
+spr.setTextSize(3);
+  if(celcius >= maxTemp){
+   spr.setTextColor(TFT_RED);
+  } else if (celcius > 125 || celcius < -40) {
+    spr.setTextColor(TFT_BLACK);
+    spr.drawString("ERROR",232,188);
+  } else {
+   spr.setTextColor(TFT_DARKGREEN);
+  }
+
+  spr.drawNumber(celcius,233,188);
+  spr.setTextColor(TFT_BLACK);
+  spr.drawString("C",270,188);
+  spr.pushSprite(0,0); // push to LCD
 }
 
 void testLight(int lightLevel){
