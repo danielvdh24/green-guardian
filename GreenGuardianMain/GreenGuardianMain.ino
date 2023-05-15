@@ -330,12 +330,22 @@ void loop(){
 }
 
 // Calculate the average value of a queue
-long calculateAverage(int* queue, int size) {
+// Function to add a value to a queue and calculate the average value
+long addValueToQueueAndCalculateAverage(int value, int* queue, int& index) {
+  // Add the value to the queue
+  queue[index] = value;
+
+  // Increment the queue index, wrapping around if necessary
+  index = (index + 1) % queueSize;
+
+  // Calculate the average total value of the queue
   long totalValue = 0;
-  for (int i = 0; i < size; i++) {
+  for (int i = 0; i < queueSize; i++) {
     totalValue += queue[i];
   }
-  long averageValue = totalValue / size;
+  long averageValue = totalValue / queueSize;
+
+  // Return the average value
   return averageValue;
 }
 
@@ -354,30 +364,8 @@ unsigned long currentMillisMoisture = millis();
 if (currentMillisMoisture - previousMillis >= interval) {
     previousMillis = currentMillisMoisture;
 
-    //add the value to the queue
-    moistureQueue[moistureIndex] = moistureLevel;
-
-    //increment the queue index, wrapping around if necessary
-    moistureIndex = (moistureIndex + 1) % queueSize;
-
-    //calculate the average total value of the queue
-    long moistureAverage = calculateAverage(moistureQueue, queueSize);
-
-    //print the current queue contents for testing
-    // Serial.print("Moisture Queue: ");
-    // for (int i = 0; i < queueSize; i++) {
-    //   Serial.print(moistureQueue[i]);
-    //   Serial.print(" ");
-    // }
-    // Serial.println();
-
-    // Serial.print("Moisture Average: ");
-    // Serial.println(moistureAverage);
-
-    // // check if the average moisture value is less than 300
-    // if (moistureAverage < 300) {
-    //   Serial.println("Moisture too low");
-    // }
+    //Add the value to the queue and calculate the average total value of the queue
+    long moistureAverage = addValueToQueueAndCalculateAverage(moistureLevel, moistureQueue, moistureIndex);
 
   }
   // display moisture
@@ -406,30 +394,8 @@ unsigned long currentMillisLight = millis();
   if (currentMillisLight - previousMillis >= interval) {
     previousMillis = currentMillisLight;
 
-    //add the value to the queue
-    lightQueue[lightIndex] = range;
-
-    //increment the queue index, wrapping around if necessary
-    lightIndex = (lightIndex + 1) % queueSize;
-
-    //calculate the average total value of the queue
-    long lightAverage = calculateAverage(lightQueue, queueSize);
-
-    //print the current queue contents for testing
-    // Serial.print("Light Queue: ");
-    // for (int i = 0; i < queueSize; i++) {
-    //   Serial.print(lightQueue[i]);
-    //   Serial.print(" ");
-    // }
-    // Serial.println();
-
-    // Serial.print("Light Average: ");
-    // Serial.println(lightAverage);
-
-    // // check if the average total value is less than 230
-    // if (lightAverage < 3) {
-    //   Serial.println("Light too low");
-    // }
+    //Add the value to the queue and calculate the average total value of the queue
+    long lightAverage = addValueToQueueAndCalculateAverage(range, lightQueue, lightIndex);
 
   }
  // display light
@@ -457,30 +423,8 @@ int celcius = calculateTemp(temperatureLevel);
 if (currentMillisMoisture - previousMillis >= interval) {
     previousMillis = currentMillisMoisture;
 
-    //add the value to the queue
-    temperatureQueue[temperatureIndex] = celcius;
-
-    //increment the queue index, wrapping around if necessary
-    temperatureIndex = (temperatureIndex + 1) % queueSize;
-
-    //calculate the average total value of the queue
-    long temperatureAverage = calculateAverage(temperatureQueue, queueSize);
-
-    // //print the current queue contents for testing
-    Serial.print("Temperature Queue: ");
-    for (int i = 0; i < queueSize; i++) {
-      Serial.print(temperatureQueue[i]);
-      Serial.print(" ");
-    }
-    Serial.println();
-
-    Serial.print("Temperature Average: ");
-    Serial.println(temperatureAverage);
-
-    // check if the average temperature value is less than 300
-    if (temperatureAverage > 30) {
-      Serial.println("Temperature too high");
-    }
+    //Add the value to the queue and calculate the average total value of the queue
+    long temperatureAverage = addValueToQueueAndCalculateAverage(celcius, temperatureQueue, temperatureIndex);
 
   }
 // display temperature
