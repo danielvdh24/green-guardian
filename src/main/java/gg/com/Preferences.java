@@ -14,11 +14,18 @@ public class Preferences {
     String scene;
     int interval;
     boolean notifications;
+    boolean online; // commands scene
+    boolean manual; // commands scene
+    boolean light; // commands scene
 
-    public Preferences(){ // default values if no config file found
+    private Preferences() {
+        // default values if no config file found
         scene = "SpreadsheetScene";
         interval = 5;
         notifications = false;
+        online = true;
+        manual = false;
+        light = true;
     }
 
     public String getScene() {
@@ -43,6 +50,30 @@ public class Preferences {
 
     public void setNotifications(boolean notifications) {
         this.notifications = notifications;
+    }
+
+    public boolean getOnline(){
+        return online;
+    }
+
+    public void setOnline(boolean online){
+        this.online = online;
+    }
+
+    public boolean getManual(){
+        return manual;
+    }
+
+    public void setManual(boolean manual){
+        this.manual = manual;
+    }
+
+    public boolean getLight(){
+        return light;
+    }
+
+    public void setLight(boolean light){
+        this.light = light;
     }
 
     public static void initConfig(){

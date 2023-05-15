@@ -16,9 +16,9 @@
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
     <HBox layoutX="-1.0" layoutY="-3.0" prefHeight="50.0" prefWidth="600.0" styleClass="tile-color" />
-    <Label alignment="CENTER" layoutX="225.0" layoutY="6.0" prefHeight="34.0" prefWidth="150.0" text="Sensor Data" textAlignment="CENTER">
+    <Label alignment="CENTER" layoutX="180.0" layoutY="-22.0" prefHeight="90.0" prefWidth="252.0" text="Sensor Data" textAlignment="CENTER" textFill="#33401b">
         <font>
-            <Font name="Tw Cen MT Condensed Extra Bold" size="31.0" />
+            <Font name="Apple Chancery" size="48.0" />
         </font></Label>
     <LineChart fx:id="chart" animated="false" createSymbols="false" layoutX="14.0" layoutY="54.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="247.0" prefWidth="464.0">
         <xAxis>
@@ -29,12 +29,24 @@
         </yAxis>
     </LineChart>
     <HBox layoutY="307.0" prefHeight="81.0" prefWidth="600.0">
-        <Button focusTraversable="false" mnemonicParsing="false" onAction="#onSpreadSheetButtonClick" prefHeight="81.0" prefWidth="150.0" styleClass="menu-button" text="Spreadsheet" />
-        <Button focusTraversable="false" mnemonicParsing="false" prefHeight="81.0" prefWidth="150.0" styleClass="menu-button" text="Graph" />
-        <Button focusTraversable="false" mnemonicParsing="false" onAction="#onCommandsButtonClick" prefHeight="81.0" prefWidth="150.0" styleClass="menu-button" text="Commands" />
-        <Button focusTraversable="false" mnemonicParsing="false" onAction="#onSettingsButtonClick" prefHeight="81.0" prefWidth="150.0" styleClass="menu-button" text="Settings" />
+        <Button focusTraversable="false" mnemonicParsing="false" onAction="#onSpreadSheetButtonClick" prefHeight="81.0" prefWidth="150.0" styleClass="menu-button" text="Spreadsheet" textFill="#33401b">
+         <font>
+            <Font name="Helvetica" size="18.0" />
+         </font></Button>
+        <Button focusTraversable="false" mnemonicParsing="false" prefHeight="81.0" prefWidth="150.0" styleClass="menu-button" text="Graph" textFill="#33401b">
+         <font>
+            <Font name="Helvetica" size="18.0" />
+         </font></Button>
+        <Button focusTraversable="false" mnemonicParsing="false" onAction="#onCommandsButtonClick" prefHeight="81.0" prefWidth="150.0" styleClass="menu-button" text="Commands" textFill="#33401b">
+         <font>
+            <Font name="Helvetica" size="18.0" />
+         </font></Button>
+        <Button focusTraversable="false" mnemonicParsing="false" onAction="#onSettingsButtonClick" prefHeight="81.0" prefWidth="150.0" styleClass="menu-button" text="Settings" textFill="#33401b">
+         <font>
+            <Font name="Helvetica" size="18.0" />
+         </font></Button>
     </HBox>
-   <Label alignment="CENTER" layoutX="468.0" layoutY="112.0" prefHeight="39.0" prefWidth="124.0" text="Data Source" textAlignment="CENTER">
+   <Label alignment="CENTER" layoutX="468.0" layoutY="112.0" prefHeight="39.0" prefWidth="124.0" text="Data Source" textAlignment="CENTER" textFill="#33401b">
       <font>
          <Font size="22.0" />
       </font>

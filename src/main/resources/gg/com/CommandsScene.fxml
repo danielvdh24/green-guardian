@@ -4,45 +4,152 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
-<?import javafx.scene.text.Text?>
 
 <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="388.0" prefWidth="600.0" stylesheets="@../../styles/default-theme.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gg.com.CommandsController">
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
-    <HBox layoutX="-1.0" layoutY="-3.0" prefHeight="50.0" prefWidth="600.0" styleClass="tile-color" />
-    <Label alignment="CENTER" layoutX="216.0" layoutY="6.0" prefHeight="38.0" prefWidth="159.0" text="Commands" textAlignment="CENTER">
-        <font>
-            <Font name="Tw Cen MT Condensed Extra Bold" size="31.0" />
-        </font></Label>
+    <HBox layoutY="-2.0" prefHeight="50.0" prefWidth="600.0" styleClass="tile-color" />
     <HBox layoutY="307.0" prefHeight="81.0" prefWidth="600.0">
-        <Button focusTraversable="false" mnemonicParsing="false" onAction="#onSpreadSheetButtonClick" prefHeight="81.0" prefWidth="150.0" styleClass="menu-button" text="Spreadsheet" />
-        <Button focusTraversable="false" mnemonicParsing="false" onAction="#onGraphButtonClick" prefHeight="81.0" prefWidth="150.0" styleClass="menu-button" text="Graph" />
-        <Button focusTraversable="false" mnemonicParsing="false" prefHeight="81.0" prefWidth="150.0" styleClass="menu-button" text="Commands" />
-        <Button focusTraversable="false" mnemonicParsing="false" onAction="#onSettingsButtonClick" prefHeight="81.0" prefWidth="150.0" styleClass="menu-button" text="Settings" />
+        <Button focusTraversable="false" mnemonicParsing="false" onAction="#onSpreadSheetButtonClick" prefHeight="81.0" prefWidth="150.0" styleClass="menu-button" text="Spreadsheet" textFill="#33401b">
+            <font>
+                <Font name="Helvetica" size="18.0" />
+            </font></Button>
+        <Button focusTraversable="false" mnemonicParsing="false" onAction="#onGraphButtonClick" prefHeight="81.0" prefWidth="150.0" styleClass="menu-button" text="Graph" textFill="#33401b">
+            <font>
+                <Font name="Helvetica" size="18.0" />
+            </font></Button>
+        <Button focusTraversable="false" mnemonicParsing="false" prefHeight="81.0" prefWidth="150.0" styleClass="menu-button" text="Commands" textFill="#33401b">
+            <font>
+                <Font name="Helvetica" size="18.0" />
+            </font></Button>
+        <Button focusTraversable="false" mnemonicParsing="false" onAction="#onSettingsButtonClick" prefHeight="81.0" prefWidth="150.0" styleClass="menu-button" text="Settings" textFill="#33401b">
+            <font>
+                <Font name="Helvetica" size="18.0" />
+            </font></Button>
     </HBox>
-   <Button layoutX="143.0" layoutY="69.0" mnemonicParsing="false" prefHeight="74.0" prefWidth="306.0" text="System Shut Down">
-      <font>
-         <Font size="31.0" />
-      </font>
-   </Button>
-   <Button layoutX="184.0" layoutY="157.0" mnemonicParsing="false" prefHeight="74.0" prefWidth="224.0" text="Manual Mode">
-      <font>
-         <Font size="31.0" />
-      </font>
-   </Button>
-   <Button layoutX="20.0" layoutY="218.0" mnemonicParsing="false" text="ON" />
-   <Button layoutX="64.0" layoutY="218.0" mnemonicParsing="false" text="OFF" />
-   <Text layoutX="220.0" layoutY="249.0" strokeType="OUTSIDE" strokeWidth="0.0" text="START" wrappingWidth="40.0" />
-   <Text layoutX="346.0" layoutY="249.0" strokeType="OUTSIDE" strokeWidth="0.0" text="END" wrappingWidth="28.0" />
-   <Button layoutX="438.0" layoutY="260.0" mnemonicParsing="false" text="SAVE" />
-   <TextField layoutX="184.0" layoutY="260.0" prefHeight="26.0" prefWidth="36.0" promptText="HH" />
-   <TextField layoutX="260.0" layoutY="260.0" prefHeight="26.0" prefWidth="28.0" promptText="ss" />
-   <TextField layoutX="220.0" layoutY="260.0" prefHeight="26.0" prefWidth="40.0" promptText="mm" />
-   <TextField layoutX="304.0" layoutY="260.0" prefHeight="26.0" prefWidth="36.0" promptText="HH" />
-   <TextField layoutX="380.0" layoutY="260.0" prefHeight="26.0" prefWidth="28.0" promptText="ss" />
-   <TextField layoutX="340.0" layoutY="260.0" prefHeight="26.0" prefWidth="40.0" promptText="mm" />
+    <Label alignment="CENTER" layoutX="180.0" layoutY="-22.0" prefHeight="90.0" prefWidth="240.0" text="Commands" textAlignment="CENTER" textFill="#33401b">
+        <font>
+            <Font name="Apple Chancery" size="48.0" />
+        </font>
+    </Label>
+    <Pane layoutY="50.0" prefHeight="257.0" prefWidth="200.0">
+        <children>
+            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#adc6aa" height="245.0" layoutX="6.0" layoutY="6.0" stroke="#282c28" strokeType="INSIDE" width="189.0" />
+            <Label alignment="CENTER" layoutX="6.0" layoutY="14.0" prefHeight="44.0" prefWidth="189.0" text="CLICK TO" textAlignment="CENTER" textFill="#33401b">
+                <font>
+                    <Font name="Helvetica" size="24.0" />
+                </font>
+            </Label>
+            <Label fx:id="powerButtonLabel" alignment="CENTER" layoutX="6.0" layoutY="170.0" prefHeight="44.0" prefWidth="189.0" text="TURN OFF" textAlignment="CENTER" textFill="#33401b">
+                <font>
+                    <Font name="Helvetica" size="24.0" />
+                </font>
+            </Label>
+            <Label alignment="CENTER" layoutX="6.0" layoutY="199.0" prefHeight="44.0" prefWidth="189.0" text="SYSTEM" textAlignment="CENTER" textFill="#33401b">
+                <font>
+                    <Font name="Helvetica" size="24.0" />
+                </font>
+            </Label>
+            <Circle fx:id="powerButtonCircle" fill="#748a74" layoutX="100.0" layoutY="114.0" onMouseClicked="#handlePowerButtonClicked" radius="56.0" stroke="LIME" strokeType="INSIDE" strokeWidth="10.0" />
+            <ImageView fitHeight="74.0" fitWidth="82.0" layoutX="67.0" layoutY="75.0" onMouseClicked="#handlePowerButtonClicked" pickOnBounds="true" preserveRatio="true">
+                <image>
+                    <Image url="@../../images/powerButton.png" />
+                </image>
+            </ImageView>
+        </children>
+    </Pane>
+    <Pane layoutX="200.0" layoutY="50.0" prefHeight="257.0" prefWidth="401.0">
+        <children>
+            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#adc6aa" height="245.0" layoutX="2.0" layoutY="6.0" stroke="#282c28" strokeType="INSIDE" width="391.0" />
+            <Pane layoutX="2.0" layoutY="6.0" prefHeight="72.0" prefWidth="391.0">
+                <children>
+                    <Label fx:id="manualButtonLabel" layoutX="122.0" layoutY="26.0" prefHeight="21.0" prefWidth="246.0" text="NOW IN MANUAL MODE" textFill="#33401b">
+                        <font>
+                            <Font name="Helvetica" size="18.0" />
+                        </font>
+                    </Label>
+                    <Circle fx:id="manualButtonCircle" fill="#748a74" layoutX="84.0" layoutY="36.0" onMouseClicked="#handleManualButtonClicked" radius="27.0" stroke="SANDYBROWN" strokeType="INSIDE" strokeWidth="5.0" />
+                    <ImageView fitHeight="35.0" fitWidth="33.0" layoutX="68.0" layoutY="20.0" onMouseClicked="#handleManualButtonClicked" opacity="0.6" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="@../../images/setting.png" />
+                        </image>
+                    </ImageView>
+                </children>
+            </Pane>
+            <Pane layoutX="5.0" layoutY="81.0" prefHeight="169.0" prefWidth="385.0">
+                <children>
+                    <Label alignment="CENTER" layoutX="136.0" layoutY="70.0" opacity="0.6" prefHeight="35.0" prefWidth="85.0" text=":" textFill="#33401b">
+                        <font>
+                            <Font name="Arial Bold" size="36.0" />
+                        </font>
+                    </Label>
+                    <Label alignment="CENTER" layoutX="136.0" layoutY="109.0" opacity="0.6" prefHeight="35.0" prefWidth="85.0" text=":" textFill="#33401b">
+                        <font>
+                            <Font name="Arial Bold" size="36.0" />
+                        </font>
+                    </Label>
+                    <Label alignment="CENTER" layoutX="21.0" layoutY="81.0" prefHeight="28.0" prefWidth="85.0" text="START TIME" textFill="#33401b">
+                        <font>
+                            <Font name="Helvetica" size="14.0" />
+                        </font>
+                    </Label>
+                    <Label alignment="CENTER" layoutX="31.0" layoutY="119.0" prefHeight="28.0" prefWidth="71.0" text="END TIME" textFill="#33401b">
+                        <font>
+                            <Font name="Helvetica" size="14.0" />
+                        </font>
+                    </Label>
+                    <TextField fx:id="startHour" alignment="CENTER" layoutX="121.0" layoutY="78.0" prefHeight="33.0" prefWidth="50.0" promptText="HH">
+                        <font>
+                            <Font name="Helvetica" size="18.0" />
+                        </font>
+                    </TextField>
+                    <TextField fx:id="startMinute" alignment="CENTER" layoutX="186.0" layoutY="78.0" prefHeight="33.0" prefWidth="52.0" promptText="MM">
+                        <font>
+                            <Font name="Helvetica" size="18.0" />
+                        </font>
+                    </TextField>
+                    <TextField fx:id="endHour" alignment="CENTER" layoutX="121.0" layoutY="117.0" prefHeight="33.0" prefWidth="50.0" promptText="HH">
+                        <font>
+                            <Font name="Helvetica" size="18.0" />
+                        </font>
+                    </TextField>
+                    <TextField fx:id="endMinute" alignment="CENTER" layoutX="185.0" layoutY="117.0" prefHeight="33.0" prefWidth="52.0" promptText="MM">
+                        <font>
+                            <Font name="Helvetica" size="18.0" />
+                        </font>
+                    </TextField>
+                    <Circle fx:id="lightButtonCircle" fill="#748a74" layoutX="82.0" layoutY="28.0" onMouseClicked="#handleLightButtonClicked" radius="27.0" stroke="YELLOW" strokeType="INSIDE" strokeWidth="5.0" />
+                    <Label fx:id="lightButtonLabel" layoutX="119.0" layoutY="16.0" prefHeight="26.0" prefWidth="156.0" text="KEEP LIGHT ON" textAlignment="CENTER" textFill="#33401b">
+                        <font>
+                            <Font name="Helvetica" size="18.0" />
+                        </font>
+                    </Label>
+                    <ImageView fitHeight="35.0" fitWidth="33.0" layoutX="66.0" layoutY="12.0" onMouseClicked="#handleLightButtonClicked" opacity="0.6" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="@../../images/setting.png" />
+                        </image>
+                    </ImageView>
+                    <Button fx:id="saveButton" focusTraversable="false" layoutX="261.0" layoutY="92.0" mnemonicParsing="false" onAction="#handleSaveButtonClicked" prefHeight="45.0" prefWidth="83.0" styleClass="menu-button" text="Save" textAlignment="CENTER" textFill="#33401b">
+                        <font>
+                            <Font name="Helvetica" size="18.0" />
+                        </font>
+                    </Button>
+                    <Label fx:id="saveErrorLabel" alignment="CENTER" layoutX="257.0" layoutY="137.0" prefHeight="26.0" prefWidth="92.0" text="INPUT INVALID" textAlignment="CENTER" textFill="RED" visible="false">
+                        <font>
+                            <Font name="Helvetica" size="12.0" />
+                        </font>
+                    </Label>
+                    <Rectangle fx:id="coverAutoMode" arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="169.0" layoutX="8.0" layoutY="-9.0" opacity="0.5" stroke="#acc4a9" strokeType="INSIDE" visible="false" width="357.0" />
+                </children>
+            </Pane>
+        </children>
+    </Pane>
 </Pane>
