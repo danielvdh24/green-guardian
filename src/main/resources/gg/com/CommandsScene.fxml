@@ -37,41 +37,39 @@
     </HBox>
     <Label alignment="CENTER" layoutX="180.0" layoutY="-22.0" prefHeight="90.0" prefWidth="240.0" text="Commands" textAlignment="CENTER" textFill="#33401b">
         <font>
-            <Font name="Apple Chancery" size="48.0" />
+            <Font name="Verdana" size="36.0" />
         </font>
     </Label>
-    <Pane layoutY="50.0" prefHeight="257.0" prefWidth="200.0">
+    <Pane layoutX="9.0" layoutY="56.0" prefHeight="245.0" prefWidth="186.0" styleClass="menu-button">
         <children>
-            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#adc6aa" height="245.0" layoutX="6.0" layoutY="6.0" stroke="#282c28" strokeType="INSIDE" width="189.0" />
-            <Label alignment="CENTER" layoutX="6.0" layoutY="14.0" prefHeight="44.0" prefWidth="189.0" text="CLICK TO" textAlignment="CENTER" textFill="#33401b">
+            <Label alignment="CENTER" layoutX="-1.0" layoutY="14.0" prefHeight="44.0" prefWidth="189.0" text="Click to" textAlignment="CENTER" textFill="#33401b">
                 <font>
                     <Font name="Helvetica" size="24.0" />
                 </font>
             </Label>
-            <Label fx:id="powerButtonLabel" alignment="CENTER" layoutX="6.0" layoutY="170.0" prefHeight="44.0" prefWidth="189.0" text="TURN OFF" textAlignment="CENTER" textFill="#33401b">
+            <Label fx:id="powerButtonLabel" alignment="CENTER" layoutX="-1.0" layoutY="171.0" prefHeight="44.0" prefWidth="189.0" text="Turn OFF" textAlignment="CENTER" textFill="#33401b">
                 <font>
                     <Font name="Helvetica" size="24.0" />
                 </font>
             </Label>
-            <Label alignment="CENTER" layoutX="6.0" layoutY="199.0" prefHeight="44.0" prefWidth="189.0" text="SYSTEM" textAlignment="CENTER" textFill="#33401b">
+            <Label alignment="CENTER" layoutX="-2.0" layoutY="199.0" prefHeight="44.0" prefWidth="189.0" text="System" textAlignment="CENTER" textFill="#33401b">
                 <font>
                     <Font name="Helvetica" size="24.0" />
                 </font>
             </Label>
-            <Circle fx:id="powerButtonCircle" fill="#748a74" layoutX="100.0" layoutY="114.0" onMouseClicked="#handlePowerButtonClicked" radius="56.0" stroke="LIME" strokeType="INSIDE" strokeWidth="10.0" />
-            <ImageView fitHeight="74.0" fitWidth="82.0" layoutX="67.0" layoutY="75.0" onMouseClicked="#handlePowerButtonClicked" pickOnBounds="true" preserveRatio="true">
+            <Circle fx:id="powerButtonCircle" fill="#748a74" layoutX="93.0" layoutY="115.0" onMouseClicked="#handlePowerButtonClicked" radius="56.0" stroke="LIME" strokeType="INSIDE" strokeWidth="10.0" />
+            <ImageView fitHeight="74.0" fitWidth="82.0" layoutX="60.0" layoutY="76.0" onMouseClicked="#handlePowerButtonClicked" pickOnBounds="true" preserveRatio="true">
                 <image>
                     <Image url="@../../images/powerButton.png" />
                 </image>
             </ImageView>
         </children>
     </Pane>
-    <Pane layoutX="200.0" layoutY="50.0" prefHeight="257.0" prefWidth="401.0">
+    <Pane layoutX="200.0" layoutY="55.0" prefHeight="245.0" prefWidth="391.0" styleClass="menu-button">
         <children>
-            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#adc6aa" height="245.0" layoutX="2.0" layoutY="6.0" stroke="#282c28" strokeType="INSIDE" width="391.0" />
             <Pane layoutX="2.0" layoutY="6.0" prefHeight="72.0" prefWidth="391.0">
                 <children>
-                    <Label fx:id="manualButtonLabel" layoutX="122.0" layoutY="26.0" prefHeight="21.0" prefWidth="246.0" text="NOW IN MANUAL MODE" textFill="#33401b">
+                    <Label fx:id="manualButtonLabel" layoutX="122.0" layoutY="26.0" prefHeight="21.0" prefWidth="246.0" text="Now in MANUAL Mode" textFill="#33401b">
                         <font>
                             <Font name="Helvetica" size="18.0" />
                         </font>
@@ -96,38 +94,38 @@
                             <Font name="Arial Bold" size="36.0" />
                         </font>
                     </Label>
-                    <Label alignment="CENTER" layoutX="21.0" layoutY="81.0" prefHeight="28.0" prefWidth="85.0" text="START TIME" textFill="#33401b">
+                    <Label alignment="CENTER" layoutX="21.0" layoutY="81.0" prefHeight="28.0" prefWidth="85.0" text="Start Time" textFill="#33401b">
                         <font>
                             <Font name="Helvetica" size="14.0" />
                         </font>
                     </Label>
-                    <Label alignment="CENTER" layoutX="31.0" layoutY="119.0" prefHeight="28.0" prefWidth="71.0" text="END TIME" textFill="#33401b">
+                    <Label alignment="CENTER" layoutX="31.0" layoutY="119.0" prefHeight="28.0" prefWidth="71.0" text="End Time" textFill="#33401b">
                         <font>
                             <Font name="Helvetica" size="14.0" />
                         </font>
                     </Label>
-                    <TextField fx:id="startHour" alignment="CENTER" layoutX="121.0" layoutY="78.0" prefHeight="33.0" prefWidth="50.0" promptText="HH">
+                    <TextField fx:id="startHour" alignment="CENTER" focusTraversable="false" layoutX="121.0" layoutY="78.0" prefHeight="33.0" prefWidth="50.0" promptText="HH">
                         <font>
                             <Font name="Helvetica" size="18.0" />
                         </font>
                     </TextField>
-                    <TextField fx:id="startMinute" alignment="CENTER" layoutX="186.0" layoutY="78.0" prefHeight="33.0" prefWidth="52.0" promptText="MM">
+                    <TextField fx:id="startMinute" alignment="CENTER" focusTraversable="false" layoutX="186.0" layoutY="78.0" prefHeight="33.0" prefWidth="52.0" promptText="MM">
                         <font>
                             <Font name="Helvetica" size="18.0" />
                         </font>
                     </TextField>
-                    <TextField fx:id="endHour" alignment="CENTER" layoutX="121.0" layoutY="117.0" prefHeight="33.0" prefWidth="50.0" promptText="HH">
+                    <TextField fx:id="endHour" alignment="CENTER" focusTraversable="false" layoutX="121.0" layoutY="117.0" prefHeight="33.0" prefWidth="50.0" promptText="HH">
                         <font>
                             <Font name="Helvetica" size="18.0" />
                         </font>
                     </TextField>
-                    <TextField fx:id="endMinute" alignment="CENTER" layoutX="185.0" layoutY="117.0" prefHeight="33.0" prefWidth="52.0" promptText="MM">
+                    <TextField fx:id="endMinute" alignment="CENTER" focusTraversable="false" layoutX="185.0" layoutY="117.0" prefHeight="33.0" prefWidth="52.0" promptText="MM">
                         <font>
                             <Font name="Helvetica" size="18.0" />
                         </font>
                     </TextField>
                     <Circle fx:id="lightButtonCircle" fill="#748a74" layoutX="82.0" layoutY="28.0" onMouseClicked="#handleLightButtonClicked" radius="27.0" stroke="YELLOW" strokeType="INSIDE" strokeWidth="5.0" />
-                    <Label fx:id="lightButtonLabel" layoutX="119.0" layoutY="16.0" prefHeight="26.0" prefWidth="156.0" text="KEEP LIGHT ON" textAlignment="CENTER" textFill="#33401b">
+                    <Label fx:id="lightButtonLabel" layoutX="119.0" layoutY="16.0" prefHeight="26.0" prefWidth="156.0" text="Keep Lights ON" textAlignment="CENTER" textFill="#33401b">
                         <font>
                             <Font name="Helvetica" size="18.0" />
                         </font>

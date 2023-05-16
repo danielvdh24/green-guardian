@@ -24,7 +24,6 @@ public class CommandsController {
     private Boolean online, manual, light;
 
     public void initialize() {
-        startHour.getParent().requestFocus();
         setTwoDigitNumberFilter(startHour);
         setTwoDigitNumberFilter(endHour);
         setTwoDigitNumberFilter(startMinute);
@@ -106,21 +105,21 @@ public class CommandsController {
     private void switchState(boolean online){
         if(online){
             powerButtonCircle.setStroke(Color.LIME);
-            powerButtonLabel.setText("TURN OFF");
+            powerButtonLabel.setText("Turn OFF");
         } else {
             powerButtonCircle.setStroke(Color.RED);
-            powerButtonLabel.setText("TURN ON");
+            powerButtonLabel.setText("Turn ON");
         }
     }
 
     private void switchManual(boolean manual){
         if(manual){
             manualButtonCircle.setStroke(Color.SANDYBROWN);
-            manualButtonLabel.setText("NOW IN MANUAL MODE");
+            manualButtonLabel.setText("Now in MANUAL Mode");
             coverAutoMode.setVisible(false);
         } else {
             manualButtonCircle.setStroke(Color.DEEPSKYBLUE);
-            manualButtonLabel.setText(("NOW IN AUTOMATIC MODE"));
+            manualButtonLabel.setText(("Now in AUTOMATIC Mode"));
             coverAutoMode.setVisible(true);
             startHour.getParent().requestFocus();
             startMinute.getParent().requestFocus();
@@ -132,10 +131,10 @@ public class CommandsController {
     private void switchLight(boolean light){
         if(light){
             lightButtonCircle.setStroke(Color.YELLOW);
-            lightButtonLabel.setText("KEEP LIGHT ON");
+            lightButtonLabel.setText("Keep Lights ON");
         } else {
             lightButtonCircle.setStroke(Color.LIGHTGREY);
-            lightButtonLabel.setText("KEEP LIGHT OFF");
+            lightButtonLabel.setText("Keep Lights OFF");
         }
     }
 
