@@ -30,6 +30,18 @@ bool isTestLight = true;
 bool buzzerOn = true;        //Initialize the boolean variable as true, to track if the buzzer is on
 const int maxTemp = 30;      //Temperature limit for plant
 
+//variable for data history
+const int queueSize = 336; // maximum size of the queue
+int lightQueue[queueSize]; // array to hold the queue
+int moistureQueue[queueSize]; // array to hold the moisture queue
+int temperatureQueue[queueSize]; // array to hold the queue
+int lightIndex = 0; // current index of the queue
+int moistureIndex = 0; // current index of the moisture queue
+int temperatureIndex = 0; // current index of the moisture queue
+unsigned long previousMillis = 0; // previous time when a value was added to the queue
+const unsigned long interval = 1800000; // interval between adding values to the queue (30 mins)
+
+
 //Variables to keep track of mode setup and connectivity status
 bool onlineMode = false;
 bool showStartingScreen = true;
@@ -92,6 +104,25 @@ void setupDataDisplay(){
   tft.drawString("Moisture",40,37);
   tft.drawString("Light",40,115);
   tft.drawString("Temp",40,187);
+}
+
+//Function to add a value to a queue and calculate the average value
+long addValueToQueueAndCalculateAverage(int value, int* queue, int& index) {
+  //Add the value to the queue
+  queue[index] = value;
+
+  //Increment the queue index, wrapping around if necessary
+  index = (index + 1) % queueSize;
+
+  //Calculate the average total value of the queue
+  long totalValue = 0;
+  for (int i = 0; i < queueSize; i++) {
+    totalValue += queue[i];
+  }
+  long averageValue = totalValue / queueSize;
+
+  //Return the average value
+  return averageValue;
 }
 
 void drawStartingScreen() {
@@ -326,11 +357,22 @@ void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
   tft.fillRect(220,105,80,40, TFT_GREEN);
   tft.fillRect(220,178,80,40, TFT_GREEN);
   tft.setFreeFont(NULL);
+
+//Moisture
+unsigned long currentMillisMoisture = millis();
+if (currentMillisMoisture - previousMillis >= interval) {
+    previousMillis = currentMillisMoisture;
+
+    //Add the value to the queue and calculate the average total value of the queue
+    long moistureAverage = addValueToQueueAndCalculateAverage(moistureLevel, moistureQueue, moistureIndex);
+
+  }
   //Display moisture
   tft.setTextSize(2);
   if (moistureLevel >= 0 && moistureLevel < 300) {           //Dry - dry
     tft.setTextColor(TFT_RED);
     tft.drawString("Dry",243,40);
+    errorSound();
   } else if(moistureLevel >= 300 && moistureLevel < 600) {   //Moist - darkcyan
     tft.setTextColor(TFT_DARKCYAN);
     tft.drawString("Moist",232,40);
@@ -342,14 +384,28 @@ void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
     tft.drawString("ERROR",232,40);
   }
 
-  //Display light
-  int range = map(lightLevel, 0, 1300, 0, 10);         //Map light values to a range for percentage
+
+//Light
+//Check if it's time to read the sensor
+int range = map(lightLevel, 0, 1300, 0, 10);                //Map light values to a range for percentage
+unsigned long currentMillisLight = millis();
+  if (currentMillisLight - previousMillis >= interval) {
+    previousMillis = currentMillisLight;
+
+    //Add the value to the queue and calculate the average total value of the queue
+    long lightAverage = addValueToQueueAndCalculateAverage(range, lightQueue, lightIndex);
+
+  }
+
+ //Display light
   if(range < 3){
    tft.setTextColor(TFT_RED);
    tft.drawString("Low",245,118);
+   errorSound();
   } else if (range > 8){
    tft.setTextColor(TFT_RED);
    tft.drawString("High",237,118);
+   errorSound();
   } else if (range > 2 && range < 9){
    tft.setTextColor(TFT_DARKGREEN);
    tft.drawString("Good",237,118);
@@ -358,6 +414,15 @@ void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
    tft.drawString("ERROR",232,118);
   }
 
+//Temperature
+unsigned long currentMillisTemperature = millis();
+if (currentMillisTemperature - previousMillis >= interval) {
+    previousMillis = currentMillisTemperature;
+
+    //Add the value to the queue and calculate the average total value of the queue
+    long temperatureAverage = addValueToQueueAndCalculateAverage(temperatureLevel, temperatureQueue, temperatureIndex);
+
+  }
   //Display temperature
     if(temperatureLevel >= maxTemp){
      tft.setTextColor(TFT_RED);
