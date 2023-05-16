@@ -17,3 +17,17 @@
 .sheet-style {
     -fx-background-color: #E3F2C1;
 }
+
+.spreadsheet-block {
+    -fx-background-color: #C9DBB2;
+    -fx-border-color: #43815A;
+    -fx-border-width: 1;
+}
+
+.spreadsheet-data {
+    -fx-background-color: #C9DBB2;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: #43815A;
+    -fx-border-width: 1;
+}

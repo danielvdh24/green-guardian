@@ -1,89 +1,55 @@
 package gg.com;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TableColumn;
-import javafx.collections.ObservableList;
-import javafx.collections.FXCollections;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 
 import java.io.IOException;
 
 public class SpreadsheetController 
 {
-
     @FXML
-    ObservableList<TableEntry> data = FXCollections.observableArrayList();
+    private Label PlantID;
     @FXML
-    public TableView<TableEntry> Table;
+    private TextField PlantName;
     @FXML
-    public TableColumn<TableEntry,String> PlantID;
+    private Label HumC;
     @FXML
-    public TableColumn<TableEntry,String> Name;
+    private Label LightC;
     @FXML
-    public TableColumn<TableEntry,String> Current_Temperature;
+    private Label TempC;
     @FXML
-    public TableColumn<TableEntry,String> Current_Humidity;
+    private TextField HumO;
     @FXML
-    public TableColumn<TableEntry,String> Current_Light;
+    private TextField LightO;
     @FXML
-    public TableColumn<TableEntry,String> Optimal_Temperature;
+    private TextField TempO;
     @FXML
-    public TableColumn<TableEntry,String> Optimal_Humidity;
-    @FXML
-    public TableColumn<TableEntry,String> Optimal_Light;
-    @FXML
-    public TableColumn<TableEntry,String> Status;
+    private Label Status;
 
     public void initialize() 
     {
-        data.add(new TableEntry(0, "1", 0, 0, 0, 0, 0, 0, "1"));
-        Table.setItems(data);
+        //TODO: Read file and put values here
+        PlantID.setText(null);
+        PlantName.setText(null);
+        TempC.setText(null);
+        HumC.setText(null);
+        LightC.setText(null);
+        Status.setText(null);
 
-        PlantID.setCellValueFactory
-            (
-                    p -> p.getValue().IDProperty()
-            );
-        
-        Name.setCellValueFactory
-            (
-                    p -> p.getValue().nameProperty()
-            );
+        LightO.setText(null);
+        TempO.setText(null);
+        HumO.setText(null);
+    }
 
-        Current_Temperature.setCellValueFactory
-            (
-                    p -> p.getValue().CTProperty()
-            );
-        
-        Current_Humidity.setCellValueFactory
-            (
-                    p -> p.getValue().CHProperty()
-            );
+    public void update()
+    {
+        //TODO: Get MQTT values here
+    }
 
-        Current_Light.setCellValueFactory
-            (
-                    p -> p.getValue().CLProperty()
-            );
-        
-        Optimal_Temperature.setCellValueFactory
-            (
-                    p -> p.getValue().OTProperty()
-            );
-
-        Optimal_Humidity.setCellValueFactory
-            (
-                    p -> p.getValue().OHProperty()
-            );
-        
-        Optimal_Light.setCellValueFactory
-            (
-                    p -> p.getValue().OLProperty()
-            );
-        
-        Status.setCellValueFactory
-            (
-                    p -> p.getValue().statusProperty()
-            );
-        
+    public void onChange()
+    {
+        //TODO: Trigger to save to file on user input
     }
 
     public void onGraphButtonClick() throws IOException {
