@@ -14,6 +14,9 @@ TFT_eSPI tft;
 #include "Free_Fonts.h"
 //Setup for temperature sensor
 #include "DHT.h"
+#include <unordered_map>
+#include <ctime>
+using namespace std;
 
 //Pin definitions for rgb stick and temperature sensor
 #define DHTPIN A1
@@ -44,7 +47,6 @@ int port = 0;
 //Insert values below:
 char pubTopic[] = "";
 char subTopic[] = "";
-char pubMessage[] = "";
 char clientName[] = "";
 
 WiFiClient* wioClient = nullptr;
@@ -53,9 +55,34 @@ PubSubClient* mqttClient = nullptr;
 int Y_Cord_Start_Pos = 0;
 int text_Y_Margin_Offset = 0;
 
+std::unordered_map<std::string, int> commands = {
+  {"pub5", 1},
+  {"pub60", 2},
+  {"pub300", 3},
+  {"pub1800", 4},
+  {"stoppub", 5},
+};
+
+boolean doPub = false;
+int timeSincePub = 0;
+int pubFrequencySec = 0;
+
+int localTime = 0;
+
+int ledScedStartTime = 0;
+int ledScedEndTime = 0;
+
+int moistureLevel = 0;
+int temperatureLevel = 0;
+int lightLevel = 0;
+
 void displayLCDmessage(char* message, uint16_t textColor, const GFXfont* font, boolean centerAlign, boolean clearPrevLCD, int Y_Cord_Start_Pos = Y_Cord_Start_Pos);
 
+
 void setup(){
+  while(!Serial){
+    Serial.begin(9600);
+  }
   pinMode(WIO_5S_LEFT, INPUT);
   pinMode(WIO_5S_RIGHT, INPUT);
   pinMode(WIO_5S_PRESS, INPUT);
@@ -150,14 +177,14 @@ void toggleOffline(){
 }
 
 void connectWifi(){
-  displayLCDmessage("(Re) Connecting To WiFi...", tft.color565(20, 70, 150), FM9, true, true, 60);
+  displayLCDmessage("(Re) Connecting To WiFi...", tft.color565(20, 70, 150), FM9, true, true, 50);
   displayLCDmessage("(Connection Keeps Failing? Fix:", tft.color565(70, 50, 50), FF25, true, false);
-  displayLCDmessage("1. WiFi Turned Off)", tft.color565(70, 50, 50), FF25, true, false);
-  displayLCDmessage("(Screen Static For T>10s? Fix:", TFT_BLACK, FF33, true, false);
-  displayLCDmessage("2. Faulty AP Point Configuration)", tft.color565(70, 50, 50), FF25, true, false);
-  displayLCDmessage("Alt 2. Needs Manual Wio Restart", TFT_BLACK, FF33, true, false);
+  displayLCDmessage("1. WiFi Turned Off", tft.color565(70, 50, 50), FF25, true, false);
+  displayLCDmessage("2. Missing Code WiFi Config", tft.color565(70, 50, 50), FF25, true, false);
+  displayLCDmessage("3. Faulty AP Point Config)", tft.color565(70, 50, 50), FF25, true, false);
+  displayLCDmessage("Alt 2 & 3. Needs Manual Wio Restart", TFT_BLACK, FF33, true, false);
   displayLCDmessage("After Reconfiguration", TFT_BLACK, FF33, true, false);
-  delay(2000);
+  delay(1500);
 
   WiFi.begin(SSID, PASS);
   if (WiFi.status() != WL_CONNECTED){
@@ -220,10 +247,7 @@ void connectMqtt(){
   }
 }
 
-void publishMqtt(){
-  delay(1000);
-  mqttClient->publish(pubTopic, pubMessage);
-}
+void publishMqtt(){}
 
 void subscribeMqtt(){
   mqttClient->subscribe(subTopic);
@@ -242,12 +266,96 @@ void displayLCDmessage(char* message, uint16_t textColor, const GFXfont* font, b
 }
 
 void handleSubMessage(char* topic, byte* payload, unsigned int length){
-  char message[length + 1];
-  for (int i = 0; i < length; i++){
-    message[i] = (char) payload[i];
+
+  if (isdigit((char) payload[0])){
+
+    string str_time = "";
+
+    for (int i = 0; i < length; i++){
+      str_time += (char) payload[i];
+    }
+
+    localTime = stoi(str_time);
+
+  } else { 
+
+  string msg = "";
+
+  boolean isFirstEncounter = true;
+
+  boolean isSecondEncounter = true;
+
+  string commandKey = "";
+
+  char symbol = '\0';
+
+for (int i = 0; i < length; i++){
+
+  symbol = (char) payload[i];
+
+  if (symbol == ';'){
+
+    if (isFirstEncounter){
+      commandKey = msg;
+      isFirstEncounter = false;
+
+      if (i == length - 1){
+        break;      
+      }
+
+    } else {
+
+      if (isSecondEncounter){
+        ledScedStartTime = stoi(msg);
+        isSecondEncounter = false;
+        
+      } else {
+
+        ledScedEndTime = stoi(msg);
+      }
+
+    }
+
+    msg.clear();
+    
+    continue;
   }
-  message[length] = '\0';
-  Serial.println(message);
+  
+  msg += symbol;
+  
+  }
+ 
+  switch(commands.at(commandKey)){
+    case 1:
+      timeSincePub = 0;
+      pubFrequencySec = 5;
+      doPub = true;
+      break;
+
+    case 2:
+      timeSincePub = 0;
+      pubFrequencySec = 60;
+      doPub = true;
+      break;
+
+    case 3:
+      timeSincePub = 0;
+      pubFrequencySec = 300;
+      doPub = true;
+      break;
+
+    case 4:
+      timeSincePub = 0;
+      pubFrequencySec = 1800;
+      doPub = true;
+      break;
+
+    case 5:
+      doPub = false;
+      timeSincePub = 0;
+      break;
+  }
+  } 
 }
 
 void loop(){
@@ -257,7 +365,6 @@ void loop(){
     modeIsSetup = false;
     showStartingScreen = false;
   }
-
   if(onlineMode){
     if (WiFi.status() != WL_CONNECTED){
       wifiIsConnected = false;
@@ -290,9 +397,9 @@ void loop(){
     modeIsSetup = true;
   }
 
-    int moistureLevel = analogRead(moisturePin);
-    int temperatureLevel = dht.readTemperature();
-    int lightLevel = analogRead(WIO_LIGHT);
+    moistureLevel = analogRead(moisturePin);
+    temperatureLevel = dht.readTemperature();
+    lightLevel = analogRead(WIO_LIGHT);
     if (isTestLight) {
       testLight(lightLevel);
     } else {
@@ -312,7 +419,17 @@ void loop(){
     drawScreen(moistureLevel, lightLevel, temperatureLevel);
 
   if(onlineMode){
-    publishMqtt();
+
+    if(doPub){
+
+      timeSincePub++;
+
+      if(timeSincePub == pubFrequencySec){
+      timeSincePub = 0;
+      publishMqtt();        
+      }
+    }
+
     mqttClient->loop();
   }
 }

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="388.0"
+      prefWidth="600.0" stylesheets="@../../styles/default-theme.css" xmlns="http://javafx.com/javafx/17.0.2-ea"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="gg.com.SpreadsheetController">
+    <TableView id="Table" fx:id="Table" blendMode="MULTIPLY" cache="true" focusTraversable="false" prefHeight="308.0"
+               prefWidth="600.0" styleClass="sheet-style">
+      <columns>
+          <TableColumn id="PlantID" fx:id="PlantID" editable="false" prefWidth="75.0" resizable="false"
+                       sortable="false" text="Plant ID"/>
+          <TableColumn id="Name" fx:id="Name" editable="false" prefWidth="90.4000244140625" resizable="false"
+                       sortable="false" text="Plant Name"/>
+          <TableColumn id="Current" editable="false" prefWidth="128.79991149902344" resizable="false" sortable="false"
+                       text="Current ">
+              <columns>
+                  <TableColumn id="Current_Temperature" fx:id="Current_Temperature" editable="false"
+                               prefWidth="82.4000244140625" resizable="false" sortable="false" text="Temperature"/>
+                  <TableColumn id="Current_Humidity" fx:id="Current_Humidity" editable="false"
+                               prefWidth="60.00004577636719" resizable="false" sortable="false" text="Humidity"/>
+                  <TableColumn id="Current_Light" fx:id="Current_Light" editable="false" prefWidth="37.59991455078125"
+                               resizable="false" sortable="false" text="Light"/>
+              </columns>
+          </TableColumn>
+          <TableColumn id="Optimal" editable="false" minWidth="0.0" prefWidth="220.00006103515625" resizable="false"
+                       sortable="false" text="Optimal">
+              <columns>
+                  <TableColumn id="Optimal_Temperature" fx:id="Optimal_Temperature" editable="false"
+                               prefWidth="82.4000244140625" resizable="false" sortable="false" text="Temperature"/>
+                  <TableColumn id="Optimal_Humidity" fx:id="Optimal_Humidity" editable="false"
+                               prefWidth="60.00004577636719" resizable="false" sortable="false" text="Humidity"/>
+                  <TableColumn id="Optimal_Light" fx:id="Optimal_Light" editable="false" prefWidth="37.59991455078125"
+                               resizable="false" sortable="false" text="Light"/>
+              </columns>
+          </TableColumn>
+          <TableColumn fx:id="Status" editable="false" prefWidth="69.60003662109375" resizable="false"
+                       sortable="false" text="Status"/>
+      </columns>
+    </TableView>
+    <HBox layoutY="307.0" prefHeight="81.0" prefWidth="600.0">
+        <Button mnemonicParsing="false" prefHeight="81.0" prefWidth="150.0"
+                styleClass="menu-button" text="Spreadsheet"/>
+        <Button focusTraversable="false" mnemonicParsing="false" onAction="#onGraphButtonClick"
+                prefHeight="81.0" prefWidth="150.0" styleClass="menu-button" text="Graph"/>
+        <Button focusTraversable="false" mnemonicParsing="false"
+                onAction="#onCommandsButtonClick" prefHeight="81.0" prefWidth="150.0" styleClass="menu-button"
+                text="Commands"/>
+        <Button focusTraversable="false" mnemonicParsing="false"
+                onAction="#onSettingsButtonClick" prefHeight="81.0" prefWidth="150.0" styleClass="menu-button"
+                text="Settings"/>
+    </HBox>
+</Pane>
