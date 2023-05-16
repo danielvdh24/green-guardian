@@ -36,7 +36,6 @@ public class SpreadsheetController
 
     public void initialize() 
     {
-        System.out.println("rerurn");
         data.add(new TableEntry(0, "1", 0, 0, 0, 0, 0, 0, "1"));
         Table.setItems(data);
 
