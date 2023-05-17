@@ -1,8 +1,10 @@
 package gg.com;
 
 import org.eclipse.paho.client.mqttv3.*;
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 
-public class MqttController {
+public class MqttController implements Runnable {
     private static final String PUB_TOPIC = "commands"; // topic to pub to
     private static final String SUB_TOPIC = "sensordata"; // topic to subscribe to
     private static final String URL = "tcp://127.0.0.1:1883";
@@ -18,12 +20,12 @@ public class MqttController {
             throw new Exception("Bad Connection");
         }
     }
-
     MqttClient getClient() {
          return mqttClient;
     }
 
     void publish(String message) throws Exception {
+
         try {
             MqttMessage msg = new MqttMessage(message.getBytes());
             msg.setQos(QOS);
@@ -33,9 +35,7 @@ public class MqttController {
             throw new Exception("Bad Connection");
         }
     }
-
     public void subscribe(App app) throws Exception {
-        try {
             mqttClient.setCallback(new MqttCallback() {
                 public void connectionLost(Throwable cause) {
                     app.reconnectBroker();
@@ -44,9 +44,32 @@ public class MqttController {
                 public void deliveryComplete(IMqttDeliveryToken token) {}
             });
             mqttClient.subscribe(SUB_TOPIC, QOS);
-        } catch (Exception e) {
-            throw new Exception("Bad Connection");
+        }
+    @Override
+    public void run() {
+
+        while (mqttClient.isConnected()) {
+
+                try {
+
+                    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HHmm");
+
+                    LocalDateTime now = LocalDateTime.now();
+
+                    MqttMessage msg = new MqttMessage(dtf.format(now).getBytes());
+
+                    msg.setQos(QOS);
+
+                    msg.setRetained(false);
+
+                    mqttClient.publish(PUB_TOPIC, msg);
+
+                    Thread.sleep(60000);
+
+                } catch (Exception e) {
+
+                    e.printStackTrace();
+                }
+            }
         }
     }
-
-}
