@@ -39,16 +39,13 @@ public class CommandsController {
     }
 
     private void setTwoDigitNumberFilter(TextField textField) {
-        TextFormatter<Integer> textFormatter = new TextFormatter<>(
-                new IntegerStringConverter(),
-                null,
-                c -> {
-                    if (c.getControlNewText().matches("\\d{0,2}")) {
-                        return c;
-                    }
-                    return null;
-                }
-        );
+        TextFormatter<String> textFormatter = new TextFormatter<>(change -> {
+            String newText = change.getControlNewText();
+            if (newText.matches("\\d{0,2}")) {
+                return change;
+            }
+            return null;
+        });
         textField.setTextFormatter(textFormatter);
     }
 
@@ -85,21 +82,35 @@ public class CommandsController {
     @FXML
     private void handleSaveButtonClicked(){
         saveErrorLabel.setVisible(false);
-        if(startHour.getText().equals("") || startMinute.getText().equals("") || endHour.getText().equals("") || endMinute.getText().equals("")){
-            saveErrorLabel.setVisible(true);
-            return;
-        } else if (Integer.parseInt(startHour.getText()) > 24 || Integer.parseInt(startMinute.getText()) > 60 || Integer.parseInt(endHour.getText()) > 24 || Integer.parseInt(endMinute.getText()) > 60){
+        if(startHour.getText().equals("") || !(startHour.getText().matches("\\d{2}")) ||
+                startMinute.getText().equals("") || !(startMinute.getText().matches("\\d{2}")) ||
+                endHour.getText().equals("") || !(endHour.getText().matches("\\d{2}")) ||
+                endMinute.getText().equals("") || !(endMinute.getText().matches("\\d{2}"))){
             saveErrorLabel.setVisible(true);
             return;
         }
-        String formattedStartHour = String.format("%02d", Integer.parseInt(startHour.getText()));
-        String formattedStartMinute = String.format("%02d", Integer.parseInt(startMinute.getText()));
-        String formattedEndHour = String.format("%02d", Integer.parseInt(endHour.getText()));
-        String formattedEndMinute = String.format("%02d", Integer.parseInt(endMinute.getText()));
-        String timeStart = formattedStartHour + ":" + formattedStartMinute;
-        String timeEnd = formattedEndHour + ":" + formattedEndMinute;
+        int startHourInt = Integer.parseInt(startHour.getText());
+        int startMinuteInt = Integer.parseInt(startMinute.getText());
+        int endHourInt = Integer.parseInt(endHour.getText());
+        int endMinuteInt = Integer.parseInt(endMinute.getText());
+        if (startHourInt > 24 ||
+                startMinuteInt > 59 ||
+                endHourInt > 24 ||
+                endMinuteInt > 59){
+            saveErrorLabel.setVisible(true);
+            return;
+        }
+        int startTime = startHourInt * 60 + startMinuteInt;
+        int endTime = endHourInt * 60 + endMinuteInt;
+        if (startTime >= endTime - 1){
+            saveErrorLabel.setVisible(true);
+            return;
+        }
+        String timeStart = startHour.getText() + startMinute.getText(); //Kai
+        String timeEnd = endHour.getText() + endMinute.getText(); //Kai
         System.out.println(timeStart);
         System.out.println(timeEnd);
+        // KAI mqtt.publish("codekey;" + timeStart + ";" + timeEnd + ";");
     }
 
     private void switchState(boolean online){
