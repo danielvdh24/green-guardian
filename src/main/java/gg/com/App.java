@@ -21,8 +21,9 @@ import java.util.Objects;
  */
 public class App extends Application {
     private static Scene scene;
-    private MqttController mqttController = null;
-    private boolean brokerOnline;
+    private MqttController mqttController;
+    private Thread timerThread;
+    public boolean brokerOnline;
     private Timeline countdownTimeline;
     private int remainingSeconds;
     private Preferences preferences;
@@ -41,7 +42,6 @@ public class App extends Application {
         brokerOnline = false;
         connectMqtt();
     }
-
     public void connectMqtt() {
         try {
             mqttController = new MqttController();
@@ -51,6 +51,8 @@ public class App extends Application {
                     new WioPubDisconnector(mqttController, mqttController.getClient());
                 }
             }));
+            timerThread = new Thread(mqttController);
+            timerThread.start();
         } catch (Exception e) {
             alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Broker not Connected!");

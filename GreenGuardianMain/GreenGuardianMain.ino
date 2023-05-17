@@ -90,7 +90,6 @@ int lightLevel = 0;
 
 void displayLCDmessage(char* message, uint16_t textColor, const GFXfont* font, boolean centerAlign, boolean clearPrevLCD, int Y_Cord_Start_Pos = Y_Cord_Start_Pos);
 
-
 void setup(){
   while(!Serial){
     Serial.begin(9600);
@@ -308,7 +307,7 @@ void handleSubMessage(char* topic, byte* payload, unsigned int length){
 
     localTime = stoi(str_time);
 
-  } else { 
+  } else {
 
   string msg = "";
 
@@ -331,7 +330,7 @@ for (int i = 0; i < length; i++){
       isFirstEncounter = false;
 
       if (i == length - 1){
-        break;      
+        break;
       }
 
     } else {
@@ -339,7 +338,7 @@ for (int i = 0; i < length; i++){
       if (isSecondEncounter){
         ledScedStartTime = stoi(msg);
         isSecondEncounter = false;
-        
+
       } else {
 
         ledScedEndTime = stoi(msg);
@@ -348,14 +347,14 @@ for (int i = 0; i < length; i++){
     }
 
     msg.clear();
-    
+
     continue;
   }
-  
+
   msg += symbol;
-  
+
   }
- 
+
   switch(commands.at(commandKey)){
     case 1:
       timeSincePub = 0;
@@ -386,7 +385,7 @@ for (int i = 0; i < length; i++){
       timeSincePub = 0;
       break;
   }
-  } 
+  }
 }
 
 void loop(){
@@ -448,7 +447,7 @@ void loop(){
     }
 
     drawScreen(moistureLevel, lightLevel, temperatureLevel);
-
+    processSend(moistureLevel, lightLevel, temperatureLevel);
   if(onlineMode){
 
     if(doPub){
@@ -457,7 +456,7 @@ void loop(){
 
       if(timeSincePub == pubFrequencySec){
       timeSincePub = 0;
-      publishMqtt();        
+      publishMqtt();
       }
     }
 
@@ -474,16 +473,6 @@ void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
   tft.fillRect(220,105,80,40, TFT_GREEN);
   tft.fillRect(220,178,80,40, TFT_GREEN);
   tft.setFreeFont(NULL);
-
-//Moisture
-unsigned long currentMillisMoisture = millis();
-if (currentMillisMoisture - previousMillis >= interval) {
-    previousMillis = currentMillisMoisture;
-
-    //Add the value to the queue and calculate the average total value of the queue
-    long moistureAverage = addValueToQueueAndCalculateAverage(moistureLevel, moistureQueue, moistureIndex);
-
-  }
   //Display moisture
   tft.setTextSize(2);
   if (moistureLevel >= 0 && moistureLevel < 300) {           //Dry - dry
@@ -491,30 +480,19 @@ if (currentMillisMoisture - previousMillis >= interval) {
     tft.drawString("Dry",243,40);
     errorSound();
   } else if(moistureLevel >= 300 && moistureLevel < 600) {   //Moist - darkcyan
+    analogWrite(WIO_BUZZER, 0);
     tft.setTextColor(TFT_DARKCYAN);
     tft.drawString("Moist",232,40);
   } else if(moistureLevel >= 600 && moistureLevel <= 950){    //Wet - blue
+    analogWrite(WIO_BUZZER, 0);
     tft.setTextColor(TFT_BLUE);
     tft.drawString("Wet",243,40);
   } else {
     tft.setTextColor(TFT_BLACK);                              //Error - black (values outside range)
     tft.drawString("ERROR",232,40);
   }
-
-
-//Light
-//Check if it's time to read the sensor
-int range = map(lightLevel, 0, 1300, 0, 10);                //Map light values to a range for percentage
-unsigned long currentMillisLight = millis();
-  if (currentMillisLight - previousMillis >= interval) {
-    previousMillis = currentMillisLight;
-
-    //Add the value to the queue and calculate the average total value of the queue
-    long lightAverage = addValueToQueueAndCalculateAverage(range, lightQueue, lightIndex);
-
-  }
-
- //Display light
+   //Display light
+  int range = map(lightLevel, 0, 1300, 0, 10);                //Map light values to a range for percentage
   if(range < 3){
    tft.setTextColor(TFT_RED);
    tft.drawString("Low",245,118);
@@ -524,21 +502,12 @@ unsigned long currentMillisLight = millis();
    tft.drawString("High",237,118);
    errorSound();
   } else if (range > 2 && range < 9){
+   analogWrite(WIO_BUZZER, 0);
    tft.setTextColor(TFT_DARKGREEN);
    tft.drawString("Good",237,118);
   } else {
    tft.setTextColor(TFT_BLACK);
    tft.drawString("ERROR",232,118);
-  }
-
-//Temperature
-unsigned long currentMillisTemperature = millis();
-if (currentMillisTemperature - previousMillis >= interval) {
-    previousMillis = currentMillisTemperature;
-
-    //Add the value to the queue and calculate the average total value of the queue
-    long temperatureAverage = addValueToQueueAndCalculateAverage(temperatureLevel, temperatureQueue, temperatureIndex);
-
   }
   //Display temperature
     if(temperatureLevel >= maxTemp){
@@ -553,6 +522,30 @@ if (currentMillisTemperature - previousMillis >= interval) {
     tft.drawNumber(temperatureLevel,240,191);
     tft.setTextColor(TFT_BLACK);
     tft.drawString("C",270,191);
+}
+
+void processSend(int moistureLevel, int lightLevel, int temperatureLevel){
+  //Moisture
+  unsigned long currentMillisMoisture = millis();
+  if (currentMillisMoisture - previousMillis >= interval) {
+    previousMillis = currentMillisMoisture;
+    //Add the value to the queue and calculate the average total value of the queue
+    long moistureAverage = addValueToQueueAndCalculateAverage(moistureLevel, moistureQueue, moistureIndex);
+  }
+  //Light
+  unsigned long currentMillisLight = millis();
+  if (currentMillisLight - previousMillis >= interval) {
+    previousMillis = currentMillisLight;
+    //Add the value to the queue and calculate the average total value of the queue
+    long lightAverage = addValueToQueueAndCalculateAverage(lightLevel, lightQueue, lightIndex);
+  }
+  //Temperature
+  unsigned long currentMillisTemperature = millis();
+  if (currentMillisTemperature - previousMillis >= interval) {
+    previousMillis = currentMillisTemperature;
+    //Add the value to the queue and calculate the average total value of the queue
+    long temperatureAverage = addValueToQueueAndCalculateAverage(temperatureLevel, temperatureQueue, temperatureIndex);
+  }
 }
 
 void testLight(int lightLevel){
@@ -602,36 +595,31 @@ void testTemperature(int temp){
 
 void errorSound() {
   const unsigned long buzzerBeep = 400;
-  const unsigned long shortPause = 200;
-  const unsigned long longPause = 1000;
+  const unsigned long shortPause = 300;
   const int buzzerFrequency = 150;
 
-  //Millis function is used to keep track of current time and the start time.
-  unsigned long startTime = millis();
+  static unsigned long startTime = 0;
+  static int state = 0;
 
-  //Play the buzzer if the boolean is true and the buzzerBeep time hasn't elapsed
-  while (millis() - startTime < buzzerBeep && buzzerOn) { //Only play the buzzer if the boolean is true
-    analogWrite(WIO_BUZZER, buzzerFrequency);
-  }
+  unsigned long currentTime = millis();
+  unsigned long elapsedTime = currentTime - startTime;
 
-  startTime = millis();
-
-  //400ms pause
-  while (millis() - startTime < shortPause) {
-    analogWrite(WIO_BUZZER, 0);
-  }
-
-  startTime = millis();
-
-  //Play the buzzer if the boolean is true and the buzzerBeep time hasn't elapsed
-  while (millis() - startTime < buzzerBeep && buzzerOn) { //Only play the buzzer if the boolean is true
-    analogWrite(WIO_BUZZER, buzzerFrequency);
-  }
-
-  startTime = millis();
-
-  //Pause the buzzer for the 1000ms
-  while (millis() - startTime < longPause) {
-    analogWrite(WIO_BUZZER, 0);
+  switch (state) {
+    case 0:
+      if (elapsedTime < buzzerBeep && buzzerOn) {
+        analogWrite(WIO_BUZZER, buzzerFrequency);
+      } else {
+        startTime = currentTime;
+        state = 1;
+      }
+      break;
+    case 1:
+      if (elapsedTime < shortPause) {
+        analogWrite(WIO_BUZZER, 0);
+      } else {
+        startTime = currentTime;
+        state = 0;
+      }
+      break;
   }
 }
