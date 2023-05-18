@@ -10,7 +10,6 @@ import javafx.scene.chart.XYChart;
 import javafx.util.Duration;
 
 import java.io.IOException;
-import java.util.Objects;
 
 public class GraphController {
     private final String[] sources = {"Moisture","Temperature","Light"};
@@ -34,7 +33,7 @@ public class GraphController {
     protected void launchGraph() {
         chart.getData().clear();
         XYChart.Series<String, Number> series = new XYChart.Series<>();
-        Reader reader = new Reader(Objects.requireNonNull(App.class.getClassLoader().getResource("test.txt")).getFile());
+        Reader reader = new Reader("test.txt");
         if(dataSelect.getValue().equals("Light"))
         {
             reader.nextInt();
@@ -50,7 +49,7 @@ public class GraphController {
     }
 
     private void addDataWithDelay(XYChart.Series<String, Number> series, Reader reader, int count) {
-        if (count > 336) { // temporary limit
+        if (count > 335) { // temporary limit
             return;
         }
         String count1 = Integer.toString(count);
