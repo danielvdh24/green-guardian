@@ -1,0 +1,1 @@
+{"scene":"SettingsScene","interval":1800,"notifications":false,"online":true,"manual":false,"light":true}
