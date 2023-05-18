@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -43,6 +44,37 @@ public class App extends Application {
 
     public static void main(String[] args)
     {
+        /*String result = "";
+        byte[] byte1 = new byte[10];
+
+        for(int i=0;i<5;i++)
+        {
+            byte1[i*2] = (byte)(65 + i);
+            byte1[i*2+1] = (byte)(32);
+        }
+
+        for(int i=0;i<10;i++)
+        {
+            char c = (char)byte1[i];
+            result += c;
+        }
+
+        System.out.println(result);
+
+        try
+        {
+            FileWriter fileWriter;
+            fileWriter = new FileWriter(Objects.requireNonNull(App.class.getClassLoader().getResource("xd.txt")).getFile());
+            fileWriter.write(result);
+            fileWriter.close();
+        }
+        catch(Exception e)
+        {
+            System.out.println("File not found.");
+        }*/
+
+
+
         launch();
     }
 

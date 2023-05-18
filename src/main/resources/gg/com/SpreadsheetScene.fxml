@@ -8,7 +8,7 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="388.0" prefWidth="600.0" stylesheets="@../../styles/default-theme.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gg.com.SpreadsheetController">
+<Pane fx:id="MainPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onMouseClicked="#ChangeFocus" prefHeight="388.0" prefWidth="600.0" stylesheets="@../../styles/default-theme.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gg.com.SpreadsheetController">
     <HBox layoutY="307.0" prefHeight="81.0" prefWidth="600.0">
         <Button mnemonicParsing="false" prefHeight="81.0" prefWidth="150.0" styleClass="menu-button" text="Analytics" textFill="#33401b">
          <font>
@@ -27,10 +27,6 @@
             <Font name="Comic Sans MS" size="20.0" />
          </font></Button>
     </HBox>
-   <Label alignment="CENTER" layoutX="11.0" layoutY="117.0" prefHeight="45.0" prefWidth="62.0" styleClass="spreadsheet-block" text="Plant ID" textAlignment="CENTER">
-      <font>
-         <Font name="Comic Sans MS" size="12.0" />
-      </font></Label>
    <Label alignment="CENTER" layoutX="208.0" layoutY="117.0" prefHeight="45.0" prefWidth="76.0" styleClass="spreadsheet-block" text="Temperature" textAlignment="CENTER">
       <font>
          <Font name="Comic Sans MS" size="12.0" />
@@ -73,10 +69,6 @@
       <font>
          <Font name="Comic Sans MS" size="12.0" />
       </font></Label>
-   <Label fx:id="PlantID" alignment="CENTER" layoutX="11.0" layoutY="175.0" prefHeight="70.0" prefWidth="62.0" styleClass="spreadsheet-block" text="0" textAlignment="CENTER">
-      <font>
-         <Font name="Comic Sans MS" size="13.0" />
-      </font></Label>
    <Label fx:id="TempC" alignment="CENTER" layoutX="208.0" layoutY="175.0" prefHeight="69.0" prefWidth="76.0" styleClass="spreadsheet-block" text="0" textAlignment="CENTER">
       <font>
          <Font name="Comic Sans MS" size="13.0" />
@@ -102,19 +94,19 @@
          </Label>
       </children>
    </HBox>
-   <TextField fx:id="LightO" alignment="CENTER" focusTraversable="false" layoutX="356.0" layoutY="175.0" prefHeight="70.0" prefWidth="42.0" styleClass="spreadsheet-block" text="0">
+   <TextField fx:id="LightO" alignment="CENTER" focusTraversable="false" layoutX="356.0" layoutY="175.0" onKeyTyped="#onChange" prefHeight="70.0" prefWidth="42.0" styleClass="spreadsheet-block" text="0">
       <font>
          <Font name="Comic Sans MS" size="13.0" />
       </font></TextField>
-   <TextField fx:id="TempO" alignment="CENTER" focusTraversable="false" layoutX="402.0" layoutY="175.0" prefHeight="70.0" prefWidth="77.0" styleClass="spreadsheet-block" text="0">
+   <TextField fx:id="TempO" alignment="CENTER" focusTraversable="false" layoutX="402.0" layoutY="175.0" onKeyTyped="#onChange" prefHeight="70.0" prefWidth="77.0" styleClass="spreadsheet-block" text="0">
       <font>
          <Font name="Comic Sans MS" size="13.0" />
       </font></TextField>
-   <TextField fx:id="HumO" alignment="CENTER" focusTraversable="false" layoutX="483.0" layoutY="174.0" prefHeight="70.0" prefWidth="54.0" styleClass="spreadsheet-block" text="0">
+   <TextField fx:id="HumO" alignment="CENTER" focusTraversable="false" layoutX="483.0" layoutY="174.0" onKeyTyped="#onChange" prefHeight="70.0" prefWidth="54.0" styleClass="spreadsheet-block" text="0">
       <font>
          <Font name="Comic Sans MS" size="13.0" />
       </font></TextField>
-   <TextField fx:id="PlantName" alignment="CENTER" focusTraversable="false" layoutX="77.0" layoutY="175.0" prefHeight="70.0" prefWidth="74.0" styleClass="spreadsheet-block" text="0">
+   <TextField fx:id="PlantName" alignment="CENTER" focusTraversable="false" layoutX="77.0" layoutY="175.0" onKeyTyped="#onChange" prefHeight="70.0" prefWidth="74.0" styleClass="spreadsheet-block" text="0">
       <font>
          <Font name="Comic Sans MS" size="13.0" />
       </font></TextField>
