@@ -42,12 +42,12 @@
     </Label>
     <Pane layoutX="9.0" layoutY="56.0" prefHeight="245.0" prefWidth="186.0" styleClass="menu-button">
         <children>
-            <Label alignment="CENTER" layoutX="-1.0" layoutY="12.0" prefHeight="44.0" prefWidth="189.0" text="Click to" textAlignment="CENTER" textFill="#33401b">
+            <Label alignment="CENTER" layoutX="-1.0" layoutY="1.0" prefHeight="44.0" prefWidth="189.0" text="Click to" textAlignment="CENTER" textFill="#33401b">
                 <font>
                     <Font name="Comic Sans MS" size="26.0" />
                 </font>
             </Label>
-            <Label fx:id="powerButtonLabel" alignment="CENTER" layoutX="-1.0" layoutY="162.0" prefHeight="44.0" prefWidth="189.0" text="Turn OFF" textAlignment="CENTER" textFill="#33401b">
+            <Label fx:id="powerButtonLabel" alignment="CENTER" layoutX="-1.0" layoutY="155.0" prefHeight="44.0" prefWidth="189.0" text="Turn OFF" textAlignment="CENTER" textFill="#33401b">
                 <font>
                     <Font name="Comic Sans MS" size="26.0" />
                 </font>
@@ -57,8 +57,8 @@
                     <Font name="Comic Sans MS" size="26.0" />
                 </font>
             </Label>
-            <Circle fx:id="powerButtonCircle" fill="#748a74" layoutX="93.0" layoutY="115.0" onMouseClicked="#handlePowerButtonClicked" radius="56.0" stroke="LIME" strokeType="INSIDE" strokeWidth="10.0" />
-            <ImageView fitHeight="74.0" fitWidth="82.0" layoutX="60.0" layoutY="76.0" onMouseClicked="#handlePowerButtonClicked" pickOnBounds="true" preserveRatio="true">
+            <Circle fx:id="powerButtonCircle" fill="#748a74" layoutX="93.0" layoutY="107.0" onMouseClicked="#handlePowerButtonClicked" radius="56.0" stroke="LIME" strokeType="INSIDE" strokeWidth="10.0" />
+            <ImageView fitHeight="74.0" fitWidth="82.0" layoutX="60.0" layoutY="68.0" onMouseClicked="#handlePowerButtonClicked" pickOnBounds="true" preserveRatio="true">
                 <image>
                     <Image url="@../../images/powerButton.png" />
                 </image>
