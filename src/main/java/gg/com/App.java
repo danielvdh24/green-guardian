@@ -12,7 +12,6 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.util.Duration;
-import java.io.FileWriter;
 
 import java.io.IOException;
 import java.util.Objects;

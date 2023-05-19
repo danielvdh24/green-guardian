@@ -2,12 +2,16 @@ package gg.com;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 
 public class SpreadsheetController 
 {
@@ -32,6 +36,19 @@ public class SpreadsheetController
 
     public void initialize() 
     {
+        Path dataFilePath = Paths.get("config", "SpreadsheetData.txt");
+        try
+        {
+            if (!Files.exists(dataFilePath)) 
+            {
+            Files.createFile(dataFilePath);
+            }
+        }
+        catch(Exception e)
+        {
+            System.out.println("Folder not found.");
+        }
+        
         Reader reader = new Reader("SpreadsheetData.txt");
         setTwoDigitNumberFilter(TempO);
         setTwoDigitNumberFilter(HumO);
@@ -45,10 +62,7 @@ public class SpreadsheetController
         TempO.setText(reader.nextLine());
         HumO.setText(reader.nextLine());
 
-        if(Integer.parseInt(TempC.getText())>Integer.parseInt(TempO.getText())
-        && Integer.parseInt(LightC.getText())>Integer.parseInt(LightO.getText())
-        && Integer.parseInt( HumC.getText())>Integer.parseInt( HumO.getText()))Status.setText("OK");
-        else Status.setText("Alert");
+        CheckStatus();
 
     }
 
@@ -92,12 +106,25 @@ public class SpreadsheetController
         textField.setTextFormatter(textFormatter);
     }
 
-    public void onChange()
+    public void CheckStatus()
     {
         if(Integer.parseInt(TempC.getText())>Integer.parseInt(TempO.getText())
         && Integer.parseInt(LightC.getText())>Integer.parseInt(LightO.getText())
-        && Integer.parseInt( HumC.getText())>Integer.parseInt( HumO.getText()))Status.setText("OK");
-        else Status.setText("Alert");
+        && Integer.parseInt( HumC.getText())>Integer.parseInt( HumO.getText()))
+        {
+            Status.setText("OK");
+            Status.setTextFill(Color.GREEN);
+        }
+        else 
+        {
+            Status.setText("Alert");
+            Status.setTextFill(Color.RED);
+        }
+    }
+
+    public void onChange()
+    {
+        CheckStatus();
         String NewData = PlantName.getText()+"\n"+LightO.getText()+"\n"+TempO.getText()+"\n"+HumO.getText()+"\n";
         DocWriter.write("SpreadsheetData.txt",NewData);   
     }
