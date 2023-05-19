@@ -41,9 +41,10 @@ int temperatureQueue[queueSize]; // array to hold the queue
 int lightIndex = 0; // current index of the queue
 int moistureIndex = 0; // current index of the moisture queue
 int temperatureIndex = 0; // current index of the moisture queue
-unsigned long previousMillis = 0; // previous time when a value was added to the queue
-const unsigned long interval = 1800000; // interval between adding values to the queue (30 mins)
 
+//remove later- val for testing purposes
+int interval = 6; // interval between adding values to the queue (30 mins) in secs //1800000
+int addToQueueTimer = 0; //secs
 
 //Variables to keep track of mode setup and connectivity status
 bool onlineMode = false;
@@ -57,9 +58,9 @@ IPAddress brokerIp(0, 0, 0, 0);
 int port = 0;
 
 //Insert values below:
-char pubTopic[] = "";
-char subTopic[] = "";
-char clientName[] = "";
+char pubTopic[] = "sensordata";
+char subTopic[] = "commands";
+char clientName[] = "fromarduino";
 
 WiFiClient* wioClient = nullptr;
 PubSubClient* mqttClient = nullptr;
@@ -76,13 +77,13 @@ std::unordered_map<std::string, int> commands = {
 };
 
 boolean doPub = false;
-int timeSincePub = 0;
-int pubFrequencySec = 0;
+int timeSincePub = 0; //secs
+int pubFrequencySec = 0; //secs
 
-int localTime = 0;
+string localTime = ""; //HHmm
 
-int ledScedStartTime = 0;
-int ledScedEndTime = 0;
+string ledScedStartTime = ""; //HHmm
+string ledScedEndTime = ""; //HHmm
 
 int moistureLevel = 0;
 int temperatureLevel = 0;
@@ -94,6 +95,7 @@ void setup(){
   while(!Serial){
     Serial.begin(9600);
   }
+
   pinMode(WIO_5S_LEFT, INPUT);
   pinMode(WIO_5S_RIGHT, INPUT);
   pinMode(WIO_5S_PRESS, INPUT);
@@ -245,6 +247,7 @@ void setupMqtt(){
 }
 
 void connectMqtt(){
+  doPub = false;
   displayLCDmessage("(Re) Connecting to MQTT Broker...", tft.color565(70, 50, 100), FF25, true, true, 60);
   displayLCDmessage("(Connection Keeps Failing? Fix:", TFT_BLACK, FF33, true, false);
   displayLCDmessage("1. Broker Is Not Running)", TFT_BLACK, FF33, true, false);
@@ -299,13 +302,11 @@ void handleSubMessage(char* topic, byte* payload, unsigned int length){
 
   if (isdigit((char) payload[0])){
 
-    string str_time = "";
+    localTime = "";
 
     for (int i = 0; i < length; i++){
-      str_time += (char) payload[i];
+      localTime += (char) payload[i];
     }
-
-    localTime = stoi(str_time);
 
   } else {
 
@@ -323,7 +324,7 @@ for (int i = 0; i < length; i++){
 
   symbol = (char) payload[i];
 
-  if (symbol == ';'){
+  if (symbol == ';'){ 
 
     if (isFirstEncounter){
       commandKey = msg;
@@ -336,12 +337,12 @@ for (int i = 0; i < length; i++){
     } else {
 
       if (isSecondEncounter){
-        ledScedStartTime = stoi(msg);
+        ledScedStartTime = msg;
         isSecondEncounter = false;
 
       } else {
 
-        ledScedEndTime = stoi(msg);
+        ledScedEndTime = msg;
       }
 
     }
@@ -354,6 +355,8 @@ for (int i = 0; i < length; i++){
   msg += symbol;
 
   }
+
+  const char* msg1 = commandKey.c_str();
 
   switch(commands.at(commandKey)){
     case 1:
@@ -389,6 +392,9 @@ for (int i = 0; i < length; i++){
 }
 
 void loop(){
+
+  // testing: doPub = true;
+  //testing: pubFrequencySec = 10;
 
   if (showStartingScreen){
     drawStartingScreen();
@@ -427,13 +433,19 @@ void loop(){
     modeIsSetup = true;
   }
 
+    //remove later -- only for testing purposes
+    //test: moistureLevel = 1000;
+    //test: temperatureLevel = 40;
+    //test lightLevel = 1200;
+
+
     moistureLevel = analogRead(moisturePin);
     temperatureLevel = dht.readTemperature();
     lightLevel = analogRead(WIO_LIGHT);
     if (isTestLight) {
-      testLight(lightLevel);
+      testLight();
     } else {
-      testMoisture(moistureLevel);
+      testMoisture();
     }
     if (digitalRead(BUTTON_3) == LOW) {
       delay(200);
@@ -446,15 +458,15 @@ void loop(){
       delay(100);
     }
 
-    drawScreen(moistureLevel, lightLevel, temperatureLevel);
-    processSend(moistureLevel, lightLevel, temperatureLevel);
+    drawScreen();
+    checkAddToQueue();
   if(onlineMode){
 
     if(doPub){
 
       timeSincePub++;
 
-      if(timeSincePub == pubFrequencySec){
+      if(timeSincePub >= pubFrequencySec){
       timeSincePub = 0;
       publishMqtt();
       }
@@ -464,7 +476,7 @@ void loop(){
   }
 }
 
-void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
+void drawScreen(){
   unsigned long startTime = millis();
   while(millis() < startTime + 500){
       //Wait 500ms
@@ -524,31 +536,25 @@ void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
     tft.drawString("C",270,191);
 }
 
-void processSend(int moistureLevel, int lightLevel, int temperatureLevel){
-  //Moisture
-  unsigned long currentMillisMoisture = millis();
-  if (currentMillisMoisture - previousMillis >= interval) {
-    previousMillis = currentMillisMoisture;
+void checkAddToQueue(){
+  
+  addToQueueTimer++;
+  
+  if (addToQueueTimer >= interval) {
+
+    addToQueueTimer = 0;
     //Add the value to the queue and calculate the average total value of the queue
-    long moistureAverage = addValueToQueueAndCalculateAverage(moistureLevel, moistureQueue, moistureIndex);
-  }
-  //Light
-  unsigned long currentMillisLight = millis();
-  if (currentMillisLight - previousMillis >= interval) {
-    previousMillis = currentMillisLight;
+    int moistureAverage = addValueToQueueAndCalculateAverage(moistureLevel, moistureQueue, moistureIndex);
+
     //Add the value to the queue and calculate the average total value of the queue
-    long lightAverage = addValueToQueueAndCalculateAverage(lightLevel, lightQueue, lightIndex);
-  }
-  //Temperature
-  unsigned long currentMillisTemperature = millis();
-  if (currentMillisTemperature - previousMillis >= interval) {
-    previousMillis = currentMillisTemperature;
+    int lightAverage = addValueToQueueAndCalculateAverage(lightLevel, lightQueue, lightIndex);
+
     //Add the value to the queue and calculate the average total value of the queue
-    long temperatureAverage = addValueToQueueAndCalculateAverage(temperatureLevel, temperatureQueue, temperatureIndex);
-  }
+    int temperatureAverage = addValueToQueueAndCalculateAverage(temperatureLevel, temperatureQueue, temperatureIndex);
+  } 
 }
 
-void testLight(int lightLevel){
+void testLight(){
  pixels.clear();
  int range = map(lightLevel, 0, 1300, 0, 10);         //Map light values to a range to activate LEDs
  if(range < 3 || range > 8){
@@ -563,7 +569,7 @@ void testLight(int lightLevel){
  pixels.show();
 }
 
-void testMoisture(int moistureLevel){
+void testMoisture(){
  pixels.clear();
  int range;
   if (moistureLevel >= 0 && moistureLevel < 300) {           //Dry - brown
