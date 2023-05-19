@@ -129,12 +129,12 @@ void setupDataDisplay(){
       squareColour = TFT_YELLOW;
       textColor = TFT_BLACK;
 
-      temperatureLowThreshold = 3;
-      temperatureHighThreshold = 7;
-      moistureLowThreshold = 3;
-      moistureHighThreshold = 7;
-      lightLowThreshold = 3;
-      lightHighThreshold = 7;
+      temperatureLowThreshold = 6;
+      temperatureHighThreshold = 9;
+      moistureLowThreshold = 1;
+      moistureHighThreshold = 2;
+      lightLowThreshold = 6;
+      lightHighThreshold = 9;
       break;
     case 2:
       //Tundra
@@ -144,10 +144,10 @@ void setupDataDisplay(){
       squareColour = TFT_CYAN;
       textColor = TFT_BLACK;
 
-      temperatureLowThreshold = 3;
-      temperatureHighThreshold = 7;
-      moistureLowThreshold = 3;
-      moistureHighThreshold = 7;
+      temperatureLowThreshold = 1;
+      temperatureHighThreshold = 5;
+      moistureLowThreshold = 4;
+      moistureHighThreshold = 6;
       lightLowThreshold = 3;
       lightHighThreshold = 7;
       break;
@@ -159,12 +159,12 @@ void setupDataDisplay(){
       squareColour = AQUA;
       textColor = TFT_WHITE;
 
-      temperatureLowThreshold = 3;
+      temperatureLowThreshold = 5;
       temperatureHighThreshold = 7;
-      moistureLowThreshold = 3;
-      moistureHighThreshold = 7;
-      lightLowThreshold = 3;
-      lightHighThreshold = 7;
+      moistureLowThreshold = 6;
+      moistureHighThreshold = 9;
+      lightLowThreshold = 5;
+      lightHighThreshold = 9;
       break;
     case 4:
       //Standard/Grassland
@@ -177,9 +177,9 @@ void setupDataDisplay(){
       temperatureLowThreshold = 3;
       temperatureHighThreshold = 7;
       moistureLowThreshold = 3;
-      moistureHighThreshold = 7;
+      moistureHighThreshold = 8;
       lightLowThreshold = 3;
-      lightHighThreshold = 7;
+      lightHighThreshold = 8;
       break;
     case 5:
       //Taiga
@@ -189,12 +189,12 @@ void setupDataDisplay(){
       squareColour = BROWN;
       textColor = TFT_WHITE;
 
-      temperatureLowThreshold = 3;
+      temperatureLowThreshold = 4;
       temperatureHighThreshold = 7;
-      moistureLowThreshold = 3;
-      moistureHighThreshold = 7;
+      moistureLowThreshold = 5;
+      moistureHighThreshold = 8;
       lightLowThreshold = 3;
-      lightHighThreshold = 7;
+      lightHighThreshold = 6;
       break;
     default:
       //Default preset
