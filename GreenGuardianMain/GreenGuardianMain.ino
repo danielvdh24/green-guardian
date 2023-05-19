@@ -454,7 +454,7 @@ if (currentMillisMoisture - previousMillis >= interval) {
 
 //Light
 //Check if it's time to read the sensor
-int range = map(lightLevel, 0, 1300, 0, 10);                //Map light values to a range for percentage
+int range = map(lightLevel, 0, 950, 0, 10);                //Map light values to a range for percentage
 unsigned long currentMillisLight = millis();
   if (currentMillisLight - previousMillis >= interval) {
     previousMillis = currentMillisLight;
