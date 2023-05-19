@@ -41,7 +41,9 @@ public class SpreadsheetController
         {
             if (!Files.exists(dataFilePath)) 
             {
-            Files.createFile(dataFilePath);
+                Files.createFile(dataFilePath);
+                String NewData = "Plant 1"+"\n"+"50"+"\n"+"50"+"\n"+"50"+"\n";
+                DocWriter.write("SpreadsheetData.txt",NewData);
             }
         }
         catch(Exception e)
