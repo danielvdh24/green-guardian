@@ -108,9 +108,27 @@ void setupWifi(){
 }
 
 void setupDataDisplay(){
+
+  //Variables for colour
+  uint16_t AQUA = tft.color565(0, 255, 255);
+  uint16_t BROWN = tft.color565(165, 42, 42);
+
+  uint16_t fillColour = TFT_GREEN;
+  uint16_t bigRectangleColour = TFT_DARKGREEN;
+  uint16_t lineColour = TFT_GREEN;
+  uint16_t squareColour = TFT_GREEN;
+  uint16_t textColor = TFT_WHITE;
+
   //Set the threshold values based on the current preset
   switch (currentPreset) {
     case 1:
+      //Desert
+      fillColour = TFT_YELLOW;
+      bigRectangleColour = TFT_ORANGE;
+      lineColour = TFT_YELLOW;
+      squareColour = TFT_YELLOW;
+      textColor = TFT_BLACK;
+
       temperatureLowThreshold = 3;
       temperatureHighThreshold = 7;
       moistureLowThreshold = 3;
@@ -119,6 +137,13 @@ void setupDataDisplay(){
       lightHighThreshold = 7;
       break;
     case 2:
+      //Tundra
+      fillColour = TFT_CYAN;
+      bigRectangleColour = TFT_BLUE;
+      lineColour = TFT_CYAN;
+      squareColour = TFT_CYAN;
+      textColor = TFT_BLACK;
+
       temperatureLowThreshold = 3;
       temperatureHighThreshold = 7;
       moistureLowThreshold = 3;
@@ -127,6 +152,13 @@ void setupDataDisplay(){
       lightHighThreshold = 7;
       break;
     case 3:
+      //Tropical
+      fillColour = AQUA;
+      bigRectangleColour = TFT_OLIVE;
+      lineColour = AQUA;
+      squareColour = AQUA;
+      textColor = TFT_WHITE;
+
       temperatureLowThreshold = 3;
       temperatureHighThreshold = 7;
       moistureLowThreshold = 3;
@@ -135,6 +167,13 @@ void setupDataDisplay(){
       lightHighThreshold = 7;
       break;
     case 4:
+      //Standard/Grassland
+      fillColour = TFT_GREEN;
+      bigRectangleColour = TFT_DARKGREEN;
+      lineColour = TFT_GREEN;
+      squareColour = TFT_GREEN;
+      textColor = TFT_WHITE;
+
       temperatureLowThreshold = 3;
       temperatureHighThreshold = 7;
       moistureLowThreshold = 3;
@@ -143,6 +182,13 @@ void setupDataDisplay(){
       lightHighThreshold = 7;
       break;
     case 5:
+      //Taiga
+      fillColour = BROWN;
+      bigRectangleColour = TFT_MAROON;
+      lineColour = TFT_GREEN;
+      squareColour = BROWN;
+      textColor = TFT_WHITE;
+
       temperatureLowThreshold = 3;
       temperatureHighThreshold = 7;
       moistureLowThreshold = 3;
@@ -151,6 +197,14 @@ void setupDataDisplay(){
       lightHighThreshold = 7;
       break;
     default:
+      //Default preset
+      //Standard/Grassland
+      fillColour = TFT_GREEN;
+      bigRectangleColour = TFT_DARKGREEN;
+      lineColour = TFT_GREEN;
+      squareColour = TFT_GREEN;
+      textColor = TFT_WHITE;
+
       temperatureLowThreshold = 3;
       temperatureHighThreshold = 7;
       moistureLowThreshold = 3;
@@ -161,14 +215,14 @@ void setupDataDisplay(){
   }
 
   tft.setFreeFont(NULL);
-  tft.fillScreen(TFT_GREEN);
-  tft.fillRect(10,10,300,220, TFT_DARKGREEN);
-  tft.fillRect(10,83,300,10, TFT_GREEN);
-  tft.fillRect(10,156,300,10, TFT_GREEN);
-  tft.fillRect(220,22,80,50, TFT_GREEN);
-  tft.fillRect(220,105,80,40, TFT_GREEN);
-  tft.fillRect(220,178,80,40, TFT_GREEN);
-  tft.setTextColor(TFT_WHITE);
+  tft.fillScreen(fillColour);
+  tft.fillRect(10,10,300,220, bigRectangleColour);
+  tft.fillRect(10,83,300,10, lineColour);
+  tft.fillRect(10,156,300,10, lineColour);
+  tft.fillRect(220,22,80,50, squareColour);
+  tft.fillRect(220,105,80,40, squareColour);
+  tft.fillRect(220,178,80,40, squareColour);
+  tft.setTextColor(textColor);
   tft.setTextSize(3);
   tft.drawString("Moisture",40,37);
   tft.drawString("Light",40,115);
