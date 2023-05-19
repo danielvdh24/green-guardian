@@ -29,7 +29,12 @@ public class GraphController {
         {
             if (!Files.exists(dataFilePath)) 
             {
-            Files.createFile(dataFilePath);
+                Files.createFile(dataFilePath);
+                String Line = "0"+" "+"0"+" "+"0"+"\n";
+                String NewData = "";
+                System.out.println(Line);
+                for(int i=0;i<336;i++)NewData += Line;
+                DocWriter.write("GraphData.txt",NewData);
             }
         }
         catch(Exception e)
