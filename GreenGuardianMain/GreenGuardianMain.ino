@@ -96,6 +96,12 @@ void setup(){
     Serial.begin(9600);
   }
 
+  for (int i = 0; i < queueSize; i++){
+    lightQueue[i] = 0;
+    temperatureQueue[i] = 0;
+    moistureQueue[i] = 0;
+  }
+
   pinMode(WIO_5S_LEFT, INPUT);
   pinMode(WIO_5S_RIGHT, INPUT);
   pinMode(WIO_5S_PRESS, INPUT);
@@ -280,7 +286,28 @@ void connectMqtt(){
   }
 }
 
-void publishMqtt(){}
+  void publishMqtt(){
+
+  for (int i = 0; i < 16; i++){
+
+    string packet = "";
+
+  for (int j = i * 21; j < (i + 1) * 21; j++){
+
+    packet += to_string(lightQueue[j]) + "," + to_string(temperatureQueue[j]) + "," + to_string(moistureQueue[j]) + ",";
+  
+  } 
+
+  const char* charpacket = packet.c_str();
+
+  mqttClient->publish(pubTopic, charpacket);
+
+  }
+
+  //remove later - testing purposes
+  //mqttClient->publish(pubTopic, " ");
+
+}
 
 void subscribeMqtt(){
   mqttClient->subscribe(subTopic);
@@ -305,89 +332,94 @@ void handleSubMessage(char* topic, byte* payload, unsigned int length){
     localTime = "";
 
     for (int i = 0; i < length; i++){
+      
       localTime += (char) payload[i];
+
     }
 
   } else {
 
-  string msg = "";
+      string msg = "";
 
-  boolean isFirstEncounter = true;
+      boolean isFirstEncounter = true;
 
-  boolean isSecondEncounter = true;
+      boolean isSecondEncounter = true;
 
-  string commandKey = "";
+      string commandKey = "";
 
-  char symbol = '\0';
+      char symbol = '\0';
 
-for (int i = 0; i < length; i++){
+      for (int i = 0; i < length; i++){
 
-  symbol = (char) payload[i];
+      symbol = (char) payload[i];
 
-  if (symbol == ';'){ 
+      if (symbol == ';'){ 
 
-    if (isFirstEncounter){
-      commandKey = msg;
-      isFirstEncounter = false;
+        if (isFirstEncounter){
+          commandKey = msg;
+          isFirstEncounter = false;
 
-      if (i == length - 1){
-        break;
+          if (i == length - 1){
+
+            break;
+          }
+
+        } else {
+
+          if (isSecondEncounter){
+
+            ledScedStartTime = msg;
+
+            isSecondEncounter = false;
+
+          } else {
+
+            ledScedEndTime = msg;
+          }
+
+        }
+
+        msg.clear();
+
+        continue;
       }
 
-    } else {
+      msg += symbol;
 
-      if (isSecondEncounter){
-        ledScedStartTime = msg;
-        isSecondEncounter = false;
-
-      } else {
-
-        ledScedEndTime = msg;
       }
 
-    }
+      const char* msg1 = commandKey.c_str();
 
-    msg.clear();
+      switch(commands.at(commandKey)){
+        case 1:
+          timeSincePub = 0;
+          pubFrequencySec = 5;
+          doPub = true;
+          break;
 
-    continue;
-  }
+        case 2:
+          timeSincePub = 0;
+          pubFrequencySec = 60;
+          doPub = true;
+          break;
 
-  msg += symbol;
+        case 3:
+          timeSincePub = 0;
+          pubFrequencySec = 300;
+          doPub = true;
+          break;
 
-  }
+        case 4:
+          timeSincePub = 0;
+          pubFrequencySec = 1800;
+          doPub = true;
+          break;
 
-  const char* msg1 = commandKey.c_str();
-
-  switch(commands.at(commandKey)){
-    case 1:
-      timeSincePub = 0;
-      pubFrequencySec = 5;
-      doPub = true;
-      break;
-
-    case 2:
-      timeSincePub = 0;
-      pubFrequencySec = 60;
-      doPub = true;
-      break;
-
-    case 3:
-      timeSincePub = 0;
-      pubFrequencySec = 300;
-      doPub = true;
-      break;
-
-    case 4:
-      timeSincePub = 0;
-      pubFrequencySec = 1800;
-      doPub = true;
-      break;
-
-    case 5:
-      doPub = false;
-      timeSincePub = 0;
-      break;
-  }
+        case 5:
+          doPub = false;
+          timeSincePub = 0;
+          break;
+      }
   }
 }
 
