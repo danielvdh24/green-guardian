@@ -14,12 +14,11 @@ public class Preferences {
     String scene;
     int interval;
     boolean notifications;
-    boolean online; // commands scene
-    boolean manual; // commands scene
-    boolean light; // commands scene
+    boolean online;
+    boolean manual;
+    boolean light;
 
     private Preferences() {
-        // default values if no config file found
         scene = "SpreadsheetScene";
         interval = 5;
         notifications = false;
