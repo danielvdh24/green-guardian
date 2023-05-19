@@ -41,9 +41,10 @@ int temperatureQueue[queueSize]; // array to hold the queue
 int lightIndex = 0; // current index of the queue
 int moistureIndex = 0; // current index of the moisture queue
 int temperatureIndex = 0; // current index of the moisture queue
-unsigned long previousMillis = 0; // previous time when a value was added to the queue
-const unsigned long interval = 1800000; // interval between adding values to the queue (30 mins)
 
+//remove later- val for testing purposes
+int interval = 6; // interval between adding values to the queue (30 mins) in secs //1800000
+int addToQueueTimer = 0; //secs
 
 //Variables to keep track of mode setup and connectivity status
 bool onlineMode = false;
@@ -73,18 +74,16 @@ std::unordered_map<std::string, int> commands = {
   {"pub300", 3},
   {"pub1800", 4},
   {"stoppub", 5},
-  {"timeScedOn", 6},
-
 };
 
 boolean doPub = false;
-int timeSincePub = 0;
-int pubFrequencySec = 0;
+int timeSincePub = 0; //secs
+int pubFrequencySec = 0; //secs
 
-string localTime = "";
+string localTime = ""; //HHmm
 
-string ledScedStartTime = "";
-string ledScedEndTime = "";
+string ledScedStartTime = ""; //HHmm
+string ledScedEndTime = ""; //HHmm
 
 int moistureLevel = 0;
 int temperatureLevel = 0;
@@ -96,6 +95,7 @@ void setup(){
   while(!Serial){
     Serial.begin(9600);
   }
+
   pinMode(WIO_5S_LEFT, INPUT);
   pinMode(WIO_5S_RIGHT, INPUT);
   pinMode(WIO_5S_PRESS, INPUT);
@@ -308,14 +308,7 @@ void handleSubMessage(char* topic, byte* payload, unsigned int length){
       localTime += (char) payload[i];
     }
 
-    //remove later
-    Serial.println("hit time");
-
   } else {
-
-    //remove later
-    Serial.println("hit command");
-
 
   string msg = "";
 
@@ -331,7 +324,7 @@ for (int i = 0; i < length; i++){
 
   symbol = (char) payload[i];
 
-  if (symbol == ';'){
+  if (symbol == ';'){ 
 
     if (isFirstEncounter){
       commandKey = msg;
@@ -363,18 +356,7 @@ for (int i = 0; i < length; i++){
 
   }
 
-  //remove later
-  Serial.println("a command has been executed");
-
   const char* msg1 = commandKey.c_str();
-  
-  //remove later
-  Serial.println(msg1);
-
-
-  //remove later
-  Serial.println(commands.at(commandKey));
-
 
   switch(commands.at(commandKey)){
     case 1:
@@ -405,20 +387,14 @@ for (int i = 0; i < length; i++){
       doPub = false;
       timeSincePub = 0;
       break;
-    case 6:
-    //remove later
-    const char* msg3 = ledScedStartTime.c_str();
-    const char* msg4 = ledScedEndTime.c_str();
-
-    Serial.println(msg3);
-    Serial.println(msg4);
-    
-      break;
   }
   }
 }
 
 void loop(){
+
+  // testing: doPub = true;
+  //testing: pubFrequencySec = 10;
 
   if (showStartingScreen){
     drawStartingScreen();
@@ -457,13 +433,19 @@ void loop(){
     modeIsSetup = true;
   }
 
+    //remove later -- only for testing purposes
+    //test: moistureLevel = 1000;
+    //test: temperatureLevel = 40;
+    //test lightLevel = 1200;
+
+
     moistureLevel = analogRead(moisturePin);
     temperatureLevel = dht.readTemperature();
     lightLevel = analogRead(WIO_LIGHT);
     if (isTestLight) {
-      testLight(lightLevel);
+      testLight();
     } else {
-      testMoisture(moistureLevel);
+      testMoisture();
     }
     if (digitalRead(BUTTON_3) == LOW) {
       delay(200);
@@ -476,15 +458,15 @@ void loop(){
       delay(100);
     }
 
-    drawScreen(moistureLevel, lightLevel, temperatureLevel);
-    processSend(moistureLevel, lightLevel, temperatureLevel);
+    drawScreen();
+    checkAddToQueue();
   if(onlineMode){
 
     if(doPub){
 
       timeSincePub++;
 
-      if(timeSincePub == pubFrequencySec){
+      if(timeSincePub >= pubFrequencySec){
       timeSincePub = 0;
       publishMqtt();
       }
@@ -494,7 +476,7 @@ void loop(){
   }
 }
 
-void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
+void drawScreen(){
   unsigned long startTime = millis();
   while(millis() < startTime + 500){
       //Wait 500ms
@@ -554,31 +536,25 @@ void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
     tft.drawString("C",270,191);
 }
 
-void processSend(int moistureLevel, int lightLevel, int temperatureLevel){
-  //Moisture
-  unsigned long currentMillisMoisture = millis();
-  if (currentMillisMoisture - previousMillis >= interval) {
-    previousMillis = currentMillisMoisture;
+void checkAddToQueue(){
+  
+  addToQueueTimer++;
+  
+  if (addToQueueTimer >= interval) {
+
+    addToQueueTimer = 0;
     //Add the value to the queue and calculate the average total value of the queue
-    long moistureAverage = addValueToQueueAndCalculateAverage(moistureLevel, moistureQueue, moistureIndex);
-  }
-  //Light
-  unsigned long currentMillisLight = millis();
-  if (currentMillisLight - previousMillis >= interval) {
-    previousMillis = currentMillisLight;
+    int moistureAverage = addValueToQueueAndCalculateAverage(moistureLevel, moistureQueue, moistureIndex);
+
     //Add the value to the queue and calculate the average total value of the queue
-    long lightAverage = addValueToQueueAndCalculateAverage(lightLevel, lightQueue, lightIndex);
-  }
-  //Temperature
-  unsigned long currentMillisTemperature = millis();
-  if (currentMillisTemperature - previousMillis >= interval) {
-    previousMillis = currentMillisTemperature;
+    int lightAverage = addValueToQueueAndCalculateAverage(lightLevel, lightQueue, lightIndex);
+
     //Add the value to the queue and calculate the average total value of the queue
-    long temperatureAverage = addValueToQueueAndCalculateAverage(temperatureLevel, temperatureQueue, temperatureIndex);
-  }
+    int temperatureAverage = addValueToQueueAndCalculateAverage(temperatureLevel, temperatureQueue, temperatureIndex);
+  } 
 }
 
-void testLight(int lightLevel){
+void testLight(){
  pixels.clear();
  int range = map(lightLevel, 0, 1300, 0, 10);         //Map light values to a range to activate LEDs
  if(range < 3 || range > 8){
@@ -593,7 +569,7 @@ void testLight(int lightLevel){
  pixels.show();
 }
 
-void testMoisture(int moistureLevel){
+void testMoisture(){
  pixels.clear();
  int range;
   if (moistureLevel >= 0 && moistureLevel < 300) {           //Dry - brown
