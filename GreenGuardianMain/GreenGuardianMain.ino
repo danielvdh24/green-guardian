@@ -28,7 +28,6 @@ const int temperaturePin = A1;
 const int ledPin = A2;
 bool isTestLight = true;
 bool buzzerOn = true;        //Initialize the boolean variable as true, to track if the buzzer is on
-const int maxTemp = 30;      //Temperature limit for plant
 
 //variable for data history
 const int queueSize = 336; // maximum size of the queue
@@ -41,10 +40,8 @@ int temperatureIndex = 0; // current index of the moisture queue
 unsigned long previousMillis = 0; // previous time when a value was added to the queue
 const unsigned long interval = 1800000; // interval between adding values to the queue (30 mins
 
-
-//Variables for plant species 
-int temperatureLowThreshold = 3;
-int temperatureHighThreshold = 7;
+//Variables for plant species
+int maxTemp = 30;
 
 int moistureLowThreshold = 3;
 int moistureHighThreshold = 7;
@@ -53,8 +50,11 @@ int lightLowThreshold = 3;
 int lightHighThreshold = 7;
 
 //Variable to store the currently selected preset
-int currentPreset = 0;
-
+const int arraySize = 5;
+int currentPreset = 2;
+int currentIndex = 2;
+uint16_t primaryColor[arraySize] = {TFT_YELLOW, TFT_CYAN, TFT_GREEN, tft.color565(0, 255, 255), tft.color565(165, 42, 42)};
+uint16_t secondaryColor[arraySize] = {TFT_ORANGE, TFT_BLUE, TFT_DARKGREEN, TFT_OLIVE, TFT_MAROON};
 
 //Variables to keep track of mode setup and connectivity status
 bool onlineMode = false;
@@ -82,8 +82,6 @@ int text_Y_Margin_Offset = 0;
 void displayLCDmessage(char* message, uint16_t textColor, const GFXfont* font, boolean centerAlign, boolean clearPrevLCD, int Y_Cord_Start_Pos = Y_Cord_Start_Pos);
 
 void setup(){
-  pinMode(WIO_5S_UP, INPUT_PULLUP);
-  pinMode(WIO_5S_DOWN, INPUT_PULLUP);
   pinMode(WIO_5S_LEFT, INPUT_PULLUP);
   pinMode(WIO_5S_RIGHT, INPUT_PULLUP);
   pinMode(WIO_5S_PRESS, INPUT_PULLUP);
@@ -108,121 +106,58 @@ void setupWifi(){
 }
 
 void setupDataDisplay(){
-
-  //Variables for colour
-  uint16_t AQUA = tft.color565(0, 255, 255);
-  uint16_t BROWN = tft.color565(165, 42, 42);
-
-  uint16_t fillColour = TFT_GREEN;
-  uint16_t bigRectangleColour = TFT_DARKGREEN;
-  uint16_t lineColour = TFT_GREEN;
-  uint16_t squareColour = TFT_GREEN;
-  uint16_t textColor = TFT_WHITE;
-
   //Set the threshold values based on the current preset
+  currentPreset = currentIndex;
   switch (currentPreset) {
-    case 1:
-      //Desert
-      fillColour = TFT_YELLOW;
-      bigRectangleColour = TFT_ORANGE;
-      lineColour = TFT_YELLOW;
-      squareColour = TFT_YELLOW;
-      textColor = TFT_BLACK;
-
-      temperatureLowThreshold = 6;
-      temperatureHighThreshold = 9;
+    case 0:
+      // Desert
+      maxTemp = 50;
       moistureLowThreshold = 1;
       moistureHighThreshold = 2;
       lightLowThreshold = 6;
       lightHighThreshold = 9;
       break;
-    case 2:
-      //Tundra
-      fillColour = TFT_CYAN;
-      bigRectangleColour = TFT_BLUE;
-      lineColour = TFT_CYAN;
-      squareColour = TFT_CYAN;
-      textColor = TFT_BLACK;
-
-      temperatureLowThreshold = 1;
-      temperatureHighThreshold = 5;
+    case 1:
+      // Tundra
+      maxTemp = 12;
       moistureLowThreshold = 4;
       moistureHighThreshold = 6;
       lightLowThreshold = 3;
       lightHighThreshold = 7;
       break;
+    case 2:
+      // Standard/Grassland
+      maxTemp = 30;
+      moistureLowThreshold = 3;
+      moistureHighThreshold = 8;
+      lightLowThreshold = 3;
+      lightHighThreshold = 8;
+      break;
     case 3:
-      //Tropical
-      fillColour = AQUA;
-      bigRectangleColour = TFT_OLIVE;
-      lineColour = AQUA;
-      squareColour = AQUA;
-      textColor = TFT_WHITE;
-
-      temperatureLowThreshold = 5;
-      temperatureHighThreshold = 7;
+      // Tropical
+      maxTemp = 35;
       moistureLowThreshold = 6;
       moistureHighThreshold = 9;
       lightLowThreshold = 5;
       lightHighThreshold = 9;
       break;
     case 4:
-      //Standard/Grassland
-      fillColour = TFT_GREEN;
-      bigRectangleColour = TFT_DARKGREEN;
-      lineColour = TFT_GREEN;
-      squareColour = TFT_GREEN;
-      textColor = TFT_WHITE;
-
-      temperatureLowThreshold = 3;
-      temperatureHighThreshold = 7;
-      moistureLowThreshold = 3;
-      moistureHighThreshold = 8;
-      lightLowThreshold = 3;
-      lightHighThreshold = 8;
-      break;
-    case 5:
-      //Taiga
-      fillColour = BROWN;
-      bigRectangleColour = TFT_MAROON;
-      lineColour = TFT_GREEN;
-      squareColour = BROWN;
-      textColor = TFT_WHITE;
-
-      temperatureLowThreshold = 4;
-      temperatureHighThreshold = 7;
+      // Taiga
+      maxTemp = 25;
       moistureLowThreshold = 5;
       moistureHighThreshold = 8;
       lightLowThreshold = 3;
       lightHighThreshold = 6;
       break;
-    default:
-      //Default preset
-      //Standard/Grassland
-      fillColour = TFT_GREEN;
-      bigRectangleColour = TFT_DARKGREEN;
-      lineColour = TFT_GREEN;
-      squareColour = TFT_GREEN;
-      textColor = TFT_WHITE;
-
-      temperatureLowThreshold = 3;
-      temperatureHighThreshold = 7;
-      moistureLowThreshold = 3;
-      moistureHighThreshold = 7;
-      lightLowThreshold = 3;
-      lightHighThreshold = 7;
-      break;
   }
 
+
   tft.setFreeFont(NULL);
-  tft.fillScreen(fillColour);
-  tft.fillRect(10,10,300,220, bigRectangleColour);
-  tft.fillRect(10,83,300,10, lineColour);
-  tft.fillRect(10,156,300,10, lineColour);
-  tft.fillRect(220,22,80,50, squareColour);
-  tft.fillRect(220,105,80,40, squareColour);
-  tft.fillRect(220,178,80,40, squareColour);
-  tft.setTextColor(textColor);
+  tft.fillScreen(primaryColor[currentIndex]);
+  tft.fillRect(10,10,300,220, secondaryColor[currentIndex]);
+  tft.fillRect(10,83,300,10, primaryColor[currentIndex]);
+  tft.fillRect(10,156,300,10, primaryColor[currentIndex]);
+  tft.setTextColor(TFT_WHITE);
   tft.setTextSize(3);
   tft.drawString("Moisture",40,37);
   tft.drawString("Light",40,115);
@@ -463,16 +398,13 @@ void loop(){
       delay(100);
     }
 
-
-
   //Read the current switch position and update the current preset accordingly
-  currentPreset = readSwitchPosition();
-
+  readSwitchPosition();
+  if(currentIndex != currentPreset){
     setupDataDisplay();
+  }
 
   delay(100);
-
-  
 
   //Displays Values
   drawScreen(moistureLevel, lightLevel, temperatureLevel);
@@ -488,9 +420,9 @@ void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
   while(millis() < startTime + 500){
       //Wait 500ms
   }
-  tft.fillRect(220,22,80,50, TFT_GREEN);
-  tft.fillRect(220,105,80,40, TFT_GREEN);
-  tft.fillRect(220,178,80,40, TFT_GREEN);
+  tft.fillRect(220,22,80,50, primaryColor[currentIndex]);
+  tft.fillRect(220,105,80,40, primaryColor[currentIndex]);
+  tft.fillRect(220,178,80,40, primaryColor[currentIndex]);
   tft.setFreeFont(NULL);
 
 //Moisture
@@ -573,25 +505,24 @@ if (currentMillisTemperature - previousMillis >= interval) {
     tft.drawString("C",270,191);
 }
 
-int readSwitchPosition() {
-  if (digitalRead(WIO_5S_UP) == LOW) {
-    return 1;
-  } else if (digitalRead(WIO_5S_DOWN) == LOW) {
-    return 2;
-  } else if (digitalRead(WIO_5S_LEFT) == LOW) {
-    return 3;
-  } else if (digitalRead(WIO_5S_RIGHT) == LOW) {
-    return 4;
-  } else if (digitalRead(WIO_5S_PRESS) == LOW) {
-    return 5;
+void readSwitchPosition() {
+  if (digitalRead(WIO_5S_RIGHT) == LOW) {
+    if(currentIndex + 1 > 4){
+      return;
+    }
+    currentIndex = currentIndex + 1;
   }
-
-  return 0;  //Default
+  else if (digitalRead(WIO_5S_LEFT) == LOW) {
+    if(currentIndex - 1 < 0){
+      return;
+    }
+    currentIndex = currentIndex - 1;
+  }
 }
 
 void testLight(int lightLevel){
  pixels.clear();
- int range = map(lightLevel, 0, 1300, 0, 10);         //Map light values to a range to activate LEDs
+ int range = map(lightLevel, 0, 950, 0, 10);         //Map light values to a range to activate LEDs
  if(range < lightLowThreshold || range > lightHighThreshold ){
    for(int i = 0; i < range || (i == 0 && range == 0); i++){
     pixels.setPixelColor(i, pixels.Color(255,0,0));   //Red - too low/high
@@ -607,12 +538,12 @@ void testLight(int lightLevel){
 void testMoisture(int moistureLevel){
  pixels.clear();
  int range;
-  if (moistureLevel >= 0 && moistureLevel < 300) {           //Dry - brown
+  if (moistureLevel >= 0 && moistureLevel < moistureLowThreshold) {           //Dry - brown
     range = map(moistureLevel, 0, 299, 0, 3);
     for(int i = 0; i < range || (i == 0 && range == 0); i++){
      pixels.setPixelColor(i, pixels.Color(255,0,0));
     }
-  } else if (moistureLevel >= 300 && moistureLevel < 600) {  //Moist - light blue
+  } else if (moistureLevel >= moistureLowThreshold && moistureLevel < moistureHighThreshold) {  //Moist - light blue
     range = map(moistureLevel, 300, 599, 3, 7);
     for(int i = 0; i < range; i++){
      pixels.setPixelColor(i, pixels.Color(69,165,217));
@@ -669,3 +600,4 @@ void errorSound() {
     analogWrite(WIO_BUZZER, 0);
   }
 }
+
