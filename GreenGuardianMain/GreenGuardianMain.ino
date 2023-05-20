@@ -285,13 +285,27 @@ void connectMqtt(){
 
   void publishMqtt(){
 
-  for (int i = 0; i < 16; i++){
+  for (int i = 0; i < 21; i++){
 
-    string packet = string(1, ((char) 97 + i));
+  string packet = string(1, ((char) 97 + i));
 
-  for (int j = i * 21; j < (i + 1) * 21; j++){
+  for (int j = i * 16; j < (i + 1) * 16; j++){
 
-    packet += to_string(lightQueue[j]) + "," + to_string(temperatureQueue[j]) + "," + to_string(moistureQueue[j]) + ",";
+    int mappedLight = map(lightQueue[j], 0, 1300, 0, 100);
+
+    int mappedMoisture = 0;
+
+    if (moistureQueue[j] >= 0 && moistureQueue[j] < 300) {           
+      mappedMoisture = map(moistureQueue[j], 0, 299, 0, 30);
+    } else if (moistureQueue[j] >= 300 && moistureQueue[j] < 600) {
+      mappedMoisture = map(moistureQueue[j], 300, 599, 30, 70);
+    } else {
+      mappedMoisture = map(moistureQueue[j], 600, 1023, 70, 100);
+    }
+
+    packet += to_string(mappedLight) + "," + to_string(temperatureQueue[j]) + "," + to_string(mappedMoisture) + ",";
+
+    //packet += to_string(lightQueue[j]) + "," + to_string(temperatureQueue[j]) + "," + to_string(moistureQueue[j]) + ",";
   
   } 
 
@@ -299,7 +313,7 @@ void connectMqtt(){
 
   mqttClient->publish(pubTopic, charpacket);
 
-  }
+  } 
 
   //remove later - testing purposes
   //mqttClient->publish(pubTopic, " ");
@@ -324,7 +338,7 @@ void displayLCDmessage(char* message, uint16_t textColor, const GFXfont* font, b
 
 void handleSubMessage(char* topic, byte* payload, unsigned int length){
 
-  if (isdigit((char) payload[0])){
+  if (isdigit((char) payload[0])){  //topic = time
 
     localTime = "";
 
@@ -334,7 +348,7 @@ void handleSubMessage(char* topic, byte* payload, unsigned int length){
 
     }
 
-  } else {
+  } else { //topic == commamnd
 
       string msg = "";
 
