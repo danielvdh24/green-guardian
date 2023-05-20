@@ -87,7 +87,7 @@ public class App extends Application {
                         break;
                 }
                 mqttController.subscribe(this);
-                mqttController.publish("timeScedOn;1200;1500;");
+                //mqttController.publish("timeScedOn;1200;1500;");
 
             }
         } catch (Exception e){
