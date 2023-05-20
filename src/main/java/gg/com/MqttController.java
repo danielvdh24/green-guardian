@@ -10,11 +10,11 @@ public class MqttController implements Runnable {
     private static final String URL = "tcp://127.0.0.1:1883";
     private static final String CLIENT_ID = "fromintellij";   // the app client ID name
     private static final int QOS = 0;
-    private static String[] dataBuffer = new String[16];
+    private static String[] dataBuffer = new String[21];
     MqttClient mqttClient;
 
     MqttController() throws Exception {
-        for(int i=0;i<16;i++)dataBuffer[i]=null;
+        for(int i=0;i<21;i++)dataBuffer[i]=null;
         try {
             this.mqttClient = new MqttClient(URL, CLIENT_ID);
             mqttClient.connect();
@@ -46,16 +46,36 @@ public class MqttController implements Runnable {
                     String text = message.toString();
                     dataBuffer[text.charAt(0)-'a']=text.substring(1);
                     boolean messagecomplete = true;
-                    for(int i=0;i<16&&messagecomplete;i++)if(dataBuffer[i]==null)messagecomplete = false;
+                    for(int i=0;i<21&&messagecomplete;i++)if(dataBuffer[i]==null)messagecomplete = false;
                     if(messagecomplete)
                     {
                         String result = "";
-                        for(int i=0;i<16;i++)
+                        String resultreversed = "";
+                        String resultfinal = "";
+                        for(int i=0;i<21;i++)
                         {
                             result += dataBuffer[i];
                             dataBuffer[i] = null;
                         }
-                        DocWriter.write("GraphData.txt",result);
+                        result = ',' + result;
+                        for(int i=result.length()-1;i>=0;i--)resultreversed += result.charAt(i);
+                        for(int i=0;i<resultreversed.length()-1;i++)
+                        {
+                            if(resultreversed.charAt(i)==',')
+                            {
+                                for (int j = i + 1; j < resultreversed.length(); j++)
+                                {
+                                    if(resultreversed.charAt(j)==',')
+                                    {
+                                        String temp = resultreversed.substring(i+1,j);
+                                        j=result.length();
+                                        for(int k=temp.length()-1;k>=0;k--)resultfinal+=temp.charAt(k);
+                                    }
+                                }
+                                resultfinal+=" ";
+                            }
+                        }
+                        DocWriter.write("GraphData.txt",resultfinal);
                     }
                 }
                 public void deliveryComplete(IMqttDeliveryToken token) {}
