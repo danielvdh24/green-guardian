@@ -43,7 +43,7 @@ int moistureIndex = 0; // current index of the moisture queue
 int temperatureIndex = 0; // current index of the moisture queue
 
 //remove later- val for testing purposes
-int interval = 6; // interval between adding values to the queue (30 mins) in secs //1800000
+int interval = 5; // interval between adding values to the queue (30 mins) in secs //1800000
 int addToQueueTimer = 0; //secs
 
 //Variables to keep track of mode setup and connectivity status
@@ -92,9 +92,6 @@ int lightLevel = 0;
 void displayLCDmessage(char* message, uint16_t textColor, const GFXfont* font, boolean centerAlign, boolean clearPrevLCD, int Y_Cord_Start_Pos = Y_Cord_Start_Pos);
 
 void setup(){
-  while(!Serial){
-    Serial.begin(9600);
-  }
 
   for (int i = 0; i < queueSize; i++){
     lightQueue[i] = 0;
@@ -290,7 +287,7 @@ void connectMqtt(){
 
   for (int i = 0; i < 16; i++){
 
-    string packet = "";
+    string packet = string(1, ((char) 97 + i));
 
   for (int j = i * 21; j < (i + 1) * 21; j++){
 
@@ -425,8 +422,9 @@ void handleSubMessage(char* topic, byte* payload, unsigned int length){
 
 void loop(){
 
-  // testing: doPub = true;
-  //testing: pubFrequencySec = 10;
+  //test
+  doPub = true;
+  pubFrequencySec = 10;
 
   if (showStartingScreen){
     drawStartingScreen();
@@ -466,14 +464,15 @@ void loop(){
   }
 
     //remove later -- only for testing purposes
-    //test: moistureLevel = 1000;
-    //test: temperatureLevel = 40;
-    //test lightLevel = 1200;
+    moistureLevel = 1000;
+    temperatureLevel = 40;
+    lightLevel = 1200;
 
-
-    moistureLevel = analogRead(moisturePin);
+    //test
+    /*moistureLevel = analogRead(moisturePin);
     temperatureLevel = dht.readTemperature();
-    lightLevel = analogRead(WIO_LIGHT);
+    lightLevel = analogRead(WIO_LIGHT);*/
+    
     if (isTestLight) {
       testLight();
     } else {
