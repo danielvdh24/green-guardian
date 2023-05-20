@@ -70,10 +70,11 @@ public class SpreadsheetController
 
     public void update()
     {
-        //TODO: Get MQTT values here
-        LightC.setText("100");
-        TempC.setText("100");
-        HumC.setText("100");
+        Reader reader = new Reader("GraphData.txt");
+        for(int i = 0;i<1008-3;i++)reader.nextInt();
+        LightC.setText(String.valueOf(reader.nextInt()));
+        TempC.setText(String.valueOf(reader.nextInt()));
+        HumC.setText(String.valueOf(reader.nextInt()));
 
     }
 
