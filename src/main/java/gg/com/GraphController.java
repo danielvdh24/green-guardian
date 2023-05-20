@@ -54,7 +54,7 @@ public class GraphController {
         chart.getData().clear();
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         Reader reader = new Reader("GraphData.txt");
-        if(dataSelect.getValue().equals("Light"))
+        if(dataSelect.getValue().equals("Moisture"))
         {
             reader.nextInt();
             reader.nextInt();
