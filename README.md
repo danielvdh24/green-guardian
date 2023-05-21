@@ -44,16 +44,24 @@ You can find our documentation on our [Wiki](https://git.chalmers.se/courses/dit
 
 <table>
   <tr>
-    <td align="center"><img src="https://secure.gravatar.com/avatar/3056b6827d3d959ea87306c4d2dd0c6a?s=800&d=identicon" width="100px;"/><br/><sub><b>Daniel Van Den Heuvel</b></sub></a><sub><br>@heuvel<br/></sub><br>Assisted in Wio Terminal functionality and PC app GUI, including sensor mapping, alerts, and preferences.</br></td>
-    <td align="center"><img src="https://secure.gravatar.com/avatar/3271ba4e481b7c393b650b96a17344d0?s=800&d=identicon" width="100px;"/><br/><sub><b>Kai Rowley</b></sub><sub><br>@rowley<br/></sub></a><br/><br>Contributed to establishing the Wi-Fi and MQTT connection capabilities, as well as handling reconnection scenarios. Alongside the troubleshooting guide.</br></td>
-    <td align="center"><img src="https://secure.gravatar.com/avatar/b42bb18c7be524e233a1810611d9d691?s=800&d=identicon" width="100px;"/><br/><sub><b>Markus Patric Warbert</b></sub><sub><br>@warbert<br/></sub></a><br/><br>Developed the start up screen and a toggle between two modes of the app. Additionally, set-up automatic and manual mode for the led light.</br></td>
-    <td align="center"><img src="https://secure.gravatar.com/avatar/2fc86cf92b745433d732d4a2dc12653a?s=800&d=identicon" width="100px;"/><br/><sub><b>Vlad Manea</b></sub><sub><br>@manea<br/><br></sub></a><br>Developed WIO terminal functionality. This encompases sensor reaings, realtime UI and external RGB stick displays for sensor readings, sound and visual alert systems, plant history, plant types.</br><br/>
-    <td align="center"><img src="https://secure.gravatar.com/avatar/67c02e131c7f77b7a6503eca15d13acc?s=800&d=identicon" width="100px;"/><br/><sub><b>Danyil Akulich</b></sub><sub><br>@danyil<br/></sub></a><br/><br>Contributed to the PC GUI for representing sensor data on the screen. Specifically, Graph and Spreadsheet scenes. Also contributed in completing the connection between those scenes and the MQTT broker.</br></td>
-    <td align="center"><img src="https://git.chalmers.se/uploads/-/system/user/avatar/3821/avatar.png?width=400" width="100px;"/><br/><sub><b>Salman Babar</b></sub><sub><br>@salmanb<br/></sub></a><br/><br>Mainly worked on the PC app GUI as well as documentation of the functional requirements.</br><br></td>
-    </tr>
+    <td align="center"><img src="https://secure.gravatar.com/avatar/3056b6827d3d959ea87306c4d2dd0c6a?s=800&d=identicon" width="100px;"/><br/><sub><b>Daniel Van Den Heuvel</b></sub><br>@heuvel</td>
+    <td align="center"><img src="https://secure.gravatar.com/avatar/3271ba4e481b7c393b650b96a17344d0?s=800&d=identicon" width="100px;"/><br/><sub><b>Kai Rowley</b></sub><br>@rowley</td>
+    <td align="center"><img src="https://secure.gravatar.com/avatar/b42bb18c7be524e233a1810611d9d691?s=800&d=identicon" width="100px;"/><br/><sub><b>Markus Patric Warbert</b></sub><br>@warbert</td>
+    <td align="center"><img src="https://secure.gravatar.com/avatar/2fc86cf92b745433d732d4a2dc12653a?s=800&d=identicon" width="100px;"/><br/><sub><b>Vlad Manea</b></sub><br>@manea</td>
+    <td align="center"><img src="https://secure.gravatar.com/avatar/67c02e131c7f77b7a6503eca15d13acc?s=800&d=identicon" width="100px;"/><br/><sub><b>Danyil Akulich</b></sub><br>@danyil</td>
+    <td align="center"><img src="https://git.chalmers.se/uploads/-/system/user/avatar/3821/avatar.png?width=400" width="100px;"/><br/><sub><b>Salman Babar</b></sub><br>@salmanb</td>
+  </tr>
+  <tr>
+    <td align="center">Assisted in Wio Terminal functionality and PC app GUI, including sensor mapping, alerts, and preferences.</td>
+    <td align="center">Contributed to establishing the Wi-Fi and MQTT connection capabilities, as well as handling reconnection scenarios. Alongside the troubleshooting guide.</td>
+    <td align="center">Developed the start up screen and a toggle between two modes of the app. Additionally, set-up automatic and manual mode for the led light.</td>
+    <td align="center">Developed WIO terminal functionality. This encompasses sensor readings, realtime UI and external RGB stick displays for sensor readings, sound and visual alert systems, plant history, plant types.</td>
+    <td align="center">Contributed to the PC GUI for representing sensor data on the screen. Specifically, Graph and Spreadsheet scenes. Also contributed in completing the connection between those scenes and the MQTT broker.</td>
+    <td align="center">Mainly worked on the PC app GUI as well as documentation of the functional requirements.</td>
+  </tr>
 </table>
 
 ## Thanks :star:
 
-A big thank you to our [instructor](@francisco.gomes) for providing this course and giving us the opportunity to work with high quality sensors! :pray: 
+A big thank you to our [instructor](@francisco.gomes) for providing this course and giving us the opportunity to work with high quality sensors, as well as our teaching assistants [Kwabena](@kwabenaa) and [Michael](@michlars) for their continuous support :pray: 
 
