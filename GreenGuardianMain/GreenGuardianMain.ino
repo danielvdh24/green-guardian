@@ -34,18 +34,18 @@ bool isTestLight = true;
 bool buzzerOn = true;        //Initialize the boolean variable as true, to track if the buzzer is on
 const int maxTemp = 30;      //Temperature limit for plant
 
-//variables for data history
-const int queueSize = 336; // maximum size of the queue
-int lightQueue[queueSize]; // array to hold the queue
-int moistureQueue[queueSize]; // array to hold the moisture queue
-int temperatureQueue[queueSize]; // array to hold the queue
-int lightIndex = 0; // current index of the queue
-int moistureIndex = 0; // current index of the moisture queue
-int temperatureIndex = 0; // current index of the moisture queue
+//Variables for data history
+const int queueSize = 336;       //Maximum size of the queue
+int lightQueue[queueSize];       //Array to hold the queue
+int moistureQueue[queueSize];    //Array to hold the moisture queue
+int temperatureQueue[queueSize]; //Array to hold the queue
+int lightIndex = 0;              //Current index of the queue
+int moistureIndex = 0;           //Current index of the moisture queue
+int temperatureIndex = 0;        //Current index of the moisture queue
 
-//remove later- val for testing purposes
-int interval = 5; // interval between adding values to the queue (30 mins) in secs //1800000
-int addToQueueTimer = 0; //secs
+//Remove later- val for testing purposes
+int interval = 5; //Interval between adding values to the queue (30 mins) in secs //1800000
+int addToQueueTimer = 0; //Seconds
 
 //Variables to keep track of mode setup and connectivity status
 bool onlineMode = false;
@@ -54,24 +54,24 @@ bool modeIsSetup = false;
 bool wifiIsConnected = false;
 bool brokerIsConnected = false;
 
-//ipv4 address provided by router and running broker port
+//Ipv4 address provided by router and running broker port
 IPAddress brokerIp(0, 0, 0, 0);
-int port = 0;
+int port = 1883;
 
-//variables for wio/pc mqtt topics and wio mqtt client name
+//Variables for wio/pc mqtt topics and wio mqtt client name
 char clientName[] = "WIO_TERMINAL";
 char pubTopic[] = "sensordata";
 char subTopic[] = "commands";
 
-//variables for wio wifi and wio mqtt client
+//Variables for wio wifi and wio mqtt client
 WiFiClient* wioClient = nullptr;
 PubSubClient* mqttClient = nullptr;
 
-//variables for text spacing vertically
+//Variables for text spacing vertically
 int Y_Cord_Start_Pos = 0;
 int text_Y_Margin_Offset = 0;
 
-//map of commandkey-names and their associated integer values
+//Map of commandkey-names and their associated integer values
 std::unordered_map<std::string, int> commands = {
   {"pub5", 1},
   {"pub60", 2},
@@ -86,25 +86,26 @@ std::unordered_map<std::string, int> commands = {
   {"activeOn", 11},
 };
 
-//variables for mqtt publish frequency and oughtness
+//Variables for mqtt publish frequency
 boolean doPub = false;
 boolean timeToPub = true;
-int timeSincePub = 0; //secs
-int pubFrequencySec = 5; //secs
+int timeSincePub = 0; //Seconds
+int pubFrequencySec = 5; //Seconds
 
-//variables for time-of-the-day tracking for led light bulb manual mode
+//Variables for time-of-the-day tracking for led light bulb manual mode
 string localTime = ""; //HHmm
 string ledScedStartTime = ""; //HHmm
 string ledScedEndTime = ""; //HHmm
 
-//variables for sensor readings
+//Variables for sensor readings
 int moistureLevel = 0;
 int temperatureLevel = 0;
 int lightLevel = 0;
 
-bool automaticMode = false; // Switch between automatic and manual mode
-bool isScedOnMode = false; // Switch between light on manual mode and light off manual mode
-bool inactive = false; // Toggle low power mode
+bool automaticMode = false;   //Switch between automatic and manual mode
+bool isScedOnMode = false;    //Switch between light on manual mode and light off manual mode
+bool inactive = false;        //Toggle lock mode
+bool lockMode = false;        //Screen lock tracker
 
 void displayLCDmessage(char* message, uint16_t textColor, const GFXfont* font, boolean centerAlign, boolean clearPrevLCD, int Y_Cord_Start_Pos = Y_Cord_Start_Pos);
 
@@ -195,6 +196,29 @@ void drawStartingScreen() {
   tft.setCursor(200, 200);
   tft.print("Offline");
   handleSwitchInput();
+}
+
+void drawLockScreen() {
+
+  if(lockMode != inactive){
+    lockMode = inactive;
+    tft.setFreeFont(NULL);
+    tft.setTextSize(1);
+    tft.fillScreen(TFT_DARKGREEN);
+    tft.fillEllipse(145, 100, 5, 40, TFT_GREEN);
+    tft.fillEllipse(160, 100, 5, 40, TFT_GREEN);
+    tft.fillEllipse(175, 100, 5, 40, TFT_GREEN);
+    tft.fillRect(130, 120, 60, 50, tft.color565(150, 75, 0));
+    tft.fillRoundRect(125, 115, 70, 15, 10, tft.color565(150, 75, 0));
+    tft.setTextColor(TFT_WHITE);
+    tft.setTextSize(3);
+    tft.setCursor(40, 20);
+    tft.print("Green Guardian");
+    tft.setTextSize(2);
+    tft.setTextColor(TFT_RED);
+    tft.setCursor(125, 200);
+    tft.print("Locked");
+  }
 }
 
 void handleSwitchInput() {
@@ -333,7 +357,7 @@ void publishMqtt(){
     const char* charpacket = packet.c_str();
     mqttClient->publish(pubTopic, charpacket);
 
-  } 
+  }
 
   //remove later - testing purposes
   //mqttClient->publish(pubTopic, " ");
@@ -441,10 +465,12 @@ void handleSubMessage(char* topic, byte* payload, unsigned int length){
 
       case 10:
       inactive = true;
+      modeIsSetup = false;
       break;
 
       case 11:
       inactive = false;
+      modeIsSetup = false;
       break;
       }
   }
@@ -452,28 +478,28 @@ void handleSubMessage(char* topic, byte* payload, unsigned int length){
 
 void modes() {
 
-// Automatic mode
+//Automatic mode
   if(automaticMode){
   int range = map(lightLevel, 0, 1300, 0, 10);
   if(range < 3){
-  digitalWrite(ledBulbPin, HIGH); // turn on LED bulb
+  digitalWrite(ledBulbPin, HIGH); //Turn on LED bulb
   } else {
-  digitalWrite(ledBulbPin, LOW); // turn off LED bulb
+  digitalWrite(ledBulbPin, LOW); //Turn off LED bulb
   }
   } else {
-  // Light on manual mode
+  //Light on manual mode
   if(isScedOnMode){
   if (localTime >= ledScedStartTime && localTime < ledScedEndTime){
-  digitalWrite(ledBulbPin, HIGH); // turn on LED bulb
+  digitalWrite(ledBulbPin, HIGH); //Turn on LED bulb
   } else {
-  digitalWrite(ledBulbPin, LOW); // turn off LED bulb
+  digitalWrite(ledBulbPin, LOW); //Turn off LED bulb
   }
   } else {
-  // Light off manual mode
+  //Light off manual mode
  if (localTime >= ledScedStartTime && localTime < ledScedEndTime){
-   digitalWrite(ledBulbPin, LOW); // turn off LED bulb
+   digitalWrite(ledBulbPin, LOW); //Turn off LED bulb
    } else {
-   digitalWrite(ledBulbPin, HIGH); // turn on LED bulb
+   digitalWrite(ledBulbPin, HIGH); //Turn on LED bulb
    }
   }
  }
@@ -521,10 +547,11 @@ void loop(){
     modeIsSetup = true;
   }
 
+  if(!inactive){
   moistureLevel = analogRead(moisturePin);
   temperatureLevel = dht.readTemperature();
   lightLevel = analogRead(WIO_LIGHT);
-    
+
   if (isTestLight) {
     testLight();
   } else {
@@ -564,6 +591,13 @@ void loop(){
     timeSincePub++;
     mqttClient->loop();
   }
+ } else {
+   if(inactive && onlineMode){
+     mqttClient->loop();
+   }
+   drawLockScreen();
+ }
+
 }
 
 void drawScreen(){
@@ -639,7 +673,7 @@ void checkAddToQueue(){
     int lightAverage = addValueToQueueAndCalculateAverage(lightLevel, lightQueue, lightIndex);
     //Add the value to the queue and calculate the average total value of the queue
     int temperatureAverage = addValueToQueueAndCalculateAverage(temperatureLevel, temperatureQueue, temperatureIndex);
-  } 
+  }
 }
 
 void testLight(){
