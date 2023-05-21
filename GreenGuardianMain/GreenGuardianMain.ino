@@ -15,6 +15,7 @@ TFT_eSPI tft;
 //Setup for temperature sensor
 #include "DHT.h"
 #include <unordered_map>
+#include <ctime>
 using namespace std;
 
 //Pin definitions for rgb stick and sensors
@@ -24,10 +25,11 @@ DHT dht(DHTPIN, DHTTYPE);
 #define PIN            BCM3
 #define NUMPIXELS      10
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+
 const int moisturePin = A0;
 const int temperaturePin = A1;
 const int ledPin = A2;
-
+const int ledBulbPin = A3;
 bool isTestLight = true;
 bool buzzerOn = true;        //Initialize the boolean variable as true, to track if the buzzer is on
 const int maxTemp = 30;      //Temperature limit for plant
@@ -76,6 +78,12 @@ std::unordered_map<std::string, int> commands = {
   {"pub300", 3},
   {"pub1800", 4},
   {"stoppub", 5},
+  {"timeScedOn", 6},
+  {"timeScedOff", 7},
+  {"automaticOn", 8},
+  {"automaticOff", 9},
+  {"activeOff", 10},
+  {"activeOn", 11},
 };
 
 //variables for mqtt publish frequency and oughtness
@@ -93,6 +101,10 @@ string ledScedEndTime = ""; //HHmm
 int moistureLevel = 0;
 int temperatureLevel = 0;
 int lightLevel = 0;
+
+bool automaticMode = false; // Switch between automatic and manual mode
+bool isScedOnMode = false; // Switch between light on manual mode and light off manual mode
+bool inactive = false; // Toggle low power mode
 
 void displayLCDmessage(char* message, uint16_t textColor, const GFXfont* font, boolean centerAlign, boolean clearPrevLCD, int Y_Cord_Start_Pos = Y_Cord_Start_Pos);
 
@@ -234,7 +246,7 @@ void connectWifi(){
   delay(1500);
 
   WiFi.begin(SSID, PASS);
-  
+
   if (WiFi.status() != WL_CONNECTED){
 
     displayLCDmessage("Failed To Connect To WiFi", tft.color565(70, 0, 0), FF25, true, true, 60);
@@ -308,7 +320,7 @@ void publishMqtt(){
     for (int j = i * 16; j < (i + 1) * 16; j++){
       int mappedLight = map(lightQueue[j], 0, 1300, 0, 100);
       int mappedMoisture = 0;
-      if (moistureQueue[j] >= 0 && moistureQueue[j] < 300) {     
+      if (moistureQueue[j] >= 0 && moistureQueue[j] < 300) {
         mappedMoisture = map(moistureQueue[j], 0, 299, 0, 30);
       } else if (moistureQueue[j] >= 300 && moistureQueue[j] < 600) {
         mappedMoisture = map(moistureQueue[j], 300, 599, 30, 70);
@@ -316,12 +328,16 @@ void publishMqtt(){
         mappedMoisture = map(moistureQueue[j], 600, 1023, 70, 100);
       }
       packet += to_string(mappedLight) + "," + to_string(temperatureQueue[j]) + "," + to_string(mappedMoisture) + ",";
-    } 
+    }
 
     const char* charpacket = packet.c_str();
     mqttClient->publish(pubTopic, charpacket);
 
   } 
+
+  //remove later - testing purposes
+  //mqttClient->publish(pubTopic, " ");
+
 }
 
 void subscribeMqtt(){
@@ -357,7 +373,7 @@ void handleSubMessage(char* topic, byte* payload, unsigned int length){
     char symbol = '\0';
     for (int i = 0; i < length; i++){
       symbol = (char) payload[i];
-      if (symbol == ';'){ 
+      if (symbol == ';'){
         if (isFirstEncounter){
           commandKey = msg;
           isFirstEncounter = false;
@@ -380,12 +396,12 @@ void handleSubMessage(char* topic, byte* payload, unsigned int length){
     }
 
     int commandVal = commands.at(commandKey);
-    
+
     if (commandVal < 5){
       timeSincePub = 0;
       doPub = true;
     }
-    
+
     switch(commandVal){
       case 1:
       pubFrequencySec = 5;
@@ -406,9 +422,62 @@ void handleSubMessage(char* topic, byte* payload, unsigned int length){
       case 5:
       doPub = false;
       break;
-    }
+
+      case 6:
+      isScedOnMode = true;
+      break;
+
+      case 7:
+      isScedOnMode = false;
+      break;
+
+      case 8:
+      automaticMode = true;
+      break;
+
+      case 9:
+      automaticMode = false;
+      break;
+
+      case 10:
+      inactive = true;
+      break;
+
+      case 11:
+      inactive = false;
+      break;
+      }
   }
 }
+
+void modes() {
+
+// Automatic mode
+  if(automaticMode){
+  int range = map(lightLevel, 0, 1300, 0, 10);
+  if(range < 3){
+  digitalWrite(ledBulbPin, HIGH); // turn on LED bulb
+  } else {
+  digitalWrite(ledBulbPin, LOW); // turn off LED bulb
+  }
+  } else {
+  // Light on manual mode
+  if(isScedOnMode){
+  if (localTime >= ledScedStartTime && localTime < ledScedEndTime){
+  digitalWrite(ledBulbPin, HIGH); // turn on LED bulb
+  } else {
+  digitalWrite(ledBulbPin, LOW); // turn off LED bulb
+  }
+  } else {
+  // Light off manual mode
+ if (localTime >= ledScedStartTime && localTime < ledScedEndTime){
+   digitalWrite(ledBulbPin, LOW); // turn off LED bulb
+   } else {
+   digitalWrite(ledBulbPin, HIGH); // turn on LED bulb
+   }
+  }
+ }
+ }
 
 void loop(){
 
@@ -417,7 +486,7 @@ void loop(){
     modeIsSetup = false;
     showStartingScreen = false;
   }
-  
+
   if(onlineMode){
 
     if (WiFi.status() != WL_CONNECTED){
@@ -461,12 +530,15 @@ void loop(){
   } else {
     testMoisture();
   }
+  testTemperature();
 
   if (digitalRead(BUTTON_3) == LOW) {
     delay(200);
     isTestLight = !isTestLight; //Toggle to change mode of RGB stick
     delay(200);
   }
+
+    modes();
 
   if (digitalRead(BUTTON_2) == LOW) {
       buzzerOn = !buzzerOn;
@@ -475,7 +547,7 @@ void loop(){
 
   drawScreen();
   checkAddToQueue();
-  
+
   if(onlineMode){
     if(doPub){
       if (timeSincePub == pubFrequencySec){
@@ -495,7 +567,7 @@ void loop(){
 }
 
 void drawScreen(){
-  
+
   unsigned long startTime = millis();
   while(millis() < startTime + 500){
       //Wait 500ms
@@ -613,9 +685,9 @@ void testMoisture(){
 
 }
 
-void testTemperature(int temp){
+void testTemperature(){
 
-  if(temp >= maxTemp){
+  if(temperatureLevel >= maxTemp){
     digitalWrite(ledPin, HIGH);
   } else {
     digitalWrite(ledPin, LOW);
@@ -623,7 +695,7 @@ void testTemperature(int temp){
 }
 
 void errorSound() {
-  
+
   const unsigned long buzzerBeep = 400;
   const unsigned long shortPause = 300;
   const int buzzerFrequency = 150;
@@ -643,7 +715,7 @@ void errorSound() {
         state = 1;
       }
       break;
-      
+
     case 1:
       if (elapsedTime < shortPause) {
         analogWrite(WIO_BUZZER, 0);

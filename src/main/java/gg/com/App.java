@@ -12,7 +12,6 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.util.Duration;
-
 import java.io.IOException;
 import java.util.Objects;
 
@@ -39,8 +38,14 @@ public class App extends Application {
         stage.setResizable(false);
         stage.setScene(scene);
         stage.show();
+        stage.setOnCloseRequest(e -> {
+            System.exit(0);
+        });
         brokerOnline = false;
         connectMqtt();
+        initPublish();
+        subscribe();
+        setCommandPub();
     }
     public void connectMqtt() {
         try {
@@ -54,41 +59,53 @@ public class App extends Application {
             timerThread = new Thread(mqttController);
             timerThread.start();
         } catch (Exception e) {
-            alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Broker not Connected!");
-            alert.setHeaderText("MQTT Connection failed or broker disconnected" + "\n"
-                    + "Please launch your MQTT broker!");
-            countdownTimeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> updateCountdown()));
-            countdownTimeline.setCycleCount(Animation.INDEFINITE);
-            Platform.runLater(() -> {
-                alert.showAndWait();
-            });
-            startCountdown();
+            brokerNotFound();
         }
-        subscribeAndPublish();
     }
-
-    private void subscribeAndPublish() {
+    private void initPublish() {
         try {
             if (brokerOnline) {
                 assert mqttController != null;
                 switch (preferences.getInterval()) {
                     case 5:
-                        mqttController.publish("pub5;", true);
+                        mqttController.publish("pub5;");
                         break;
                     case 60:
-                        mqttController.publish("pub60;", true);
+                        mqttController.publish("pub60;");
                         break;
                     case 300:
-                        mqttController.publish("pub300;", true);
+                        mqttController.publish("pub300;");
                         break;
                     case 1800:
-                        mqttController.publish("pub1800;", true);
+                        mqttController.publish("pub1800;");
                         break;
+                    }
                 }
-                mqttController.subscribe(this);
+            } catch(Exception e){
+                brokerLostConnection();
             }
+        }
+        private void subscribe(){
+            try {
+                if (brokerOnline) {
+                    mqttController.subscribe(this);
+                }
         } catch (Exception e){
+            brokerLostConnection();
+        }
+    }
+        public void publish(String input){
+            try{
+                if(brokerOnline) {
+                    assert mqttController != null;
+                    mqttController.publish(input);
+                    }
+                } catch(Exception e){
+                    brokerLostConnection();
+            }
+        }
+
+        private void brokerLostConnection(){
             alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Connection Failed!");
             alert.setHeaderText("MQTT Connection failed" + "\n"
@@ -100,11 +117,27 @@ public class App extends Application {
             });
             startCountdown();
         }
+    private void brokerNotFound(){
+        alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Broker not Connected!");
+        alert.setHeaderText("MQTT Connection failed or broker disconnected" + "\n"
+                + "Please launch your MQTT broker!");
+        countdownTimeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> updateCountdown()));
+        countdownTimeline.setCycleCount(Animation.INDEFINITE);
+        Platform.runLater(() -> {
+            alert.showAndWait();
+        });
+        startCountdown();
     }
-
     public void reconnectBroker() {
         brokerOnline = false;
-        Platform.runLater(this::connectMqtt);
+        Platform.runLater(() -> {
+
+            connectMqtt();
+            initPublish();
+            subscribe();
+            setCommandPub();
+        });
     }
 
     private void startCountdown() {
@@ -124,8 +157,15 @@ public class App extends Application {
             if(!brokerOnline){
                 connectMqtt();
             } else {
-                subscribeAndPublish();
+                initPublish();
+                subscribe();
             }
+        }
+    }
+
+    private void setCommandPub(){
+        if(brokerOnline) {
+            CommandsController.setPublisher(this);
         }
     }
 
@@ -140,37 +180,6 @@ public class App extends Application {
 
     public static void main(String[] args)
     {
-        /*String result = "";
-        byte[] byte1 = new byte[10];
-
-        for(int i=0;i<5;i++)
-        {
-            byte1[i*2] = (byte)(65 + i);
-            byte1[i*2+1] = (byte)(32);
-        }
-
-        for(int i=0;i<10;i++)
-        {
-            char c = (char)byte1[i];
-            result += c;
-        }
-
-        System.out.println(result);
-
-        try
-        {
-            FileWriter fileWriter;
-            fileWriter = new FileWriter(Objects.requireNonNull(App.class.getClassLoader().getResource("xd.txt")).getFile());
-            fileWriter.write(result);
-            fileWriter.close();
-        }
-        catch(Exception e)
-        {
-            System.out.println("File not found.");
-        }*/
-
-
-
         launch();
     }
 
