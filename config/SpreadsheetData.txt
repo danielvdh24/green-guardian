@@ -1,4 +1,4 @@
-Plant 1
-10
-10
+Kai Plant
 20
+10
+50
