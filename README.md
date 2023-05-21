@@ -40,6 +40,10 @@ Refer to the [User Manual](https://git.chalmers.se/courses/dit113/2023/group-3/g
 
 You can find our documentation on our [Wiki](https://git.chalmers.se/courses/dit113/2023/group-3/green-guardian/-/wikis/home).
 
+## Product Presentation :gift:
+
+Check out our product presentation [here](https://www.youtube.com/watch?v=ipRp1snuKhk). In the video, we provide an overview of the project through its available features, offering a visual representation of the key highlights.
+
 ## Developers :bow:
 
 <table>
