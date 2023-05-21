@@ -85,7 +85,7 @@ public class MqttController implements Runnable {
                             resultfinal += " ";
                         }
                     }
-                    DocWriter.write("GraphData.txt", resultfinal);
+                    DocWriter.write("GraphData.txt", result);
                 }
             }
 

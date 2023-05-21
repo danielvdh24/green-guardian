@@ -82,7 +82,7 @@ int Y_Cord_Start_Pos = 0;
 int text_Y_Margin_Offset = 0;
 
 //Map of commandkey-names and their associated integer values
-std::unordered_map<std::string, int> commands = {
+unordered_map<string, int> commands = {
   {"pub5", 1},
   {"pub60", 2},
   {"pub300", 3},
@@ -659,13 +659,13 @@ void loop(){
 
   } else {
 
-   if(inactive && onlineMode){
-    
-    mqttClient->loop();
-   }
+    if(inactive && onlineMode){
 
-   drawLockScreen();
- }
+    mqttClient->loop();
+    }
+
+    drawLockScreen();
+  }
 }
 
 void drawScreen(){
