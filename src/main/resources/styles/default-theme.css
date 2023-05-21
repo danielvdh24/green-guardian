@@ -1,0 +1,33 @@
+.root {
+    -fx-background-color: #AAC8A7;
+}
+
+.tile-color {
+    -fx-background-color: #d4e5c0;
+}
+
+.menu-button {
+    -fx-background-color: #d4e5c0;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: #43815A;
+    -fx-border-width: 2;
+}
+
+.sheet-style {
+    -fx-background-color: #E3F2C1;
+}
+
+.spreadsheet-block {
+    -fx-background-color: #d4e5c0;
+    -fx-border-color: #43815A;
+    -fx-border-width: 1;
+}
+
+.spreadsheet-data {
+    -fx-background-color: #d4e5c0;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: #43815A;
+    -fx-border-width: 1;
+}

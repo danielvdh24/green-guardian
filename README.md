@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="https://lh3.googleusercontent.com/drive-viewer/AAOQEOSnB1R4wbmDBkSk0h-ou334v-THN05YKVdnJIfa4qxCbpOBkBh2pQr07NOLO6VhJ0EZtD-EhPdgcMtq4zNSrR-lgNZ0KA=s1600" height="370px">
+    <img src="https://lh3.googleusercontent.com/drive-viewer/AAOQEORdeNRxnDdoNhpoXHpixcNAHykfs6Rtt5fGw9i4NJG0udJj1ZsHfx9MEzVZzlMIpI4AWnDi26PKOhzK9F-dLpkFVae-Iw=s1600" height="370px">
 </div>
 
 A state-of-the-art plant health monitoring system that enables plant owners to keep track of their plant's vital signs and health conditions. **Green Guardian** integrates a range of high-quality sensors, including moisture, light, and temperature sensors, to provide accurate information about the plant's environment.
@@ -11,10 +11,16 @@ Before getting started, make sure you have all the required components listed be
 ## Required Components :electric_plug:
 
 - Arduino Wio Seed Terminal [:link:](https://wiki.seeedstudio.com/Wio-Terminal-Getting-Started/)
+- GROVE Light Sensor [:link:](https://wiki.seeedstudio.com/Grove-Light_Sensor/)
 - GROVE Moisture Sensor [:link:](https://wiki.seeedstudio.com/Grove-Moisture_Sensor/)
-- GROVE Temperature Sensor [:link:](https://wiki.seeedstudio.com/Grove-Temperature_Sensor_V1.2/)
+- GROVE Temperature Sensor [:link:](https://wiki.seeedstudio.com/Grove-Temperature_Sensor/)
 - GROVE RGB LED Stick [:link:](https://wiki.seeedstudio.com/Grove-RGB_LED_Stick-10-WS2813_Mini)
+
+LEDs are not required to be of the same color.
+
 - Red LED [:link:](https://wiki.seeedstudio.com/Grove-Red_LED)
+- Yellow LED [:link:](https://wiki.seeedstudio.com/Grove-Yellow_LED)
+- Blue LED [:link:](https://wiki.seeedstudio.com/Grove-Blue_LED)
 
 Refer to the [Pin Layout](Pin Layout) to configure your system!
 
@@ -26,7 +32,7 @@ Refer to the [Pin Layout](Pin Layout) to configure your system!
 
 You can find our documentation on our [Wiki](https://git.chalmers.se/courses/dit113/2023/group-3/green-guardian/-/wikis/home).
 
-## Developers :bow:
+## Contributers :bow:
 
 <table>
   <tr>

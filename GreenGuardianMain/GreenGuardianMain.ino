@@ -14,18 +14,21 @@ TFT_eSPI tft;
 #include "Free_Fonts.h"
 //Setup for temperature sensor
 #include "DHT.h"
+#include <unordered_map>
+using namespace std;
 
-//Pin definitions for rgb stick and temperature sensor
+//Pin definitions for rgb stick and sensors
 #define DHTPIN A1
 #define DHTTYPE DHT11
 DHT dht(DHTPIN, DHTTYPE);
 #define PIN            BCM3
 #define NUMPIXELS      10
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
-
 const int moisturePin = A0;
 const int temperaturePin = A1;
 const int ledPin = A2;
+const int ledBulbPin = A3;
+
 bool isTestLight = true;
 bool buzzerOn = true;        //Initialize the boolean variable as true, to track if the buzzer is on
 
@@ -37,15 +40,13 @@ int temperatureQueue[queueSize]; // array to hold the queue
 int lightIndex = 0; // current index of the queue
 int moistureIndex = 0; // current index of the moisture queue
 int temperatureIndex = 0; // current index of the moisture queue
-unsigned long previousMillis = 0; // previous time when a value was added to the queue
-const unsigned long interval = 1800000; // interval between adding values to the queue (30 mins
+int interval = 1800000; //Interval between adding values to the queue (30 mins) in seconds
+int addToQueueTimer = 0; //Seconds
 
 //Variables for plant species
 int maxTemp = 30;
-
 int moistureLowThreshold = 3;
 int moistureHighThreshold = 7;
-
 int lightLowThreshold = 3;
 int lightHighThreshold = 7;
 
@@ -63,28 +64,72 @@ bool modeIsSetup = false;
 bool wifiIsConnected = false;
 bool brokerIsConnected = false;
 
-//Insert values below:
+//Ipv4 address provided by router and running broker port
 IPAddress brokerIp(0, 0, 0, 0);
 int port = 0;
 
-//Insert values below:
-char pubTopic[] = "";
-char subTopic[] = "";
-char pubMessage[] = "";
-char clientName[] = "";
+//Variables for wio/pc mqtt topics and wio mqtt client name
+char clientName[] = "WIO_TERMINAL";
+char pubTopic[] = "sensordata";
+char subTopic[] = "commands";
 
+//Variables for wio wifi and wio mqtt client
 WiFiClient* wioClient = nullptr;
 PubSubClient* mqttClient = nullptr;
 
+//Variables for text spacing vertically
 int Y_Cord_Start_Pos = 0;
 int text_Y_Margin_Offset = 0;
+
+//Map of commandkey-names and their associated integer values
+std::unordered_map<std::string, int> commands = {
+  {"pub5", 1},
+  {"pub60", 2},
+  {"pub300", 3},
+  {"pub1800", 4},
+  {"stoppub", 5},
+  {"timeScedOn", 6},
+  {"timeScedOff", 7},
+  {"automaticOn", 8},
+  {"automaticOff", 9},
+  {"activeOff", 10},
+  {"activeOn", 11},
+};
+
+//Variables for mqtt publish frequency
+boolean doPub = false;
+boolean timeToPub = true;
+int timeSincePub = 0; //Seconds
+int pubFrequencySec = 5; //Seconds
+
+//Variables for time-of-the-day tracking for led light bulb manual mode
+string localTime = ""; //HHmm
+string ledScedStartTime = ""; //HHmm
+string ledScedEndTime = ""; //HHmm
+
+//Variables for sensor readings
+int moistureLevel = 0;
+int temperatureLevel = 0;
+int lightLevel = 0;
+
+bool automaticMode = true;   //Switch between automatic and manual mode
+bool isScedOnMode = false;    //Switch between light on manual mode and light off manual mode
+bool inactive = false;        //Toggle lock mode
+bool lockMode = false;        //Screen lock tracker
 
 void displayLCDmessage(char* message, uint16_t textColor, const GFXfont* font, boolean centerAlign, boolean clearPrevLCD, int Y_Cord_Start_Pos = Y_Cord_Start_Pos);
 
 void setup(){
-  pinMode(WIO_5S_LEFT, INPUT_PULLUP);
-  pinMode(WIO_5S_RIGHT, INPUT_PULLUP);
-  pinMode(WIO_5S_PRESS, INPUT_PULLUP);
+
+  for (int i = 0; i < queueSize; i++){
+    lightQueue[i] = 0;
+    temperatureQueue[i] = 0;
+    moistureQueue[i] = 0;
+  }
+
+  pinMode(WIO_5S_LEFT, INPUT);
+  pinMode(WIO_5S_RIGHT, INPUT);
+  pinMode(WIO_5S_PRESS, INPUT);
   tft.begin();
   tft.setRotation(3);
   pinMode(moisturePin, INPUT);
@@ -97,10 +142,10 @@ void setup(){
   pinMode(WIO_BUZZER, OUTPUT);
   pixels.setBrightness(50);
   pixels.begin();
-  // Serial.begin(9600);
 }
 
 void setupWifi(){
+
   wioClient = new WiFiClient;
   WiFi.disconnect();
 }
@@ -117,6 +162,7 @@ void setupDataDisplay(){
       lightLowThreshold = 6;
       lightHighThreshold = 9;
       break;
+
     case 1:
       // Tundra
       maxTemp = 12;
@@ -125,6 +171,7 @@ void setupDataDisplay(){
       lightLowThreshold = 3;
       lightHighThreshold = 7;
       break;
+
     case 2:
       // Standard/Grassland
       maxTemp = 30;
@@ -133,6 +180,7 @@ void setupDataDisplay(){
       lightLowThreshold = 3;
       lightHighThreshold = 8;
       break;
+
     case 3:
       // Tropical
       maxTemp = 35;
@@ -141,6 +189,7 @@ void setupDataDisplay(){
       lightLowThreshold = 5;
       lightHighThreshold = 9;
       break;
+
     case 4:
       // Taiga
       maxTemp = 25;
@@ -150,7 +199,6 @@ void setupDataDisplay(){
       lightHighThreshold = 6;
       break;
   }
-
 
   tft.setFreeFont(NULL);
   tft.fillScreen(primaryColor[currentIndex]);
@@ -167,10 +215,10 @@ void setupDataDisplay(){
 //Function to add a value to a queue and calculate the average value
 long addValueToQueueAndCalculateAverage(int value, int* queue, int& index) {
   //Add the value to the queue
-  queue[index] = value;
 
-  //Increment the queue index, wrapping around if necessary
-  index = (index + 1) % queueSize;
+  for(int i=0;i<335;i++)queue[i]=queue[i+1];
+
+  queue[335] = value;
 
   //Calculate the average total value of the queue
   long totalValue = 0;
@@ -184,6 +232,7 @@ long addValueToQueueAndCalculateAverage(int value, int* queue, int& index) {
 }
 
 void drawStartingScreen() {
+
   tft.setFreeFont(NULL);
   tft.setTextSize(1);
   tft.fillScreen(TFT_DARKGREEN);
@@ -204,7 +253,31 @@ void drawStartingScreen() {
   handleSwitchInput();
 }
 
+void drawLockScreen() {
+
+  if(lockMode != inactive){
+    lockMode = inactive;
+    tft.setFreeFont(NULL);
+    tft.setTextSize(1);
+    tft.fillScreen(TFT_DARKGREEN);
+    tft.fillEllipse(145, 100, 5, 40, TFT_GREEN);
+    tft.fillEllipse(160, 100, 5, 40, TFT_GREEN);
+    tft.fillEllipse(175, 100, 5, 40, TFT_GREEN);
+    tft.fillRect(130, 120, 60, 50, tft.color565(150, 75, 0));
+    tft.fillRoundRect(125, 115, 70, 15, 10, tft.color565(150, 75, 0));
+    tft.setTextColor(TFT_WHITE);
+    tft.setTextSize(3);
+    tft.setCursor(40, 20);
+    tft.print("Green Guardian");
+    tft.setTextSize(2);
+    tft.setTextColor(TFT_RED);
+    tft.setCursor(125, 200);
+    tft.print("Locked");
+  }
+}
+
 void handleSwitchInput() {
+
   int selectedMode = 0;
   while (true) {
     if (digitalRead(WIO_5S_LEFT) == LOW){
@@ -216,12 +289,10 @@ void handleSwitchInput() {
       selectedMode = 2;
     }
     if (digitalRead(WIO_5S_PRESS) == LOW && selectedMode == 1){
-      //Replace with online screen
       onlineMode = true;
       return;
     }
     if (digitalRead(WIO_5S_PRESS) == LOW && selectedMode == 2){
-      //Replace with offline screen
       onlineMode = false;
       return;
     }
@@ -229,32 +300,37 @@ void handleSwitchInput() {
 }
 
 void toggleOnline(){
+
   tft.drawRect(25, 197, 100, 20, TFT_CYAN);
   tft.drawRect(190, 197, 100, 20, TFT_DARKGREEN);
 }
 
 void toggleOffline(){
+
   tft.drawRect(190, 197, 100, 20, TFT_CYAN);
   tft.drawRect(25, 197, 100, 20, TFT_DARKGREEN);
 }
 
 void connectWifi(){
-  displayLCDmessage("(Re) Connecting To WiFi...", tft.color565(20, 70, 150), FM9, true, true, 60);
-  displayLCDmessage("(Connection Keeps Failing? Fix:", tft.color565(70, 50, 50), FF25, true, false);
-  displayLCDmessage("1. WiFi Turned Off)", tft.color565(70, 50, 50), FF25, true, false);
-  displayLCDmessage("(Screen Static For T>10s? Fix:", TFT_BLACK, FF33, true, false);
-  displayLCDmessage("2. Faulty AP Point Configuration)", tft.color565(70, 50, 50), FF25, true, false);
-  displayLCDmessage("Alt 2. Needs Manual Wio Restart", TFT_BLACK, FF33, true, false);
-  displayLCDmessage("After Reconfiguration", TFT_BLACK, FF33, true, false);
-  delay(2000);
+
+  displayLCDmessage("(Re) Connecting To WiFi...", tft.color565(0, 0, 0), FSSB9, true, true, 50);
+  displayLCDmessage("(Connection Keeps Failing? Fix:", tft.color565(0, 0, 0), FSS9, true, false);
+  displayLCDmessage("1. WiFi Turned Off", tft.color565(0, 0, 0), FSS9, true, false);
+  displayLCDmessage("2. Missing Code WiFi Config", tft.color565(0, 0, 0), FSS9, true, false);
+  displayLCDmessage("3. Faulty AP Point Config)", tft.color565(0, 0, 0), FSS9, true, false);
+  displayLCDmessage("Alt 2 & 3. Needs Manual Wio Restart", TFT_BLACK, FSS9, true, false);
+  displayLCDmessage("After Reconfiguration", TFT_BLACK, FSS9, true, false);
+  delay(1500);
 
   WiFi.begin(SSID, PASS);
+
   if (WiFi.status() != WL_CONNECTED){
-    displayLCDmessage("Failed To Connect To WiFi", tft.color565(70, 0, 0), FF25, true, true, 60);
-    displayLCDmessage("Retry:", tft.color565(0, 70, 70), FM9, true, false);
-    displayLCDmessage("Press (Top Left Button)", tft.color565(0, 70, 70), FM9, true, false);
-    displayLCDmessage("Return Home:", tft.color565(0, 70, 70), FM9, true, false);
-    displayLCDmessage("Press (Top Right Button)", tft.color565(0, 70, 70), FM9, true, false);
+
+    displayLCDmessage("Failed To Connect To WiFi", tft.color565(0, 0, 0), FSSB9, true, true, 60);
+    displayLCDmessage("Retry:", tft.color565(0, 0, 0), FSS9, true, false);
+    displayLCDmessage("Press (Top Left Button)", tft.color565(0, 0, 0), FSS9, true, false);
+    displayLCDmessage("Return Home:", tft.color565(0, 0, 0), FSS9, true, false);
+    displayLCDmessage("Press (Top Right Button)", tft.color565(0, 0, 0), FSS9, true, false);
     delete wioClient;
     while (true){
       if (digitalRead(BUTTON_3) == LOW){
@@ -265,38 +341,42 @@ void connectWifi(){
       }
     }
   }
-  displayLCDmessage("WiFi Connected!", tft.color565(0, 110, 0), FF6, true, true, 110);
+
+  displayLCDmessage("WiFi Connected!", tft.color565(0, 0, 0), FSSB9, true, true, 110);
   delay(3000);
   wifiIsConnected = true;
 }
 
 void setupMqtt(){
+
   mqttClient = new PubSubClient(*wioClient);
   mqttClient->setServer(brokerIp, port);
   mqttClient->setCallback(handleSubMessage);
 }
 
 void connectMqtt(){
-  displayLCDmessage("(Re) Connecting to MQTT Broker...", tft.color565(70, 50, 100), FF25, true, true, 60);
-  displayLCDmessage("(Connection Keeps Failing? Fix:", TFT_BLACK, FF33, true, false);
-  displayLCDmessage("1. Broker Is Not Running)", TFT_BLACK, FF33, true, false);
-  displayLCDmessage("(Screen Static For T>10s? Fix:", TFT_BLACK, FF33, true, false);
-  displayLCDmessage("2. Faulty BrokerIP &&/|| WiFi Loss)", TFT_BLACK, FF33, true, false);
-  displayLCDmessage("Alt 2. Needs Manual Wio Restart", TFT_BLACK, FF33, true, false);
-  displayLCDmessage("After Reconfiguration", TFT_BLACK, FF33, true, false);
+
+  doPub = false;
+  displayLCDmessage("(Re) Connecting to MQTT Broker...", tft.color565(0, 0, 0), FSSB9, true, true, 60);
+  displayLCDmessage("(Connection Keeps Failing? Fix:", TFT_BLACK, FSS9, true, false);
+  displayLCDmessage("1. Broker Is Not Running)", TFT_BLACK, FSS9, true, false);
+  displayLCDmessage("(Screen Static For T>10s? Fix:", TFT_BLACK, FSS9, true, false);
+  displayLCDmessage("2. Faulty BrokerIP &&/|| WiFi Loss)", TFT_BLACK, FSS9, true, false);
+  displayLCDmessage("Alt 2. Needs Manual Wio Restart", TFT_BLACK, FSS9, true, false);
+  displayLCDmessage("After Reconfiguration", TFT_BLACK, FSS9, true, false);
   delay(4000);
 
   if (mqttClient->connect(clientName)){
-    displayLCDmessage("Connected To MQTT Broker!", tft.color565(0, 110, 0), FS12, true, true, 110);
+    displayLCDmessage("Connected To MQTT Broker!", tft.color565(0, 0, 0), FSSB9, true, true, 110);
     brokerIsConnected = true;
     subscribeMqtt();
     delay (3000);
   } else {
-    displayLCDmessage("Failed To Connect To MQTT Broker", tft.color565(100, 0, 0), FSS9, true, true, 70);
-    displayLCDmessage("Retry:", tft.color565(0, 70, 70), FM9, true, false);
-    displayLCDmessage("Press (Top Left Button)", tft.color565(0, 70, 70), FM9, true, false);
-    displayLCDmessage("Return Home:", tft.color565(0, 70, 70), FM9, true, false);
-    displayLCDmessage("Press (Top Right Button)", tft.color565(0, 70, 70), FM9, true, false);
+    displayLCDmessage("Failed To Connect To MQTT Broker", tft.color565(0, 0, 0), FSSB9, true, true, 70);
+    displayLCDmessage("Retry:", tft.color565(0, 0, 0), FSS9, true, false);
+    displayLCDmessage("Press (Top Left Button)", tft.color565(0, 0, 0), FSS9, true, false);
+    displayLCDmessage("Return Home:", tft.color565(0, 0, 0), FSS9, true, false);
+    displayLCDmessage("Press (Top Right Button)", tft.color565(0, 0, 0), FSS9, true, false);
     delay(2000);
     while (true){
       if (digitalRead(BUTTON_3) == LOW){
@@ -310,20 +390,41 @@ void connectMqtt(){
 }
 
 void publishMqtt(){
-  delay(1000);
-  mqttClient->publish(pubTopic, pubMessage);
+
+  for (int i = 0; i < 21; i++){
+    string packet = string(1, ((char) 97 + i));
+    for (int j = i * 16; j < (i + 1) * 16; j++){
+      int mappedLight = map(lightQueue[j], 0, 1300, 0, 100);
+      int mappedMoisture = 0;
+      if (moistureQueue[j] >= 0 && moistureQueue[j] < 300) {
+        mappedMoisture = map(moistureQueue[j], 0, 299, 0, 30);
+      } else if (moistureQueue[j] >= 300 && moistureQueue[j] < 600) {
+        mappedMoisture = map(moistureQueue[j], 300, 599, 30, 70);
+      } else {
+        mappedMoisture = map(moistureQueue[j], 600, 1023, 70, 100);
+      }
+      packet += to_string(mappedLight) + "," + to_string(temperatureQueue[j]) + "," + to_string(mappedMoisture) + ",";
+    }
+
+    const char* charpacket = packet.c_str();
+    mqttClient->publish(pubTopic, charpacket);
+  }
 }
 
 void subscribeMqtt(){
+
   mqttClient->subscribe(subTopic);
 }
 
 void displayLCDmessage(char* message, uint16_t textColor, const GFXfont* font, boolean centerAlign, boolean clearPrevLCD, int Y_Cord_Start_Pos){
+
   ::Y_Cord_Start_Pos = Y_Cord_Start_Pos;
+
   if (clearPrevLCD){
-    tft.fillScreen(TFT_WHITE);
+    tft.fillScreen(tft.color565(180,238,180));
     text_Y_Margin_Offset = 0;
   }
+
   tft.setTextColor(textColor);
   tft.setFreeFont(font);
   tft.drawString(message, centerAlign ? 160 - (tft.textWidth(message) / 2) : 0, Y_Cord_Start_Pos + text_Y_Margin_Offset);
@@ -331,12 +432,132 @@ void displayLCDmessage(char* message, uint16_t textColor, const GFXfont* font, b
 }
 
 void handleSubMessage(char* topic, byte* payload, unsigned int length){
-  char message[length + 1];
-  for (int i = 0; i < length; i++){
-    message[i] = (char) payload[i];
+
+  if (isdigit((char) payload[0])){
+    localTime = "";
+    for (int i = 0; i < length; i++){
+      localTime += (char) payload[i];
+    }
+  } else {
+    string msg = "";
+    boolean isFirstEncounter = true;
+    boolean isSecondEncounter = true;
+    string commandKey = "";
+    char symbol = '\0';
+    for (int i = 0; i < length; i++){
+      symbol = (char) payload[i];
+      if (symbol == ';'){
+        if (isFirstEncounter){
+          commandKey = msg;
+          isFirstEncounter = false;
+          if (i == length - 1){
+            break;
+          }
+        } else {
+          if (isSecondEncounter){
+            ledScedStartTime = msg;
+            isSecondEncounter = false;
+          } else {
+            ledScedEndTime = msg;
+          }
+        }
+        msg.clear();
+        continue;
+      }
+
+      msg += symbol;
+    }
+
+    int commandVal = commands.at(commandKey);
+
+    if (commandVal < 5){
+      timeSincePub = 0;
+      doPub = true;
+    }
+
+    switch(commandVal){
+
+      case 1:
+      pubFrequencySec = 5;
+      break;
+
+      case 2:
+      pubFrequencySec = 60;
+      break;
+
+      case 3:
+      pubFrequencySec = 300;
+      break;
+
+      case 4:
+      pubFrequencySec = 1800;
+      break;
+
+      case 5:
+      doPub = false;
+      break;
+
+      case 6:
+      isScedOnMode = true;
+      break;
+
+      case 7:
+      isScedOnMode = false;
+      break;
+
+      case 8:
+      automaticMode = true;
+      break;
+
+      case 9:
+      automaticMode = false;
+      break;
+
+      case 10:
+      inactive = true;
+      modeIsSetup = false;
+      break;
+
+      case 11:
+      inactive = false;
+      modeIsSetup = false;
+      break;
+    }
   }
-  message[length] = '\0';
-  Serial.println(message);
+}
+
+void modes() {
+
+  //Automatic mode
+  if(automaticMode){
+
+    int range = map(lightLevel, 0, 1300, 0, 10);
+    if(range < lightLowThreshold){
+      digitalWrite(ledBulbPin, HIGH); //Turn on LED bulb
+    } else {
+      digitalWrite(ledBulbPin, LOW); //Turn off LED bulb
+    }
+
+  } else {
+    
+    //Light on manual mode
+    if(isScedOnMode){
+
+      if (localTime >= ledScedStartTime && localTime < ledScedEndTime){
+        digitalWrite(ledBulbPin, HIGH); //Turn on LED bulb
+      } else {
+        digitalWrite(ledBulbPin, LOW); //Turn off LED bulb
+      }
+
+    } else {
+      //Light off manual mode
+      if (localTime >= ledScedStartTime && localTime < ledScedEndTime){
+        digitalWrite(ledBulbPin, LOW); //Turn off LED bulb
+      } else {
+        digitalWrite(ledBulbPin, HIGH); //Turn on LED bulb
+      }
+    }
+  }
 }
 
 void loop(){
@@ -348,6 +569,7 @@ void loop(){
   }
 
   if(onlineMode){
+
     if (WiFi.status() != WL_CONNECTED){
       wifiIsConnected = false;
       tft.setTextSize(NULL);
@@ -358,6 +580,7 @@ void loop(){
           return;
         }
       }
+
       setupMqtt();
     }
 
@@ -375,75 +598,101 @@ void loop(){
   }
 
   if (!modeIsSetup){
+    
     setupDataDisplay();
     modeIsSetup = true;
   }
 
-    int moistureLevel = analogRead(moisturePin);
-    int temperatureLevel = dht.readTemperature();
-    int lightLevel = analogRead(WIO_LIGHT);
+  if(!inactive){
+
+    moistureLevel = analogRead(moisturePin);
+    temperatureLevel = dht.readTemperature();
+    lightLevel = analogRead(WIO_LIGHT);
+
     if (isTestLight) {
-      testLight(lightLevel);
+      testLight();
     } else {
-      testMoisture(moistureLevel);
+      testMoisture();
     }
+    
+    testTemperature();
+
     if (digitalRead(BUTTON_3) == LOW) {
       delay(200);
       isTestLight = !isTestLight; //Toggle to change mode of RGB stick
       delay(200);
     }
 
-  if (digitalRead(BUTTON_2) == LOW) {
+    modes();
+
+    if (digitalRead(BUTTON_2) == LOW) {
       buzzerOn = !buzzerOn;
       delay(100);
     }
 
-  //Read the current switch position and update the current preset accordingly
-  readSwitchPosition();
-  if(currentIndex != currentPreset){
-    setupDataDisplay();
-  }
+    //Read the current switch position and update the current preset accordingly
+    readSwitchPosition();
+    if(currentIndex != currentPreset){
+      setupDataDisplay();
+    }
 
-  delay(100);
+    //Displays Values
+    drawScreen();
+    checkAddToQueue();
 
-  //Displays Values
-  drawScreen(moistureLevel, lightLevel, temperatureLevel);
+    if(onlineMode){
+      if(doPub){
+        if (timeSincePub == pubFrequencySec){
+          timeToPub = true;
+          timeSincePub = 0;
+        }
 
-  if(onlineMode){
-    publishMqtt();
+        if(timeToPub){
+          publishMqtt();
+          timeToPub = false;
+        }
+      }
+
+      timeSincePub++;
+      mqttClient->loop();
+    }
+
+  } else {
+
+   if(inactive && onlineMode){
+    
     mqttClient->loop();
-  }
+   }
+
+   drawLockScreen();
+ }
 }
 
-void drawScreen(int moistureLevel, int lightLevel, int temperatureLevel){
+void drawScreen(){
+
   unsigned long startTime = millis();
+  
   while(millis() < startTime + 500){
-      //Wait 500ms
+      //Wait 500ms before updating values on wio terminal sensor data display
   }
+
   tft.fillRect(220,22,80,50, primaryColor[currentIndex]);
   tft.fillRect(220,105,80,40, primaryColor[currentIndex]);
   tft.fillRect(220,178,80,40, primaryColor[currentIndex]);
   tft.setFreeFont(NULL);
 
-//Moisture
-unsigned long currentMillisMoisture = millis();
-if (currentMillisMoisture - previousMillis >= interval) {
-    previousMillis = currentMillisMoisture;
-
-    //Add the value to the queue and calculate the average total value of the queue
-    long moistureAverage = addValueToQueueAndCalculateAverage(moistureLevel, moistureQueue, moistureIndex);
-
-  }
-  //Display moisture
+  //Moisture
   tft.setTextSize(2);
-  if (moistureLevel >= 0 && moistureLevel < 300) {           //Dry - dry
+  if (moistureLevel >= 0 && moistureLevel < moistureLowThreshold){           //Dry - red
     tft.setTextColor(TFT_RED);
     tft.drawString("Dry",243,40);
-    //errorSound();
-  } else if(moistureLevel >= 300 && moistureLevel < 600) {   //Moist - darkcyan
+    errorSound();
+  } else if(moistureLevel >= moistureLowThreshold && moistureLevel < moistureHighThreshold) {   //Moist - darkcyan
+    analogWrite(WIO_BUZZER, 0);
     tft.setTextColor(TFT_DARKCYAN);
     tft.drawString("Moist",232,40);
-  } else if(moistureLevel >= 600 && moistureLevel <= 950){    //Wet - blue
+  } else if(moistureLevel >= moistureHighThreshold && moistureLevel <= 950){    //Wet - blue
+    analogWrite(WIO_BUZZER, 0);
     tft.setTextColor(TFT_BLUE);
     tft.drawString("Wet",243,40);
   } else {
@@ -451,68 +700,49 @@ if (currentMillisMoisture - previousMillis >= interval) {
     tft.drawString("ERROR",232,40);
   }
 
+  //Light
+  int range = map(lightLevel, 0, 1300, 0, 10);                //Map light values to a range of 0-10
 
-//Light
-//Check if it's time to read the sensor
-int range = map(lightLevel, 0, 950, 0, 10);                //Map light values to a range for percentage
-unsigned long currentMillisLight = millis();
-  if (currentMillisLight - previousMillis >= interval) {
-    previousMillis = currentMillisLight;
-
-    //Add the value to the queue and calculate the average total value of the queue
-    long lightAverage = addValueToQueueAndCalculateAverage(range, lightQueue, lightIndex);
-
-  }
-
- //Display light
   if(range < lightLowThreshold ){
-   tft.setTextColor(TFT_RED);
-   tft.drawString("Low",245,118);
-   //errorSound();
+    tft.setTextColor(TFT_RED);
+    tft.drawString("Low",245,118);
+    errorSound();
   } else if (range > lightHighThreshold ){
-   tft.setTextColor(TFT_RED);
-   tft.drawString("High",237,118);
-   //errorSound();
+    tft.setTextColor(TFT_RED);
+    tft.drawString("High",237,118);
+    errorSound();
   } else if (range > lightLowThreshold  && range < lightHighThreshold ){
-   tft.setTextColor(TFT_DARKGREEN);
-   tft.drawString("Good",237,118);
+    analogWrite(WIO_BUZZER, 0);
+    tft.setTextColor(TFT_DARKGREEN);
+    tft.drawString("Good",237,118);
   } else {
-   tft.setTextColor(TFT_BLACK);
-   tft.drawString("ERROR",232,118);
-  }
-
-//Temperature
-unsigned long currentMillisTemperature = millis();
-if (currentMillisTemperature - previousMillis >= interval) {
-    previousMillis = currentMillisTemperature;
-
-    //Add the value to the queue and calculate the average total value of the queue
-    long temperatureAverage = addValueToQueueAndCalculateAverage(temperatureLevel, temperatureQueue, temperatureIndex);
-
-  }
-  //Display temperature
-    if(temperatureLevel >= maxTemp){
-     tft.setTextColor(TFT_RED);
-    } else if (temperatureLevel > 125 || temperatureLevel < -40) {
-      tft.setTextColor(TFT_BLACK);
-      tft.drawString("ERROR",232,188);
-    } else {
-     tft.setTextColor(TFT_DARKGREEN);
-    }
-
-    tft.drawNumber(temperatureLevel,240,191);
     tft.setTextColor(TFT_BLACK);
-    tft.drawString("C",270,191);
+    tft.drawString("ERROR",232,118);
+  }
+
+  //Temperature
+  if(temperatureLevel >= maxTemp){
+    tft.setTextColor(TFT_RED);
+  } else if (temperatureLevel > 125 || temperatureLevel < -40) {
+    tft.setTextColor(TFT_BLACK);
+    tft.drawString("ERROR",232,188);
+  } else {
+    tft.setTextColor(TFT_DARKGREEN);
+  }
+
+  tft.drawNumber(temperatureLevel,240,191);
+  tft.setTextColor(TFT_BLACK);
+  tft.drawString("C",270,191);
 }
 
 void readSwitchPosition() {
+
   if (digitalRead(WIO_5S_RIGHT) == LOW) {
     if(currentIndex + 1 > 4){
       return;
     }
     currentIndex = currentIndex + 1;
-  }
-  else if (digitalRead(WIO_5S_LEFT) == LOW) {
+  } else if (digitalRead(WIO_5S_LEFT) == LOW) {
     if(currentIndex - 1 < 0){
       return;
     }
@@ -520,84 +750,99 @@ void readSwitchPosition() {
   }
 }
 
-void testLight(int lightLevel){
- pixels.clear();
- int range = map(lightLevel, 0, 950, 0, 10);         //Map light values to a range to activate LEDs
- if(range < lightLowThreshold || range > lightHighThreshold ){
-   for(int i = 0; i < range || (i == 0 && range == 0); i++){
-    pixels.setPixelColor(i, pixels.Color(255,0,0));   //Red - too low/high
-   }
-  } else {
-   for(int i = 0; i < range; i++){
-   pixels.setPixelColor(i, pixels.Color(255,255,0));  //Yellow - sufficient
-   }
- }
- pixels.show();
+void checkAddToQueue(){
+
+  addToQueueTimer++;
+  if (addToQueueTimer >= interval) {
+    addToQueueTimer = 0;
+    //Add the value to the queue and calculate the average total value of the queue
+    int moistureAverage = addValueToQueueAndCalculateAverage(moistureLevel, moistureQueue, moistureIndex);
+    //Add the value to the queue and calculate the average total value of the queue
+    int lightAverage = addValueToQueueAndCalculateAverage(lightLevel, lightQueue, lightIndex);
+    //Add the value to the queue and calculate the average total value of the queue
+    int temperatureAverage = addValueToQueueAndCalculateAverage(temperatureLevel, temperatureQueue, temperatureIndex);
+  }
 }
 
-void testMoisture(int moistureLevel){
- pixels.clear();
- int range;
+void testLight(){
+
+  pixels.clear();
+  int range = map(lightLevel, 0, 1300, 0, 10);         //Map light values to a range to activate LEDs
+  if(range < lightLowThreshold || range > lightHighThreshold ){
+    for(int i = 0; i < range || (i == 0 && range == 0); i++){
+      pixels.setPixelColor(i, pixels.Color(255,0,0));   //Red - too low/high
+    }
+  } else {
+    for(int i = 0; i < range; i++){
+      pixels.setPixelColor(i, pixels.Color(255,255,0));  //Yellow - sufficient
+    }
+  }
+
+  pixels.show();
+}
+
+void testMoisture(){
+
+  pixels.clear();
+  int range;
   if (moistureLevel >= 0 && moistureLevel < moistureLowThreshold) {           //Dry - brown
     range = map(moistureLevel, 0, 299, 0, 3);
     for(int i = 0; i < range || (i == 0 && range == 0); i++){
-     pixels.setPixelColor(i, pixels.Color(255,0,0));
+      pixels.setPixelColor(i, pixels.Color(255,0,0));
     }
   } else if (moistureLevel >= moistureLowThreshold && moistureLevel < moistureHighThreshold) {  //Moist - light blue
     range = map(moistureLevel, 300, 599, 3, 7);
     for(int i = 0; i < range; i++){
-     pixels.setPixelColor(i, pixels.Color(69,165,217));
+      pixels.setPixelColor(i, pixels.Color(69,165,217));
     }
   } else {                                                   //Wet - dark blue
     range = map(moistureLevel, 600, 1023, 7, 10);
     for(int i = 0; i < range; i++){
-     pixels.setPixelColor(i, pixels.Color(0,0,255));
+      pixels.setPixelColor(i, pixels.Color(0,0,255));
     }
   }
+
  pixels.show();
 }
 
-void testTemperature(int temp){
-  if(temp >= maxTemp){
+void testTemperature(){
+
+  if(temperatureLevel >= maxTemp){
     digitalWrite(ledPin, HIGH);
   } else {
     digitalWrite(ledPin, LOW);
   }
 }
 
-void errorSound() {
+void errorSound(){
+
   const unsigned long buzzerBeep = 400;
-  const unsigned long shortPause = 200;
-  const unsigned long longPause = 1000;
+  const unsigned long shortPause = 300;
   const int buzzerFrequency = 150;
 
-  //Millis function is used to keep track of current time and the start time.
-  unsigned long startTime = millis();
+  static unsigned long startTime = 0;
+  static int state = 0;
 
-  //Play the buzzer if the boolean is true and the buzzerBeep time hasn't elapsed
-  while (millis() - startTime < buzzerBeep && buzzerOn) { //Only play the buzzer if the boolean is true
-    analogWrite(WIO_BUZZER, buzzerFrequency);
-  }
+  unsigned long currentTime = millis();
+  unsigned long elapsedTime = currentTime - startTime;
 
-  startTime = millis();
+  switch (state){
+    case 0:
+      if (elapsedTime < buzzerBeep && buzzerOn) {
+        analogWrite(WIO_BUZZER, buzzerFrequency);
+      } else {
+        startTime = currentTime;
+        state = 1;
+      }
+      break;
 
-  //400ms pause
-  while (millis() - startTime < shortPause) {
-    analogWrite(WIO_BUZZER, 0);
-  }
-
-  startTime = millis();
-
-  //Play the buzzer if the boolean is true and the buzzerBeep time hasn't elapsed
-  while (millis() - startTime < buzzerBeep && buzzerOn) { //Only play the buzzer if the boolean is true
-    analogWrite(WIO_BUZZER, buzzerFrequency);
-  }
-
-  startTime = millis();
-
-  //Pause the buzzer for the 1000ms
-  while (millis() - startTime < longPause) {
-    analogWrite(WIO_BUZZER, 0);
+    case 1:
+      if (elapsedTime < shortPause) {
+        analogWrite(WIO_BUZZER, 0);
+      } else {
+        startTime = currentTime;
+        state = 0;
+      }
+      break;
   }
 }
-

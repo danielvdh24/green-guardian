@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Font?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="388.0" prefWidth="600.0" stylesheets="@../../styles/default-theme.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gg.com.CommandsController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+    <HBox layoutY="-2.0" prefHeight="50.0" prefWidth="600.0" styleClass="tile-color" />
+    <HBox layoutY="307.0" prefHeight="81.0" prefWidth="600.0">
+        <Button focusTraversable="false" mnemonicParsing="false" onAction="#onSpreadSheetButtonClick" prefHeight="81.0" prefWidth="150.0" styleClass="menu-button" text="Analytics" textFill="#33401b">
+            <font>
+                <Font name="Comic Sans MS" size="20.0" />
+            </font></Button>
+        <Button focusTraversable="false" mnemonicParsing="false" onAction="#onGraphButtonClick" prefHeight="81.0" prefWidth="150.0" styleClass="menu-button" text="Graph" textFill="#33401b">
+            <font>
+                <Font name="Comic Sans MS" size="20.0" />
+            </font></Button>
+        <Button focusTraversable="false" mnemonicParsing="false" prefHeight="81.0" prefWidth="150.0" styleClass="menu-button" text="Commands" textFill="#33401b">
+            <font>
+                <Font name="Comic Sans MS" size="20.0" />
+            </font></Button>
+        <Button focusTraversable="false" mnemonicParsing="false" onAction="#onSettingsButtonClick" prefHeight="81.0" prefWidth="150.0" styleClass="menu-button" text="Settings" textFill="#33401b">
+            <font>
+                <Font name="Comic Sans MS" size="20.0" />
+            </font></Button>
+    </HBox>
+    <Label alignment="CENTER" layoutX="180.0" layoutY="-22.0" prefHeight="90.0" prefWidth="240.0" text="Commands" textAlignment="CENTER" textFill="#33401b">
+        <font>
+            <Font name="Comic Sans MS" size="36.0" />
+        </font>
+    </Label>
+    <Pane layoutX="9.0" layoutY="56.0" prefHeight="245.0" prefWidth="186.0" styleClass="menu-button">
+        <children>
+            <Label alignment="CENTER" layoutX="-1.0" layoutY="1.0" prefHeight="44.0" prefWidth="189.0" text="Click to" textAlignment="CENTER" textFill="#33401b">
+                <font>
+                    <Font name="Comic Sans MS" size="26.0" />
+                </font>
+            </Label>
+            <Label fx:id="powerButtonLabel" alignment="CENTER" layoutX="-1.0" layoutY="155.0" prefHeight="44.0" prefWidth="189.0" text="Turn OFF" textAlignment="CENTER" textFill="#33401b">
+                <font>
+                    <Font name="Comic Sans MS" size="26.0" />
+                </font>
+            </Label>
+            <Label alignment="CENTER" layoutX="-2.0" layoutY="192.0" prefHeight="44.0" prefWidth="189.0" text="System" textAlignment="CENTER" textFill="#33401b">
+                <font>
+                    <Font name="Comic Sans MS" size="26.0" />
+                </font>
+            </Label>
+            <Circle fx:id="powerButtonCircle" fill="#748a74" layoutX="93.0" layoutY="107.0" onMouseClicked="#handlePowerButtonClicked" radius="56.0" stroke="LIME" strokeType="INSIDE" strokeWidth="10.0" />
+            <ImageView fitHeight="74.0" fitWidth="82.0" layoutX="60.0" layoutY="68.0" onMouseClicked="#handlePowerButtonClicked" pickOnBounds="true" preserveRatio="true">
+                <image>
+                    <Image url="@../../images/powerButton.png" />
+                </image>
+            </ImageView>
+        </children>
+    </Pane>
+    <Pane layoutX="200.0" layoutY="55.0" prefHeight="245.0" prefWidth="391.0" styleClass="menu-button">
+        <children>
+            <Pane layoutX="2.0" layoutY="6.0" prefHeight="72.0" prefWidth="391.0">
+                <children>
+                    <Label fx:id="manualButtonLabel" layoutX="122.0" layoutY="26.0" prefHeight="21.0" prefWidth="246.0" text="Now in MANUAL Mode" textFill="#33401b">
+                        <font>
+                            <Font name="Comic Sans MS" size="18.0" />
+                        </font>
+                    </Label>
+                    <Circle fx:id="manualButtonCircle" fill="#748a74" layoutX="84.0" layoutY="36.0" onMouseClicked="#handleManualButtonClicked" radius="27.0" stroke="SANDYBROWN" strokeType="INSIDE" strokeWidth="5.0" />
+                    <ImageView fitHeight="35.0" fitWidth="33.0" layoutX="68.0" layoutY="20.0" onMouseClicked="#handleManualButtonClicked" opacity="0.6" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="@../../images/setting.png" />
+                        </image>
+                    </ImageView>
+                </children>
+            </Pane>
+            <Pane layoutX="5.0" layoutY="81.0" prefHeight="169.0" prefWidth="385.0">
+                <children>
+                    <Label alignment="CENTER" layoutX="136.0" layoutY="70.0" opacity="0.6" prefHeight="35.0" prefWidth="85.0" text=":" textFill="#33401b">
+                        <font>
+                            <Font name="Arial Bold" size="36.0" />
+                        </font>
+                    </Label>
+                    <Label alignment="CENTER" layoutX="136.0" layoutY="109.0" opacity="0.6" prefHeight="35.0" prefWidth="85.0" text=":" textFill="#33401b">
+                        <font>
+                            <Font name="Arial Bold" size="36.0" />
+                        </font>
+                    </Label>
+                    <Label alignment="CENTER" layoutX="21.0" layoutY="81.0" prefHeight="28.0" prefWidth="85.0" text="Start Time" textFill="#33401b">
+                        <font>
+                            <Font name="Comic Sans MS" size="16.0" />
+                        </font>
+                    </Label>
+                    <Label alignment="CENTER" layoutX="31.0" layoutY="119.0" prefHeight="28.0" prefWidth="71.0" text="End Time" textFill="#33401b">
+                        <font>
+                            <Font name="Comic Sans MS" size="16.0" />
+                        </font>
+                    </Label>
+                    <TextField fx:id="startHour" alignment="CENTER" focusTraversable="false" layoutX="121.0" layoutY="78.0" prefHeight="33.0" prefWidth="50.0" promptText="HH">
+                        <font>
+                            <Font name="Comic Sans MS" size="15.0" />
+                        </font>
+                    </TextField>
+                    <TextField fx:id="startMinute" alignment="CENTER" focusTraversable="false" layoutX="186.0" layoutY="78.0" prefHeight="33.0" prefWidth="52.0" promptText="MM">
+                        <font>
+                            <Font name="Comic Sans MS" size="15.0" />
+                        </font>
+                    </TextField>
+                    <TextField fx:id="endHour" alignment="CENTER" focusTraversable="false" layoutX="121.0" layoutY="117.0" prefHeight="33.0" prefWidth="50.0" promptText="HH">
+                        <font>
+                            <Font name="Comic Sans MS" size="15.0" />
+                        </font>
+                    </TextField>
+                    <TextField fx:id="endMinute" alignment="CENTER" focusTraversable="false" layoutX="185.0" layoutY="117.0" prefHeight="33.0" prefWidth="52.0" promptText="MM">
+                        <font>
+                            <Font name="Comic Sans MS" size="15.0" />
+                        </font>
+                    </TextField>
+                    <Circle fx:id="lightButtonCircle" fill="#748a74" layoutX="82.0" layoutY="28.0" onMouseClicked="#handleLightButtonClicked" radius="27.0" stroke="YELLOW" strokeType="INSIDE" strokeWidth="5.0" />
+                    <Label fx:id="lightButtonLabel" layoutX="119.0" layoutY="16.0" prefHeight="26.0" prefWidth="156.0" text="Keep Lights ON" textAlignment="CENTER" textFill="#33401b">
+                        <font>
+                            <Font name="Comic Sans MS" size="18.0" />
+                        </font>
+                    </Label>
+                    <ImageView fitHeight="35.0" fitWidth="33.0" layoutX="66.0" layoutY="12.0" onMouseClicked="#handleLightButtonClicked" opacity="0.6" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="@../../images/setting.png" />
+                        </image>
+                    </ImageView>
+                    <Button fx:id="saveButton" focusTraversable="false" layoutX="261.0" layoutY="92.0" mnemonicParsing="false" onAction="#handleSaveButtonClicked" prefHeight="45.0" prefWidth="83.0" styleClass="menu-button" text="Save" textAlignment="CENTER" textFill="#33401b">
+                        <font>
+                            <Font name="Comic Sans MS" size="18.0" />
+                        </font>
+                    </Button>
+                    <Label fx:id="saveErrorLabel" alignment="CENTER" layoutX="245.0" layoutY="137.0" prefHeight="26.0" prefWidth="122.0" text="INPUT 24H FORMAT" textAlignment="CENTER" textFill="RED" visible="false">
+                        <font>
+                            <Font name="Helvetica" size="12.0" />
+                        </font>
+                    </Label>
+                    <Rectangle fx:id="coverAutoMode" arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="169.0" layoutX="8.0" layoutY="-9.0" opacity="0.5" stroke="#acc4a9" strokeType="INSIDE" visible="false" width="357.0" />
+                </children>
+            </Pane>
+        </children>
+    </Pane>
+</Pane>

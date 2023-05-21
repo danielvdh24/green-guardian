@@ -1,0 +1,1 @@
+{"scene":"CommandsScene","interval":5,"notifications":false,"online":true,"manual":true,"light":false,"startTime":"1200","endTime":"1205"}
