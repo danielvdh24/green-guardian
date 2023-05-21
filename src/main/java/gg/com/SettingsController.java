@@ -22,7 +22,7 @@ public class SettingsController {
     private static double graphDelay;
 
     @FXML
-    public void initialize(){
+    public void initialize() {
         notificationSelect.getItems().addAll(notifications);
         notificationSelect.setOnAction(this::getNotification);
         initValues();
@@ -36,18 +36,18 @@ public class SettingsController {
     }
 
     @FXML
-    private void onSetDefaultPage(){
+    private void onSetDefaultPage() {
         String scene = null;
-        if(spreadSheetSelect.isSelected()){
+        if (spreadSheetSelect.isSelected()) {
             scene = "SpreadsheetScene";
         }
-        if(graphSelect.isSelected()){
+        if (graphSelect.isSelected()) {
             scene = "GraphScene";
         }
-        if(commandsSelect.isSelected()){
+        if (commandsSelect.isSelected()) {
             scene = "CommandsScene";
         }
-        if(settingsSelect.isSelected()){
+        if (settingsSelect.isSelected()) {
             scene = "SettingsScene";
         }
         Preferences preferences = Preferences.getPreferences();
@@ -56,18 +56,18 @@ public class SettingsController {
     }
 
     @FXML
-    private void onSetGraphFrequency(){
+    private void onSetGraphFrequency() {
         int delay = 0;
-        if(fiveSecondSelect.isSelected()){
+        if (fiveSecondSelect.isSelected()) {
             delay = 5;
         }
-        if(oneMinuteSelect.isSelected()){
+        if (oneMinuteSelect.isSelected()) {
             delay = 60;
         }
-        if(fiveMinuteSelect.isSelected()){
+        if (fiveMinuteSelect.isSelected()) {
             delay = 300;
         }
-        if(thirtyMinuteSelect.isSelected()){
+        if (thirtyMinuteSelect.isSelected()) {
             delay = 1800;
         }
         graphDelay = delay;
@@ -76,62 +76,62 @@ public class SettingsController {
         Preferences.writePreferenceToFile(preferences);
     }
 
-    private void initValues(){
+    private void initValues() {
         Preferences preferences = Preferences.getPreferences();
-        if(preferences.isNotifications()){
+        if (preferences.isNotifications()) {
             notificationSelect.setValue(notifications[1]);
         } else {
             notificationSelect.setValue(notifications[0]);
         }
         int interval = preferences.getInterval();
-        switch(interval){
-                case 5 :
-                    fiveSecondSelect.setSelected(true);
-                    break;
-                case 60 :
-                    oneMinuteSelect.setSelected(true);
-                    break;
-                case 300 :
-                    fiveMinuteSelect.setSelected(true);
-                    break;
-                case 1800 :
-                    thirtyMinuteSelect.setSelected(true);
-                    break;
-                default :
+        switch (interval) {
+            case 5:
+                fiveSecondSelect.setSelected(true);
+                break;
+            case 60:
+                oneMinuteSelect.setSelected(true);
+                break;
+            case 300:
+                fiveMinuteSelect.setSelected(true);
+                break;
+            case 1800:
+                thirtyMinuteSelect.setSelected(true);
+                break;
+            default:
                 fiveSecondSelect.setSelected(true);
                 preferences.setInterval(5);
                 break;
         }
         String scene = preferences.getScene();
         switch (scene) {
-            case "SpreadSheetScene" :
+            case "SpreadSheetScene":
                 spreadSheetSelect.setSelected(true);
                 break;
-            case "GraphScene" :
+            case "GraphScene":
                 graphSelect.setSelected(true);
                 break;
-            case "CommandsScene" :
+            case "CommandsScene":
                 commandsSelect.setSelected(true);
                 break;
-            case "SettingsScene" :
+            case "SettingsScene":
                 settingsSelect.setSelected(true);
                 break;
-            default :
+            default:
                 spreadSheetSelect.setSelected(true);
                 preferences.setScene("SpreadsheetScene");
                 break;
         }
     }
 
-    public static void loadDelay(){
+    public static void loadDelay() {
         Preferences preferences = Preferences.getPreferences();
         graphDelay = preferences.getInterval();
-        if(!(graphDelay == 5 || graphDelay == 60 || graphDelay == 300 || graphDelay == 1800)){
+        if (!(graphDelay == 5 || graphDelay == 60 || graphDelay == 300 || graphDelay == 1800)) {
             graphDelay = 5;
         }
     }
 
-    public static double getDelay(){
+    public static double getDelay() {
         return graphDelay;
     }
 

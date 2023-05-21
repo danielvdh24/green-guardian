@@ -56,42 +56,47 @@ public class Preferences {
         this.notifications = notifications;
     }
 
-    public boolean getOnline(){
+    public boolean getOnline() {
         return online;
     }
 
-    public void setOnline(boolean online){
+    public void setOnline(boolean online) {
         this.online = online;
     }
 
-    public boolean getManual(){
+    public boolean getManual() {
         return manual;
     }
 
-    public void setManual(boolean manual){
+    public void setManual(boolean manual) {
         this.manual = manual;
     }
 
-    public boolean getLight(){
+    public boolean getLight() {
         return light;
     }
 
-    public void setLight(boolean light){
+    public void setLight(boolean light) {
         this.light = light;
     }
 
-    public void setStartTime(String startTime){ this.startTime = startTime;}
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
 
     public String getStartTime() {
         return startTime;
     }
-    public void setEndTime(String endTime){this.endTime = endTime;}
 
-    public String getEndTime(){
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
+    }
+
+    public String getEndTime() {
         return endTime;
     }
 
-    public static void initConfig(){
+    public static void initConfig() {
         Writer writer = null;
         try {
             Preferences preference = new Preferences();
@@ -106,20 +111,20 @@ public class Preferences {
                 writer = Files.newBufferedWriter(configFilePath);
                 gson.toJson(preference, writer);
             }
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         } finally {
             try {
                 if (writer != null) {
                     writer.close();
                 }
-            } catch (IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public static Preferences getPreferences(){
+    public static Preferences getPreferences() {
         Gson gson = new Gson();
         Preferences preferences = new Preferences();
         try {
@@ -130,13 +135,13 @@ public class Preferences {
             } else {
                 initConfig();
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return preferences;
     }
 
-    public static void writePreferenceToFile(Preferences preference){
+    public static void writePreferenceToFile(Preferences preference) {
         try {
             Gson gson = new Gson();
             Path configDirectoryPath = Paths.get(CONFIG_DIRECTORY);
@@ -147,7 +152,7 @@ public class Preferences {
             Writer writer = Files.newBufferedWriter(configFilePath);
             gson.toJson(preference, writer);
             writer.close();
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

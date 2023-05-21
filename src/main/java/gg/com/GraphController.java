@@ -15,30 +15,27 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class GraphController {
-    private final String[] sources = {"Moisture","Temperature","Light"};
+    private final String[] sources = {"Moisture", "Temperature", "Light"};
     @FXML
     private LineChart<String, Number> chart;
     @FXML
     private NumberAxis yAxis;
-    @FXML   
-    private ChoiceBox<String> dataSelect;
     @FXML
-    public void initialize(){
+    private ChoiceBox<String> dataSelect;
+
+    @FXML
+    public void initialize() {
         Path dataFilePath = Paths.get("config", "GraphData.txt");
-        try
-        {
-            if (!Files.exists(dataFilePath)) 
-            {
+        try {
+            if (!Files.exists(dataFilePath)) {
                 Files.createFile(dataFilePath);
-                String Line = "0"+" "+"0"+" "+"0"+"\n";
+                String Line = "0" + " " + "0" + " " + "0" + "\n";
                 String NewData = "";
                 System.out.println(Line);
-                for(int i=0;i<336;i++)NewData += Line;
-                DocWriter.write("GraphData.txt",NewData);
+                for (int i = 0; i < 336; i++) NewData += Line;
+                DocWriter.write("GraphData.txt", NewData);
             }
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
             System.out.println("Folder not found.");
         }
         dataSelect.getItems().addAll(sources);
@@ -54,13 +51,11 @@ public class GraphController {
         chart.getData().clear();
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         Reader reader = new Reader("GraphData.txt");
-        if(dataSelect.getValue().equals("Moisture"))
-        {
+        if (dataSelect.getValue().equals("Moisture")) {
             reader.nextInt();
             reader.nextInt();
         }
-        if(dataSelect.getValue().equals("Temperature"))
-        {
+        if (dataSelect.getValue().equals("Temperature")) {
             reader.nextInt();
         }
         int count = 1;
@@ -83,8 +78,7 @@ public class GraphController {
         pause.play();
     }
 
-    private void SwitchData(ActionEvent event)
-    {
+    private void SwitchData(ActionEvent event) {
         launchGraph();
     }
 

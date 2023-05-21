@@ -1,6 +1,7 @@
 package gg.com;
 
 import org.eclipse.paho.client.mqttv3.*;
+
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
 
@@ -13,18 +14,19 @@ public class MqttController implements Runnable {
     private static final int QOS = 0; //sub and pub quality of service
     private static String[] dataBuffer = new String[21];
     MqttClient mqttClient;
-    
+
     MqttController() throws Exception {
 
-        for(int i=0;i<21;i++)dataBuffer[i]=null;
-            try {
-                this.mqttClient = new MqttClient(URL, CLIENT_ID);
-                mqttClient.connect();
-            } catch (Exception e){}
+        for (int i = 0; i < 21; i++) dataBuffer[i] = null;
+        try {
+            this.mqttClient = new MqttClient(URL, CLIENT_ID);
+            mqttClient.connect();
+        } catch (Exception e) {
         }
+    }
 
     MqttClient getClient() {
-        
+
         return mqttClient;
     }
 
@@ -35,7 +37,8 @@ public class MqttController implements Runnable {
             msg.setQos(QOS);
             msg.setRetained(false);
             mqttClient.publish(PUB_TOPIC, msg);
-        } catch (Exception e){}
+        } catch (Exception e) {
+        }
     }
 
     void publish(String message, boolean isRetainedInBroker) throws Exception {
@@ -45,60 +48,56 @@ public class MqttController implements Runnable {
             msg.setQos(QOS);
             msg.setRetained(isRetainedInBroker);
             mqttClient.publish(PUB_TOPIC, msg);
-        } catch (Exception e){}
+        } catch (Exception e) {
+        }
     }
 
     public void subscribe(App app) throws Exception {
 
         mqttClient.setCallback(new MqttCallback() {
-            
+
             public void connectionLost(Throwable cause) {
                 app.reconnectBroker();
             }
-            
+
             public void messageArrived(String topic, MqttMessage message) {
                 String text = message.toString();
-                dataBuffer[text.charAt(0)-'a']=text.substring(1);
+                dataBuffer[text.charAt(0) - 'a'] = text.substring(1);
                 boolean messagecomplete = true;
-                for(int i=0;i<21&&messagecomplete;i++)if(dataBuffer[i]==null)messagecomplete = false;
-                if(messagecomplete)
-                {
+                for (int i = 0; i < 21 && messagecomplete; i++) if (dataBuffer[i] == null) messagecomplete = false;
+                if (messagecomplete) {
                     String result = "";
                     String resultreversed = "";
                     String resultfinal = "";
-                    for(int i=0;i<21;i++)
-                    {
+                    for (int i = 0; i < 21; i++) {
                         result += dataBuffer[i];
                         dataBuffer[i] = null;
                     }
                     result = ',' + result;
-                    for(int i=result.length()-1;i>=0;i--)resultreversed += result.charAt(i);
-                    for(int i=0;i<resultreversed.length()-1;i++)
-                    {
-                        if(resultreversed.charAt(i)==',')
-                        {
-                            for (int j = i + 1; j < resultreversed.length(); j++)
-                            {
-                                if(resultreversed.charAt(j)==',')
-                                {
-                                    String temp = resultreversed.substring(i+1,j);
-                                    j=result.length();
-                                    for(int k=temp.length()-1;k>=0;k--)resultfinal+=temp.charAt(k);
+                    for (int i = result.length() - 1; i >= 0; i--) resultreversed += result.charAt(i);
+                    for (int i = 0; i < resultreversed.length() - 1; i++) {
+                        if (resultreversed.charAt(i) == ',') {
+                            for (int j = i + 1; j < resultreversed.length(); j++) {
+                                if (resultreversed.charAt(j) == ',') {
+                                    String temp = resultreversed.substring(i + 1, j);
+                                    j = result.length();
+                                    for (int k = temp.length() - 1; k >= 0; k--) resultfinal += temp.charAt(k);
                                 }
                             }
-                            resultfinal+=" ";
+                            resultfinal += " ";
                         }
                     }
-                    DocWriter.write("GraphData.txt",resultfinal);
+                    DocWriter.write("GraphData.txt", resultfinal);
                 }
             }
 
-            public void deliveryComplete(IMqttDeliveryToken token) {}
+            public void deliveryComplete(IMqttDeliveryToken token) {
+            }
         });
 
         mqttClient.subscribe(SUB_TOPIC, QOS);
     }
-    
+
     @Override
     public void run() {
 
@@ -112,7 +111,8 @@ public class MqttController implements Runnable {
                 msg.setRetained(false);
                 mqttClient.publish(PUB_TOPIC, msg);
                 Thread.sleep(1000);
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
         }
     }
 }

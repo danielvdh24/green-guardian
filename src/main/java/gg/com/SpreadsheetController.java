@@ -13,9 +13,8 @@ import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
-public class SpreadsheetController 
-{
-    @FXML 
+public class SpreadsheetController {
+    @FXML
     private Pane MainPane;
     @FXML
     private TextField PlantName;
@@ -34,23 +33,18 @@ public class SpreadsheetController
     @FXML
     private Label Status;
 
-    public void initialize() 
-    {
+    public void initialize() {
         Path dataFilePath = Paths.get("config", "SpreadsheetData.txt");
-        try
-        {
-            if (!Files.exists(dataFilePath)) 
-            {
+        try {
+            if (!Files.exists(dataFilePath)) {
                 Files.createFile(dataFilePath);
-                String NewData = "Plant 1"+"\n"+"50"+"\n"+"50"+"\n"+"50"+"\n";
-                DocWriter.write("SpreadsheetData.txt",NewData);
+                String NewData = "Plant 1" + "\n" + "50" + "\n" + "50" + "\n" + "50" + "\n";
+                DocWriter.write("SpreadsheetData.txt", NewData);
             }
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
             System.out.println("Folder not found.");
         }
-        
+
         Reader reader = new Reader("SpreadsheetData.txt");
         setTwoDigitNumberFilter(TempO);
         setTwoDigitNumberFilter(HumO);
@@ -59,7 +53,7 @@ public class SpreadsheetController
         PlantName.setText(reader.nextLine());
 
         update();
-        
+
         LightO.setText(reader.nextLine());
         TempO.setText(reader.nextLine());
         HumO.setText(reader.nextLine());
@@ -68,10 +62,9 @@ public class SpreadsheetController
 
     }
 
-    public void update()
-    {
+    public void update() {
         Reader reader = new Reader("GraphData.txt");
-        for(int i = 0;i<1008-3;i++)reader.nextInt();
+        for (int i = 0; i < 1008 - 3; i++) reader.nextInt();
         LightC.setText(String.valueOf(reader.nextInt()));
         TempC.setText(String.valueOf(reader.nextInt()));
         HumC.setText(String.valueOf(reader.nextInt()));
@@ -82,58 +75,45 @@ public class SpreadsheetController
         TextFormatter<String> textFormatter = new TextFormatter<>(change -> {
             String newText = change.getControlNewText();
 
-            try
-            {   
-                if(newText.length()>1&&newText.charAt(0)=='0')
-                {
+            try {
+                if (newText.length() > 1 && newText.charAt(0) == '0') {
                     return null;
                 }
-                if(newText.length()==0)
-                {
+                if (newText.length() == 0) {
                     textField.setText("0");
                     return null;
-                }
-                else if(Integer.parseInt(newText)>100||newText.length()>3)
-                {
+                } else if (Integer.parseInt(newText) > 100 || newText.length() > 3) {
                     textField.setText("100");
                     return null;
                 }
                 return change;
-            }
-            catch(Exception e)
-            {
+            } catch (Exception e) {
                 return null;
             }
-            
+
         });
         textField.setTextFormatter(textFormatter);
     }
 
-    public void CheckStatus()
-    {
-        if(Integer.parseInt(TempC.getText())>Integer.parseInt(TempO.getText())
-        && Integer.parseInt(LightC.getText())>Integer.parseInt(LightO.getText())
-        && Integer.parseInt( HumC.getText())>Integer.parseInt( HumO.getText()))
-        {
+    public void CheckStatus() {
+        if (Integer.parseInt(TempC.getText()) > Integer.parseInt(TempO.getText())
+                && Integer.parseInt(LightC.getText()) > Integer.parseInt(LightO.getText())
+                && Integer.parseInt(HumC.getText()) > Integer.parseInt(HumO.getText())) {
             Status.setText("OK");
             Status.setTextFill(Color.GREEN);
-        }
-        else 
-        {
+        } else {
             Status.setText("Alert");
             Status.setTextFill(Color.RED);
         }
     }
 
-    public void onChange()
-    {
+    public void onChange() {
         CheckStatus();
-        String NewData = PlantName.getText()+"\n"+LightO.getText()+"\n"+TempO.getText()+"\n"+HumO.getText()+"\n";
-        DocWriter.write("SpreadsheetData.txt",NewData);   
+        String NewData = PlantName.getText() + "\n" + LightO.getText() + "\n" + TempO.getText() + "\n" + HumO.getText() + "\n";
+        DocWriter.write("SpreadsheetData.txt", NewData);
     }
 
-    public void ChangeFocus()
-    {
+    public void ChangeFocus() {
         MainPane.requestFocus();
     }
 

@@ -12,6 +12,7 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.util.Duration;
+
 import java.io.IOException;
 import java.util.Objects;
 
@@ -47,12 +48,13 @@ public class App extends Application {
         subscribe();
         setCommandPub();
     }
+
     public void connectMqtt() {
         try {
             mqttController = new MqttController();
             brokerOnline = true;
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                if(mqttController != null) {
+                if (mqttController != null) {
                     new WioPubDisconnector(mqttController, mqttController.getClient());
                 }
             }));
@@ -62,6 +64,7 @@ public class App extends Application {
             brokerNotFound();
         }
     }
+
     private void initPublish() {
         try {
             if (brokerOnline) {
@@ -79,45 +82,48 @@ public class App extends Application {
                     case 1800:
                         mqttController.publish("pub1800;", true);
                         break;
-                    }
                 }
-            } catch(Exception e){
-                brokerLostConnection();
             }
-        }
-        private void subscribe(){
-            try {
-                if (brokerOnline) {
-                    mqttController.subscribe(this);
-                }
-        } catch (Exception e){
+        } catch (Exception e) {
             brokerLostConnection();
         }
     }
-        public void publish(String input){
-            try{
-                if(brokerOnline) {
-                    assert mqttController != null;
-                    mqttController.publish(input);
-                    }
-                } catch(Exception e){
-                    brokerLostConnection();
-            }
-        }
 
-        private void brokerLostConnection(){
-            alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Connection Failed!");
-            alert.setHeaderText("MQTT Connection failed" + "\n"
-                    + "Please restart your MQTT Broker!");
-            countdownTimeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> updateCountdown()));
-            countdownTimeline.setCycleCount(Animation.INDEFINITE);
-            Platform.runLater(() -> {
-                alert.showAndWait();
-            });
-            startCountdown();
+    private void subscribe() {
+        try {
+            if (brokerOnline) {
+                mqttController.subscribe(this);
+            }
+        } catch (Exception e) {
+            brokerLostConnection();
         }
-    private void brokerNotFound(){
+    }
+
+    public void publish(String input) {
+        try {
+            if (brokerOnline) {
+                assert mqttController != null;
+                mqttController.publish(input);
+            }
+        } catch (Exception e) {
+            brokerLostConnection();
+        }
+    }
+
+    private void brokerLostConnection() {
+        alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Connection Failed!");
+        alert.setHeaderText("MQTT Connection failed" + "\n"
+                + "Please restart your MQTT Broker!");
+        countdownTimeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> updateCountdown()));
+        countdownTimeline.setCycleCount(Animation.INDEFINITE);
+        Platform.runLater(() -> {
+            alert.showAndWait();
+        });
+        startCountdown();
+    }
+
+    private void brokerNotFound() {
         alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("Broker not Connected!");
         alert.setHeaderText("MQTT Connection failed or broker disconnected" + "\n"
@@ -129,6 +135,7 @@ public class App extends Application {
         });
         startCountdown();
     }
+
     public void reconnectBroker() {
         brokerOnline = false;
         Platform.runLater(() -> {
@@ -154,7 +161,7 @@ public class App extends Application {
             alert.close();
             countdownTimeline.stop();
             alert = null;
-            if(!brokerOnline){
+            if (!brokerOnline) {
                 connectMqtt();
             } else {
                 initPublish();
@@ -163,8 +170,8 @@ public class App extends Application {
         }
     }
 
-    private void setCommandPub(){
-        if(brokerOnline) {
+    private void setCommandPub() {
+        if (brokerOnline) {
             CommandsController.setPublisher(this);
         }
     }
@@ -178,8 +185,7 @@ public class App extends Application {
         return fxmlLoader.load();
     }
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         launch();
     }
 
