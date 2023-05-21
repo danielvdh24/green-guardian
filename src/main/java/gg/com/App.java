@@ -74,21 +74,19 @@ public class App extends Application {
                 assert mqttController != null;
                 switch (preferences.getInterval()) {
                     case 5:
-                        mqttController.publish("pub5;");
+                        mqttController.publish("pub5;", true);
                         break;
                     case 60:
-                        mqttController.publish("pub60;");
+                        mqttController.publish("pub60;", true);
                         break;
                     case 300:
-                        mqttController.publish("pub300;");
+                        mqttController.publish("pub300;", true);
                         break;
                     case 1800:
-                        mqttController.publish("pub1800;");
+                        mqttController.publish("pub1800;", true);
                         break;
                 }
                 mqttController.subscribe(this);
-                //mqttController.publish("timeScedOn;1200;1500;");
-
             }
         } catch (Exception e){
             alert = new Alert(Alert.AlertType.WARNING);

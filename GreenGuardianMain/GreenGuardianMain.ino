@@ -15,25 +15,24 @@ TFT_eSPI tft;
 //Setup for temperature sensor
 #include "DHT.h"
 #include <unordered_map>
-#include <ctime>
 using namespace std;
 
-//Pin definitions for rgb stick and temperature sensor
+//Pin definitions for rgb stick and sensors
 #define DHTPIN A1
 #define DHTTYPE DHT11
 DHT dht(DHTPIN, DHTTYPE);
 #define PIN            BCM3
 #define NUMPIXELS      10
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
-
 const int moisturePin = A0;
 const int temperaturePin = A1;
 const int ledPin = A2;
+
 bool isTestLight = true;
 bool buzzerOn = true;        //Initialize the boolean variable as true, to track if the buzzer is on
 const int maxTemp = 30;      //Temperature limit for plant
 
-//variable for data history
+//variables for data history
 const int queueSize = 336; // maximum size of the queue
 int lightQueue[queueSize]; // array to hold the queue
 int moistureQueue[queueSize]; // array to hold the moisture queue
@@ -53,21 +52,24 @@ bool modeIsSetup = false;
 bool wifiIsConnected = false;
 bool brokerIsConnected = false;
 
-//Insert values below:
+//ipv4 address provided by router and running broker port
 IPAddress brokerIp(0, 0, 0, 0);
 int port = 0;
 
-//Insert values below:
+//variables for wio/pc mqtt topics and wio mqtt client name
+char clientName[] = "WIO_TERMINAL";
 char pubTopic[] = "sensordata";
 char subTopic[] = "commands";
-char clientName[] = "fromarduino";
 
+//variables for wio wifi and wio mqtt client
 WiFiClient* wioClient = nullptr;
 PubSubClient* mqttClient = nullptr;
 
+//variables for text spacing vertically
 int Y_Cord_Start_Pos = 0;
 int text_Y_Margin_Offset = 0;
 
+//map of commandkey-names and their associated integer values
 std::unordered_map<std::string, int> commands = {
   {"pub5", 1},
   {"pub60", 2},
@@ -76,15 +78,18 @@ std::unordered_map<std::string, int> commands = {
   {"stoppub", 5},
 };
 
+//variables for mqtt publish frequency and oughtness
 boolean doPub = false;
+boolean timeToPub = true;
 int timeSincePub = 0; //secs
-int pubFrequencySec = 0; //secs
+int pubFrequencySec = 5; //secs
 
+//variables for time-of-the-day tracking for led light bulb manual mode
 string localTime = ""; //HHmm
-
 string ledScedStartTime = ""; //HHmm
 string ledScedEndTime = ""; //HHmm
 
+//variables for sensor readings
 int moistureLevel = 0;
 int temperatureLevel = 0;
 int lightLevel = 0;
@@ -117,11 +122,13 @@ void setup(){
 }
 
 void setupWifi(){
+
   wioClient = new WiFiClient;
   WiFi.disconnect();
 }
 
 void setupDataDisplay(){
+
   tft.setFreeFont(NULL);
   tft.fillScreen(TFT_GREEN);
   tft.fillRect(10,10,300,220, TFT_DARKGREEN);
@@ -157,6 +164,7 @@ long addValueToQueueAndCalculateAverage(int value, int* queue, int& index) {
 }
 
 void drawStartingScreen() {
+
   tft.setFreeFont(NULL);
   tft.setTextSize(1);
   tft.fillScreen(TFT_DARKGREEN);
@@ -178,6 +186,7 @@ void drawStartingScreen() {
 }
 
 void handleSwitchInput() {
+
   int selectedMode = 0;
   while (true) {
     if (digitalRead(WIO_5S_LEFT) == LOW){
@@ -202,16 +211,19 @@ void handleSwitchInput() {
 }
 
 void toggleOnline(){
+
   tft.drawRect(25, 197, 100, 20, TFT_CYAN);
   tft.drawRect(190, 197, 100, 20, TFT_DARKGREEN);
 }
 
 void toggleOffline(){
+
   tft.drawRect(190, 197, 100, 20, TFT_CYAN);
   tft.drawRect(25, 197, 100, 20, TFT_DARKGREEN);
 }
 
 void connectWifi(){
+
   displayLCDmessage("(Re) Connecting To WiFi...", tft.color565(20, 70, 150), FM9, true, true, 50);
   displayLCDmessage("(Connection Keeps Failing? Fix:", tft.color565(70, 50, 50), FF25, true, false);
   displayLCDmessage("1. WiFi Turned Off", tft.color565(70, 50, 50), FF25, true, false);
@@ -222,7 +234,9 @@ void connectWifi(){
   delay(1500);
 
   WiFi.begin(SSID, PASS);
+  
   if (WiFi.status() != WL_CONNECTED){
+
     displayLCDmessage("Failed To Connect To WiFi", tft.color565(70, 0, 0), FF25, true, true, 60);
     displayLCDmessage("Retry:", tft.color565(0, 70, 70), FM9, true, false);
     displayLCDmessage("Press (Top Left Button)", tft.color565(0, 70, 70), FM9, true, false);
@@ -238,18 +252,22 @@ void connectWifi(){
       }
     }
   }
+
   displayLCDmessage("WiFi Connected!", tft.color565(0, 110, 0), FF6, true, true, 110);
   delay(3000);
   wifiIsConnected = true;
+
 }
 
 void setupMqtt(){
+
   mqttClient = new PubSubClient(*wioClient);
   mqttClient->setServer(brokerIp, port);
   mqttClient->setCallback(handleSubMessage);
 }
 
 void connectMqtt(){
+
   doPub = false;
   displayLCDmessage("(Re) Connecting to MQTT Broker...", tft.color565(70, 50, 100), FF25, true, true, 60);
   displayLCDmessage("(Connection Keeps Failing? Fix:", TFT_BLACK, FF33, true, false);
@@ -283,48 +301,36 @@ void connectMqtt(){
   }
 }
 
-  void publishMqtt(){
+void publishMqtt(){
 
   for (int i = 0; i < 21; i++){
+    string packet = string(1, ((char) 97 + i));
+    for (int j = i * 16; j < (i + 1) * 16; j++){
+      int mappedLight = map(lightQueue[j], 0, 1300, 0, 100);
+      int mappedMoisture = 0;
+      if (moistureQueue[j] >= 0 && moistureQueue[j] < 300) {     
+        mappedMoisture = map(moistureQueue[j], 0, 299, 0, 30);
+      } else if (moistureQueue[j] >= 300 && moistureQueue[j] < 600) {
+        mappedMoisture = map(moistureQueue[j], 300, 599, 30, 70);
+      } else {
+        mappedMoisture = map(moistureQueue[j], 600, 1023, 70, 100);
+      }
+      packet += to_string(mappedLight) + "," + to_string(temperatureQueue[j]) + "," + to_string(mappedMoisture) + ",";
+    } 
 
-  string packet = string(1, ((char) 97 + i));
-
-  for (int j = i * 16; j < (i + 1) * 16; j++){
-
-    int mappedLight = map(lightQueue[j], 0, 1300, 0, 100);
-
-    int mappedMoisture = 0;
-
-    if (moistureQueue[j] >= 0 && moistureQueue[j] < 300) {           
-      mappedMoisture = map(moistureQueue[j], 0, 299, 0, 30);
-    } else if (moistureQueue[j] >= 300 && moistureQueue[j] < 600) {
-      mappedMoisture = map(moistureQueue[j], 300, 599, 30, 70);
-    } else {
-      mappedMoisture = map(moistureQueue[j], 600, 1023, 70, 100);
-    }
-
-    packet += to_string(mappedLight) + "," + to_string(temperatureQueue[j]) + "," + to_string(mappedMoisture) + ",";
-
-    //packet += to_string(lightQueue[j]) + "," + to_string(temperatureQueue[j]) + "," + to_string(moistureQueue[j]) + ",";
-  
-  } 
-
-  const char* charpacket = packet.c_str();
-
-  mqttClient->publish(pubTopic, charpacket);
+    const char* charpacket = packet.c_str();
+    mqttClient->publish(pubTopic, charpacket);
 
   } 
-
-  //remove later - testing purposes
-  //mqttClient->publish(pubTopic, " ");
-
 }
 
 void subscribeMqtt(){
+
   mqttClient->subscribe(subTopic);
 }
 
 void displayLCDmessage(char* message, uint16_t textColor, const GFXfont* font, boolean centerAlign, boolean clearPrevLCD, int Y_Cord_Start_Pos){
+
   ::Y_Cord_Start_Pos = Y_Cord_Start_Pos;
   if (clearPrevLCD){
     tft.fillScreen(TFT_WHITE);
@@ -338,114 +344,82 @@ void displayLCDmessage(char* message, uint16_t textColor, const GFXfont* font, b
 
 void handleSubMessage(char* topic, byte* payload, unsigned int length){
 
-  if (isdigit((char) payload[0])){  //topic = time
-
+  if (isdigit((char) payload[0])){
     localTime = "";
-
     for (int i = 0; i < length; i++){
-      
       localTime += (char) payload[i];
-
     }
-
-  } else { //topic == commamnd
-
-      string msg = "";
-
-      boolean isFirstEncounter = true;
-
-      boolean isSecondEncounter = true;
-
-      string commandKey = "";
-
-      char symbol = '\0';
-
-      for (int i = 0; i < length; i++){
-
+  } else {
+    string msg = "";
+    boolean isFirstEncounter = true;
+    boolean isSecondEncounter = true;
+    string commandKey = "";
+    char symbol = '\0';
+    for (int i = 0; i < length; i++){
       symbol = (char) payload[i];
-
       if (symbol == ';'){ 
-
         if (isFirstEncounter){
           commandKey = msg;
           isFirstEncounter = false;
-
           if (i == length - 1){
-
             break;
           }
-
         } else {
-
           if (isSecondEncounter){
-
             ledScedStartTime = msg;
-
             isSecondEncounter = false;
-
           } else {
-
             ledScedEndTime = msg;
           }
-
         }
-
         msg.clear();
-
         continue;
       }
 
       msg += symbol;
+    }
 
-      }
+    int commandVal = commands.at(commandKey);
+    
+    if (commandVal < 5){
+      timeSincePub = 0;
+      doPub = true;
+    }
+    
+    switch(commandVal){
+      case 1:
+      pubFrequencySec = 5;
+      break;
 
-      const char* msg1 = commandKey.c_str();
+      case 2:
+      pubFrequencySec = 60;
+      break;
 
-      switch(commands.at(commandKey)){
-        case 1:
-          timeSincePub = 0;
-          pubFrequencySec = 5;
-          doPub = true;
-          break;
+      case 3:
+      pubFrequencySec = 300;
+      break;
 
-        case 2:
-          timeSincePub = 0;
-          pubFrequencySec = 60;
-          doPub = true;
-          break;
+      case 4:
+      pubFrequencySec = 1800;
+      break;
 
-        case 3:
-          timeSincePub = 0;
-          pubFrequencySec = 300;
-          doPub = true;
-          break;
-
-        case 4:
-          timeSincePub = 0;
-          pubFrequencySec = 1800;
-          doPub = true;
-          break;
-
-        case 5:
-          doPub = false;
-          timeSincePub = 0;
-          break;
-      }
+      case 5:
+      doPub = false;
+      break;
+    }
   }
 }
 
 void loop(){
-
-  //test
-  doPub = true;
-  pubFrequencySec = 10;
 
   if (showStartingScreen){
     drawStartingScreen();
     modeIsSetup = false;
     showStartingScreen = false;
   }
+  
   if(onlineMode){
+
     if (WiFi.status() != WL_CONNECTED){
       wifiIsConnected = false;
       tft.setTextSize(NULL);
@@ -456,6 +430,7 @@ void loop(){
           return;
         }
       }
+
       setupMqtt();
     }
 
@@ -477,55 +452,55 @@ void loop(){
     modeIsSetup = true;
   }
 
-    //remove later -- only for testing purposes
-    moistureLevel = 1000;
-    temperatureLevel = 40;
-    lightLevel = 1200;
-
-    //test
-    /*moistureLevel = analogRead(moisturePin);
-    temperatureLevel = dht.readTemperature();
-    lightLevel = analogRead(WIO_LIGHT);*/
+  moistureLevel = analogRead(moisturePin);
+  temperatureLevel = dht.readTemperature();
+  lightLevel = analogRead(WIO_LIGHT);
     
-    if (isTestLight) {
-      testLight();
-    } else {
-      testMoisture();
-    }
-    if (digitalRead(BUTTON_3) == LOW) {
-      delay(200);
-      isTestLight = !isTestLight; //Toggle to change mode of RGB stick
-      delay(200);
-    }
+  if (isTestLight) {
+    testLight();
+  } else {
+    testMoisture();
+  }
+
+  if (digitalRead(BUTTON_3) == LOW) {
+    delay(200);
+    isTestLight = !isTestLight; //Toggle to change mode of RGB stick
+    delay(200);
+  }
 
   if (digitalRead(BUTTON_2) == LOW) {
       buzzerOn = !buzzerOn;
       delay(100);
-    }
+  }
 
-    drawScreen();
-    checkAddToQueue();
+  drawScreen();
+  checkAddToQueue();
+  
   if(onlineMode){
-
     if(doPub){
+      if (timeSincePub == pubFrequencySec){
+        timeToPub = true;
+        timeSincePub = 0;
+      }
 
-      timeSincePub++;
-
-      if(timeSincePub >= pubFrequencySec){
-      timeSincePub = 0;
-      publishMqtt();
+      if(timeToPub){
+        publishMqtt();
+        timeToPub = false;
       }
     }
 
+    timeSincePub++;
     mqttClient->loop();
   }
 }
 
 void drawScreen(){
+  
   unsigned long startTime = millis();
   while(millis() < startTime + 500){
       //Wait 500ms
   }
+
   tft.fillRect(220,22,80,50, TFT_GREEN);
   tft.fillRect(220,105,80,40, TFT_GREEN);
   tft.fillRect(220,178,80,40, TFT_GREEN);
@@ -582,24 +557,21 @@ void drawScreen(){
 }
 
 void checkAddToQueue(){
-  
-  addToQueueTimer++;
-  
-  if (addToQueueTimer >= interval) {
 
+  addToQueueTimer++;
+  if (addToQueueTimer >= interval) {
     addToQueueTimer = 0;
     //Add the value to the queue and calculate the average total value of the queue
     int moistureAverage = addValueToQueueAndCalculateAverage(moistureLevel, moistureQueue, moistureIndex);
-
     //Add the value to the queue and calculate the average total value of the queue
     int lightAverage = addValueToQueueAndCalculateAverage(lightLevel, lightQueue, lightIndex);
-
     //Add the value to the queue and calculate the average total value of the queue
     int temperatureAverage = addValueToQueueAndCalculateAverage(temperatureLevel, temperatureQueue, temperatureIndex);
   } 
 }
 
 void testLight(){
+
  pixels.clear();
  int range = map(lightLevel, 0, 1300, 0, 10);         //Map light values to a range to activate LEDs
  if(range < 3 || range > 8){
@@ -611,10 +583,13 @@ void testLight(){
    pixels.setPixelColor(i, pixels.Color(255,255,0));  //Yellow - sufficient
    }
  }
+
  pixels.show();
+
 }
 
 void testMoisture(){
+
  pixels.clear();
  int range;
   if (moistureLevel >= 0 && moistureLevel < 300) {           //Dry - brown
@@ -633,10 +608,13 @@ void testMoisture(){
      pixels.setPixelColor(i, pixels.Color(0,0,255));
     }
   }
+
  pixels.show();
+
 }
 
 void testTemperature(int temp){
+
   if(temp >= maxTemp){
     digitalWrite(ledPin, HIGH);
   } else {
@@ -645,6 +623,7 @@ void testTemperature(int temp){
 }
 
 void errorSound() {
+  
   const unsigned long buzzerBeep = 400;
   const unsigned long shortPause = 300;
   const int buzzerFrequency = 150;
@@ -664,6 +643,7 @@ void errorSound() {
         state = 1;
       }
       break;
+      
     case 1:
       if (elapsedTime < shortPause) {
         analogWrite(WIO_BUZZER, 0);
