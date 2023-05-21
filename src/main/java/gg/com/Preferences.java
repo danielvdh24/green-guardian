@@ -17,14 +17,19 @@ public class Preferences {
     boolean online;
     boolean manual;
     boolean light;
+    String startTime;
+    String endTime;
 
     private Preferences() {
+        //default values if no config file found
         scene = "SpreadsheetScene";
         interval = 5;
         notifications = false;
         online = true;
         manual = false;
         light = true;
+        startTime = "1800";
+        endTime = "0500";
     }
 
     public String getScene() {
@@ -73,6 +78,17 @@ public class Preferences {
 
     public void setLight(boolean light){
         this.light = light;
+    }
+
+    public void setStartTime(String startTime){ this.startTime = startTime;}
+
+    public String getStartTime() {
+        return startTime;
+    }
+    public void setEndTime(String endTime){this.endTime = endTime;}
+
+    public String getEndTime(){
+        return endTime;
     }
 
     public static void initConfig(){

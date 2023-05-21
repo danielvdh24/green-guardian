@@ -21,7 +21,9 @@ public class CommandsController {
     private Label powerButtonLabel, manualButtonLabel, lightButtonLabel, saveErrorLabel;
     @FXML
     private TextField startHour, endHour, startMinute, endMinute;
-    private Boolean online, manual, light;
+    private static String timeStart, timeEnd;
+    private static Boolean online, manual, light;
+    private static App publisher;
 
     public void initialize() {
         setTwoDigitNumberFilter(startHour);
@@ -30,6 +32,16 @@ public class CommandsController {
         setTwoDigitNumberFilter(endMinute);
 
         Preferences preferences = Preferences.getPreferences();
+        String startTime = preferences.getStartTime();
+        String startTimeHour = startTime.substring(0,2);
+        String startTimeMin = startTime.substring(2);
+        String endTime = preferences.getEndTime();
+        String endTimeHour = endTime.substring(0,2);
+        String endTimeMin = endTime.substring(2);
+        startHour.setText(startTimeHour);
+        startMinute.setText(startTimeMin);
+        endHour.setText(endTimeHour);
+        endMinute.setText(endTimeMin);
         switchState(preferences.getOnline());
         online = preferences.getOnline();
         switchManual(preferences.getManual());
@@ -56,7 +68,7 @@ public class CommandsController {
         Preferences preferences = Preferences.getPreferences();
         preferences.setOnline(online);
         Preferences.writePreferenceToFile(preferences);
-        // mqtt switch command
+        publisher.publish(getOnline());
     }
 
     @FXML
@@ -66,7 +78,7 @@ public class CommandsController {
         Preferences preferences = Preferences.getPreferences();
         preferences.setManual(manual);
         Preferences.writePreferenceToFile(preferences);
-        // mqtt manual mode command
+        publisher.publish(getManual());
     }
 
     @FXML
@@ -76,7 +88,7 @@ public class CommandsController {
         Preferences preferences = Preferences.getPreferences();
         preferences.setLight(light);
         Preferences.writePreferenceToFile(preferences);
-        // mqtt light mode command
+        publisher.publish(getLight());
     }
 
     @FXML
@@ -106,11 +118,13 @@ public class CommandsController {
             saveErrorLabel.setVisible(true);
             return;
         }
-        String timeStart = startHour.getText() + startMinute.getText(); //Kai
-        String timeEnd = endHour.getText() + endMinute.getText(); //Kai
-        System.out.println(timeStart);
-        System.out.println(timeEnd);
-        // KAI mqtt.publish("codekey;" + timeStart + ";" + timeEnd + ";");
+        timeStart = startHour.getText() + startMinute.getText();
+        timeEnd = endHour.getText() + endMinute.getText();
+        Preferences preferences = Preferences.getPreferences();
+        preferences.setStartTime(timeStart);
+        preferences.setEndTime(timeEnd);
+        Preferences.writePreferenceToFile(preferences);
+        publisher.publish(getLight());
     }
 
     private void switchState(boolean online){
@@ -139,8 +153,8 @@ public class CommandsController {
         }
     }
 
-    private void switchLight(boolean light){
-        if(light){
+    private void switchLight(boolean light) {
+        if (light) {
             lightButtonCircle.setStroke(Color.YELLOW);
             lightButtonLabel.setText("Keep Lights ON");
         } else {
@@ -148,6 +162,40 @@ public class CommandsController {
             lightButtonLabel.setText("Keep Lights OFF");
         }
     }
+    private static String getManual(){
+            if(manual){
+                return "automaticOff;";
+            } else {
+                return "automaticOn;";
+            }
+        }
+        private static String getOnline(){
+            if(online){
+                return "activeOn;";
+            } else {
+                return "activeOff;";
+            }
+        }
+        private static String getLight(){
+            if (light) {
+                return "timeScedOn" + ";" + timeStart + ";" + timeEnd + ";";
+            } else {
+                return "timeScedOff" + ";" + timeStart + ";" + timeEnd + ";";
+            }
+        }
+        public static void setPublisher(App app){
+        publisher = app;
+        Preferences preferences = Preferences.getPreferences();
+        timeStart = preferences.getStartTime();
+        timeEnd = preferences.getEndTime();
+        online = preferences.getOnline();
+        manual = preferences.getManual();
+        light = preferences.getLight();
+        publisher.publish(getOnline());
+        publisher.publish(getManual());
+        publisher.publish(getLight());
+        }
+
 
     public void onSpreadSheetButtonClick() throws IOException {
         App.setRoot("SpreadsheetScene");
