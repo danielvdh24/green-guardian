@@ -48,7 +48,7 @@ Check out our product presentation [here](https://www.youtube.com/watch?v=28OYNe
 
 <table>
   <tr>
-    <td align="center"><img src="https://secure.gravatar.com/avatar/3056b6827d3d959ea87306c4d2dd0c6a?s=800&d=identicon" width="100px;"/><br/><sub><b>Daniel Van Den Heuvel</b></sub><br>@heuvel</td>
+    <td align="center"><img src="https://secure.gravatar.com/avatar/3056b6827d3d959ea87306c4d2dd0c6a?s=800&d=identicon" width="100px;"/><br/><sub><b>Daniel Van Den Heuvel</b></sub><br>@danielvdh24</td>
     <td align="center"><img src="https://secure.gravatar.com/avatar/3271ba4e481b7c393b650b96a17344d0?s=800&d=identicon" width="100px;"/><br/><sub><b>Kai Rowley</b></sub><br>@rowley</td>
     <td align="center"><img src="https://secure.gravatar.com/avatar/b42bb18c7be524e233a1810611d9d691?s=800&d=identicon" width="100px;"/><br/><sub><b>Markus Patric Warbert</b></sub><br>@warbert</td>
     <td align="center"><img src="https://secure.gravatar.com/avatar/2fc86cf92b745433d732d4a2dc12653a?s=800&d=identicon" width="100px;"/><br/><sub><b>Vlad Manea</b></sub><br>@manea</td>
@@ -64,8 +64,3 @@ Check out our product presentation [here](https://www.youtube.com/watch?v=28OYNe
     <td align="center">Mainly worked on the PC app GUI as well as documentation of the functional requirements.</td>
   </tr>
 </table>
-
-## Thanks :star:
-
-A big thank you to our [instructor](@francisco.gomes) for providing this course and giving us the opportunity to work with high quality sensors, as well as our teaching assistants [Kwabena](@kwabenaa) and [Michael](@michlars) for their continuous support :pray: 
-
