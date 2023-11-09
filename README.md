@@ -25,15 +25,15 @@ Before getting started, make sure you have all the required components listed be
 - Red LED [:link:](https://wiki.seeedstudio.com/Grove-Red_LED)
 - Blue LED [:link:](https://wiki.seeedstudio.com/Grove-Blue_LED)
 
-Refer to the [Pin Layout](https://git.chalmers.se/courses/dit113/2023/group-3/green-guardian/-/wikis/User-Manual#configuring-the-sensor-pins) to configure your system!
+Refer to the [Pin Layout](https://github.com/danielvdh24/green-guardian/wiki/User-Manual#configuring-the-sensor-pins) to configure your system!
 
 ## System Installation :wrench:
 
-Refer to the [User Manual](https://git.chalmers.se/courses/dit113/2023/group-3/green-guardian/-/wikis/User-Manual) to find an extensive guide for installing Green Guardian.
+Refer to the [User Manual](https://github.com/danielvdh24/green-guardian/wiki/User-Manual) to find an extensive guide for installing Green Guardian.
 
 ## Documentation :notebook:
 
-You can find our documentation on our [Wiki](https://git.chalmers.se/courses/dit113/2023/group-3/green-guardian/-/wikis/home).
+You can find our documentation on our [Wiki](https://github.com/danielvdh24/green-guardian/wiki).
 
 ## Product Presentation :gift:
 
