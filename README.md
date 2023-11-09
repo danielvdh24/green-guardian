@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="https://lh3.googleusercontent.com/drive-viewer/AFGJ81oVpacOVrXQjdplLT6SN_mECTXoZzhUeRldEwvdC-brkDBhIEcea8o-IBoDJeFEUbplw5BRGXZ88NwCGhnzJMZ_1zdubg=s1600" height="370px">
+    <img src="images/System Banner.png" alt="Green Guardian Banner" style="height: 370px;">
 </div>
 
 A state-of-the-art plant health monitoring system that enables plant owners to keep track of their plant's vital signs and health conditions. **Green Guardian** integrates a range of high-quality sensors, including moisture, light, and temperature sensors, to provide accurate information about the plant's environment.
@@ -13,7 +13,7 @@ By providing real-time monitoring and alerts, it allows owners to detect issues 
 
 ## System Layout
 <div align="left">
-    <img src="https://lh3.googleusercontent.com/drive-viewer/AFGJ81pIVR5ROGPxUvsJ7NwZIHODATGIbKegCwqmYbzfsXReLQOV6tfVbkcpcPu76h4XnPdrc6rIKt0Vp8Y4vG7CiRi9XdD2=s1600" height="500px">
+    <img src="images/System Layout.png" alt="Green Guardian System Layout" style="height: 500px;">
 </div>
 
 ## Getting Started :seedling:
