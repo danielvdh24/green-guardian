@@ -11,11 +11,6 @@ The project incorporates various sensors, presets, an alerting methods to cater 
 
 By providing real-time monitoring and alerts, it allows owners to detect issues early and take prompt action, ensuring optimal plant health. The system's customized presets simplify plant care by providing tailored configurations making the users experiance streamlined and convenient.
 
-## System Layout
-<div align="left">
-    <img src="images/System Layout.png" alt="Green Guardian System Layout" style="height: 500px;">
-</div>
-
 ## Getting Started :seedling:
 
 Before getting started, make sure you have all the required components listed below. You will also need multiple jumper wires to connect the components together.
