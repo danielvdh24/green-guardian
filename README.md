@@ -2,20 +2,13 @@
     <img src="images/System Banner.png" alt="Green Guardian Banner" style="height: 370px;">
 </div>
 
-A state-of-the-art plant health monitoring system that enables plant owners to keep track of their plant's vital signs and health conditions. **Green Guardian** integrates a range of high-quality sensors, including moisture, light, and temperature sensors, to provide accurate information about the plant's environment.
+A state-of-the-art plant health monitoring system that enables plant owners to keep track of their plant's vital signs and health conditions. **Green Guardian** integrates a range of sensors, including moisture, light, and temperature sensors, to provide accurate information about the plant's environment.
 
-## Purpose and Benefits
-The purpose of Green Guardian is to develop an advanced plant health monitoring system that offers a diverse range of methods to track and monitor the well-being of plants in real time. 
-
-The project incorporates various sensors, presets, an alerting methods to cater to the specific requirements of different plants types. It also provides detailed information and visualizations to display the current health status of the plant as well as its historical data.
-
-By providing real-time monitoring and alerts, it allows owners to detect issues early and take prompt action, ensuring optimal plant health. The system's customized presets simplify plant care by providing tailored configurations making the users experiance streamlined and convenient.
-
-## Getting Started :seedling:
+## Getting Started
 
 Before getting started, make sure you have all the required components listed below. You will also need multiple jumper wires to connect the components together.
 
-## Required Components :electric_plug:
+## Required Components
 
 - Arduino Wio Seed Terminal [:link:](https://wiki.seeedstudio.com/Wio-Terminal-Getting-Started/)
 - GROVE Light Sensor [:link:](https://wiki.seeedstudio.com/Grove-Light_Sensor/)
@@ -25,21 +18,17 @@ Before getting started, make sure you have all the required components listed be
 - Red LED [:link:](https://wiki.seeedstudio.com/Grove-Red_LED)
 - Blue LED [:link:](https://wiki.seeedstudio.com/Grove-Blue_LED)
 
-Refer to the [Pin Layout](https://github.com/danielvdh24/green-guardian/wiki/User-Manual#configuring-the-sensor-pins) to configure your system!
+Refer to the [Pin Layout](https://github.com/danielvdh24/green-guardian/wiki/User-Manual#configuring-the-sensor-pins) to configure your system
 
-## System Installation :wrench:
+## Documentation
 
-Refer to the [User Manual](https://github.com/danielvdh24/green-guardian/wiki/User-Manual) to find an extensive guide for installing Green Guardian.
+You can find our documentation on our [Wiki](https://github.com/danielvdh24/green-guardian/wiki) which also includes the [User Manual](https://github.com/danielvdh24/green-guardian/wiki/User-Manual).
 
-## Documentation :notebook:
-
-You can find our documentation on our [Wiki](https://github.com/danielvdh24/green-guardian/wiki).
-
-## Product Presentation :gift:
+## Product Presentation
 
 Check out our product presentation [here](https://www.youtube.com/watch?v=28OYNee31-A). In the video, we provide an overview of the project through its available features, offering a visual representation of the key highlights.
 
-## Developers :bow:
+## Developers
 
 <table>
   <tr>
@@ -51,11 +40,11 @@ Check out our product presentation [here](https://www.youtube.com/watch?v=28OYNe
     <td align="center"><img src="https://git.chalmers.se/uploads/-/system/user/avatar/3821/avatar.png?width=400" width="100px;"/><br/><sub><b>Salman Babar</b></sub><br>@salmanb</td>
   </tr>
   <tr>
-    <td align="center">Assisted in Wio Terminal functionality and PC app GUI, including sensor mapping, alerts, and preferences.</td>
-    <td align="center">Contributed to establishing the Wi-Fi and MQTT connection capabilities, as well as handling reconnection scenarios. Alongside the troubleshooting guide.</td>
-    <td align="center">Developed the start up screen and a toggle between two modes of the app. Additionally, set-up automatic and manual mode for the led light.</td>
-    <td align="center">Developed WIO terminal functionality. This encompasses sensor readings, realtime UI and external RGB stick displays for sensor readings, sound and visual alert systems, plant history, plant types.</td>
-    <td align="center">Contributed to the PC GUI for representing sensor data on the screen. Specifically, Graph and Spreadsheet scenes. Also contributed in completing the connection between those scenes and the MQTT broker.</td>
-    <td align="center">Mainly worked on the PC app GUI as well as documentation of the functional requirements.</td>
+    <td align="center">Developed Wio Terminal features and PC GUI, integrating sensor data, alerts, customization, and user preferences.</td>
+    <td align="center">Established Wi-Fi and MQTT connections, including handling reconnections and providing a troubleshooting guide.</td>
+    <td align="center">Developed a start-up screen, toggle modes for the app, and an LED light controller for auto and manual operations.</td>
+    <td align="center">Implemented Wio terminal features for sensor data, real-time UI, RGB display, plant history, and alert systems.</td>
+    <td align="center">Built a PC GUI for sensor data visualization, graphs, spreadsheets, and MQTT broker integration.</td>
+    <td align="center">Designed the PC GUI, contributed documentation, and ensured functional requirements were met.</td>
   </tr>
 </table>
