@@ -37,12 +37,4 @@ Check out our product presentation [here](https://www.youtube.com/watch?v=28OYNe
     <td align="center"><img src="https://secure.gravatar.com/avatar/67c02e131c7f77b7a6503eca15d13acc?s=800&d=identicon" width="100px;"/><br/><sub><b>Danyil Akulich</b></sub><br>@danyil</td>
     <td align="center"><img src="https://git.chalmers.se/uploads/-/system/user/avatar/3821/avatar.png?width=400" width="100px;"/><br/><sub><b>Salman Babar</b></sub><br>@salmanb</td>
   </tr>
-  <tr>
-    <td align="center">Developed Wio Terminal features and PC GUI, integrating sensor data, alerts, customization, and user preferences.</td>
-    <td align="center">Established Wi-Fi and MQTT connections, including handling reconnections and providing a troubleshooting guide.</td>
-    <td align="center">Developed a start-up screen, toggle modes for the app, and an LED light controller for auto and manual operations.</td>
-    <td align="center">Implemented Wio terminal features for sensor data, real-time UI, RGB display, plant history, and alert systems.</td>
-    <td align="center">Built a PC GUI for sensor data visualization, graphs, spreadsheets, and MQTT broker integration.</td>
-    <td align="center">Designed the PC GUI, contributed documentation, and ensured functional requirements were met.</td>
-  </tr>
 </table>
