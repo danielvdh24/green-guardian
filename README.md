@@ -1,8 +1,8 @@
 <div align="center">
-    <img src="images/System Banner.png" alt="Green Guardian Banner" style="height: 370px;">
+    <img src="https://github.com/user-attachments/assets/55a0ab2e-b0c2-489d-a141-5eb5a146be53" style="height: 370px;">
 </div>
 
-A state-of-the-art plant health monitoring system that enables plant owners to keep track of their plant's vital signs and health conditions. **Green Guardian** integrates a range of sensors, including moisture, light, and temperature sensors, to provide accurate information about the plant's environment.
+A state-of-the-art plant health monitoring system that enables plant owners to keep track of their plant's vital signs and health conditions. Green Guardian integrates a range of sensors, including moisture, light, and temperature sensors, to provide accurate information about the plant's environment.
 
 ## Getting Started
 
@@ -10,19 +10,17 @@ Before getting started, make sure you have all the required components listed be
 
 ## Required Components
 
-- Arduino Wio Seed Terminal [:link:](https://wiki.seeedstudio.com/Wio-Terminal-Getting-Started/)
-- GROVE Light Sensor [:link:](https://wiki.seeedstudio.com/Grove-Light_Sensor/)
-- GROVE Moisture Sensor [:link:](https://wiki.seeedstudio.com/Grove-Moisture_Sensor/)
-- GROVE Temperature & Humidity Sensor [:link:](https://wiki.seeedstudio.com/Grove-TemperatureAndHumidity_Sensor/)
-- GROVE RGB LED Stick [:link:](https://wiki.seeedstudio.com/Grove-RGB_LED_Stick-10-WS2813_Mini)
-- Red LED [:link:](https://wiki.seeedstudio.com/Grove-Red_LED)
-- Blue LED [:link:](https://wiki.seeedstudio.com/Grove-Blue_LED)
-
-Refer to the [Pin Layout](https://github.com/danielvdh24/green-guardian/wiki/User-Manual#configuring-the-sensor-pins) to configure your system
+- [Arduino Wio Seed Terminal](https://wiki.seeedstudio.com/Wio-Terminal-Getting-Started/)
+- [GROVE Light Sensor](https://wiki.seeedstudio.com/Grove-Light_Sensor/)
+- [GROVE Moisture Sensor](https://wiki.seeedstudio.com/Grove-Moisture_Sensor/)
+- [GROVE Temperature & Humidity Sensor](https://wiki.seeedstudio.com/Grove-TemperatureAndHumidity_Sensor/)
+- [GROVE RGB LED Stick](https://wiki.seeedstudio.com/Grove-RGB_LED_Stick-10-WS2813_Mini)
+- [Red LED](https://wiki.seeedstudio.com/Grove-Red_LED)
+- [Blue LED](https://wiki.seeedstudio.com/Grove-Blue_LED)
 
 ## Documentation
 
-You can find our documentation on our [Wiki](https://github.com/danielvdh24/green-guardian/wiki) which also includes the [User Manual](https://github.com/danielvdh24/green-guardian/wiki/User-Manual).
+You can find our documentation on our [Wiki](https://github.com/danielvdh24/green-guardian/wiki) which includes the [User Manual](https://github.com/danielvdh24/green-guardian/wiki/User-Manual) and [Pin Layout](https://github.com/danielvdh24/green-guardian/wiki/User-Manual#configuring-the-sensor-pins).
 
 ## Product Presentation
 
